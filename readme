@@ -37,6 +37,5 @@ major TCP/IP interfaces still in development on OpenVMS.  These are:
 The last two now have excellent emulation of HP TCP/IP $QIO-interface and
 so support for all packages, except TCP/IP, has been dropped.  However,
 NETLIB is still a relevant and useful package.  As well as being a major
-component of MX, WATCHER and other TCP/IP based application it also now
-provides an asynchronous interface to the OpenSSL package, as well as
-the existing API.
+component of MX and other TCP/IP based application it also now provides an
+asynchronous interface to the OpenSSL package, as well as the existing API.
