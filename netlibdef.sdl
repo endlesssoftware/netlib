@@ -1,0 +1,188 @@
+{++
+{  NETLIBDEF.SDL
+{
+{  Definitions for use with NETLIB routines.
+{
+{  AUTHOR:         Tim Sneddon.
+{
+{  Copyright (c) 2012, Endless Software Solutions.
+{
+{  All rights reserved.
+{
+{  Redistribution and use in source and binary forms, with or without
+{  modification, are permitted provided that the following conditions
+{  are met:
+{
+{      * Redistributions of source code must retain the above
+{        copyright notice, this list of conditions and the following
+{        disclaimer.
+{      * Redistributions in binary form must reproduce the above
+{        copyright notice, this list of conditions and the following
+{        disclaimer in the documentation and/or other materials provided
+{        with the distribution.
+{      * Neither the name of the copyright owner nor the names of any
+{        other contributors may be used to endorse or promote products
+{        derived from this software without specific prior written
+{        permission.
+{
+{  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+{  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+{  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+{  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+{  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+{  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+{  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+{  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+{  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+{  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+{  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+{
+{  MODIFICATION HISTORY:
+{
+{  29-Sep-1993	    Madison 	Initial coding.
+{  11-Mar-1997	    Madison 	DNS updates, courtesy Claudio Allocchio.
+{  27-Nov-1997	    Madison 	Add NETLIB_M_FLUSH.
+{  07-Nov-2004      Madison     Add ALLOW_CR.
+{  20-Nov-2012      Sneddon     Translate to SDL.  This based on the C and
+{				BASIC (thanks to David Sneddon) versions.
+{--
+module NETLIBDEF;
+constant NETLIB_K_TYPE_STREAM 	    equals 1;
+constant NETLIB_K_TYPE_DGRAM  	    equals 2;
+
+constant NETLIB_K_OPTION_REUSEADDR  equals %x04;
+constant NETLIB_K_OPTION_KEEPALIVE  equals %x08;
+constant NETLIB_K_OPTION_BROADCAST  equals %x20;
+
+constant NETLIB_K_OPTION_SNDBUF	    equals %x1001;
+constant NETLIB_K_OPTION_RCVBUF	    equals %x1002;
+constant NETLIB_K_OPTION_SNDLOWAT   equals %x1003;
+constant NETLIB_K_OPTION_RCVLOWAT   equals %x1004;
+
+constant NETLIB_K_LEVEL_SOCKET	    equals %xffff;
+
+constant NETLIB_K_AF_INET    	    equals 2;
+
+constant NETLIB_K_LOOKUP_DNS 	    equals 1;
+constant NETLIB_K_LOOKUP_HOST_TABLE equals 2;
+
+constant NETLIB_K_SHUTDOWN_RECEIVER equals 0;
+constant NETLIB_K_SHUTDOWN_SENDER   equals 1;
+constant NETLIB_K_SHUTDOWN_BOTH	    equals 2;
+
+constant NETLIB_M_ALLOW_LF   	    equals %x00000001;
+constant NETLIB_M_FLUSH	    	    equals %x00000002;
+constant NETLIB_M_ALLOW_CR          equals %x00000004;
+
+constant NETLIB_M_DOMAIN_SEARCH	    equals %x00000001;
+constant NETLIB_M_NO_RECURSION	    equals %x00000002;
+
+constant NETLIB_K_DNS_TYPE_A 	    equals %x01;
+constant NETLIB_K_DNS_TYPE_NS	    equals %x02;
+constant NETLIB_K_DNS_TYPE_MD	    equals %x03;
+constant NETLIB_K_DNS_TYPE_MF	    equals %x04;
+constant NETLIB_K_DNS_TYPE_CNAME    equals %x05;
+constant NETLIB_K_DNS_TYPE_SOA	    equals %x06;
+constant NETLIB_K_DNS_TYPE_MB	    equals %x07;
+constant NETLIB_K_DNS_TYPE_MG	    equals %x08;
+constant NETLIB_K_DNS_TYPE_MR	    equals %x09;
+constant NETLIB_K_DNS_TYPE_NULL	    equals %x0A;
+constant NETLIB_K_DNS_TYPE_WKS	    equals %x0B;
+constant NETLIB_K_DNS_TYPE_PTR	    equals %x0C;
+constant NETLIB_K_DNS_TYPE_HINFO    equals %x0D;
+constant NETLIB_K_DNS_TYPE_MINFO    equals %x0E;
+constant NETLIB_K_DNS_TYPE_MX	    equals %x0F;
+constant NETLIB_K_DNS_TYPE_TXT	    equals %x10;
+constant NETLIB_K_DNS_TYPE_RP       equals %x11;
+constant NETLIB_K_DNS_TYPE_AFSDB    equals %x12;
+constant NETLIB_K_DNS_TYPE_X25      equals %x13;
+constant NETLIB_K_DNS_TYPE_ISDN     equals %x14;
+constant NETLIB_K_DNS_TYPE_RT       equals %x15;
+constant NETLIB_K_DNS_TYPE_NSAP     equals %x16;
+constant NETLIB_K_DNS_TYPE_NSAP_PTR equals %x17;
+constant NETLIB_K_DNS_TYPE_SIG      equals %x18;
+constant NETLIB_K_DNS_TYPE_KEY      equals %x19;
+constant NETLIB_K_DNS_TYPE_PX       equals %x1A;
+constant NETLIB_K_DNS_TYPE_GPOS     equals %x1B;
+constant NETLIB_K_DNS_TYPE_AAAA     equals %x1C;
+constant NETLIB_K_DNS_TYPE_LOC      equals %x1D;
+
+constant NETLIB_K_DNS_TYPE_UINFO    equals %x64;
+constant NETLIB_K_DNS_TYPE_UID      equals %x65;
+constant NETLIB_K_DNS_TYPE_GID      equals %x66;
+constant NETLIB_K_DNS_TYPE_UNSPEC   equals %x67;
+
+constant NETLIB_K_DNS_TYPE_AXFR     equals %xFC;
+constant NETLIB_K_DNS_TYPE_MAILB    equals %xFD;
+constant NETLIB_K_DNS_TYPE_MAILA    equals %xFE;
+
+constant NETLIB_K_DNS_QTYPE_ALL	    equals %xFF;
+
+constant NETLIB_K_DNS_CLASS_IN	    equals %x01;
+constant NETLIB_K_DNS_CLASS_CS	    equals %x02;
+constant NETLIB_K_DNS_CLASS_CH	    equals %x03;
+constant NETLIB_K_DNS_CLASS_HS	    equals %x04;
+constant NETLIB_K_DNS_QCLASS_ALL    equals %xFF;
+
+constant NETLIB_K_DNS_OP_STDQ	    equals 0;
+constant NETLIB_K_DNS_OP_INVQ	    equals 1;
+constant NETLIB_K_DNS_OP_STATUS	    equals 2;
+
+constant NETLIB_K_DNS_RC_SUCCESS    equals 0;
+constant NETLIB_K_DNS_RC_FMTERR	    equals 1;
+constant NETLIB_K_DNS_RC_SRVFAIL    equals 2;
+constant NETLIB_K_DNS_RC_NAMERR	    equals 3;
+constant NETLIB_K_DNS_RC_NOTIMP	    equals 4;
+constant NETLIB_K_DNS_RC_REFUSE	    equals 5;
+
+    aggregate NETLIB_DNS_HEADER structure prefix dns_;
+	queryid word unsigned;
+	flags_overlay union;
+	    flags word unsigned;
+    	    flags union tag "x";
+		recursion_desired bitfield mask;
+		truncated bitfield mask;
+		authoritative bitfield mask;
+		opcode bitfield mask length 4;
+		reply bitfield mask;
+		reply_code bitfield mask length 4;
+		xx_unused_xx bitfield mask length 3;
+		recursion_available bitfield mask;
+	    end flags;
+    	end flags_overlay;
+	qdcount word unsigned;
+	ancount word unsigned;
+	nscount word unsigned;
+	arcount word unsigned;
+    end NETLIB_DNS_HEADER;
+
+    aggregate SOCKADDRDEF structure prefix "sockaddr_";
+	family word unsigned;
+	data byte unsigned dimension 14 tag "x";
+    end SOCKADDRDEF;
+
+    aggregate INADDRDEF structure prefix "inaddr_";
+	addr longword unsigned;
+    end INADDRDEF;
+
+    aggregate SINDEF structure prefix "sin_";
+	family word unsigned;
+	port word unsigned;
+	addr INADDRDEF tag "x";
+	mbx byte unsigned dimension 8 tag "x";
+    end SINDEF;
+
+    aggregate NETLIBIOSBDEF structure prefix "iosb_";
+	status word unsigned;
+	count word unsigned;
+	unused longword unsigned;
+    end NETLIBIOSBDEF;
+
+constant NETLIB_S_MXRR_NAME  equals 128;
+    aggregate MXRRDEF structure prefix "mxrr_";
+	preferences longword unsigned;
+	"length" longword unsigned;
+	name character length NETLIB_S_MXRR_NAME;
+    end MXRRDEF;
+
+end_module NETLIBDEF;
