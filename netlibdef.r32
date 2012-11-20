@@ -1,0 +1,162 @@
+![[ CMS REPLACEMENT HISTORY, Element NETLIBDEF.R32]]
+![[ *2     7-NOV-2004 15:37:58 MADISON ""]]
+![[ *1    12-MAR-1998 16:40:54 MADISON "Initial CMS population"]]
+![[ CMS REPLACEMENT HISTORY, Element NETLIBDEF.R32]]
+!++
+!   NETLIBDEF.R32
+! 
+!   Definitions for use with NETLIB routines.
+! 
+!   COPYRIGHT © 1994, MADGOAT SOFTWARE.  ALL RIGHTS RESERVED.
+! 
+!   MODIFICATION HISTORY:
+! 
+!   04-NOV-1994	    Madison 	Initial coding (for V2.0).
+!   27-NOV-1997	    Madison 	Add NETLIB_M_FLUSH.
+!--
+
+LITERAL
+    NETLIB_K_TYPE_STREAM    	= 1,
+    NETLIB_K_TYPE_DGRAM	    	= 2,
+
+    NETLIB_K_OPTION_REUSEADDR   = 4,
+    NETLIB_K_OPTION_KEEPALIVE   = 8,
+    NETLIB_K_OPTION_BROADCAST   = 32,
+
+    NETLIB_K_OPTION_SNDBUF	= %X'1001',
+    NETLIB_K_OPTION_RCVBUF	= %X'1002',
+    NETLIB_K_OPTION_SNDLOWAT    = %X'1003',
+    NETLIB_K_OPTION_RCVLOWAT    = %X'1004',
+
+    NETLIB_K_LEVEL_SOCKET	= %X'FFFF',
+
+    NETLIB_K_AF_INET    	= 2,
+
+    NETLIB_K_LOOKUP_DNS 	= 1,
+    NETLIB_K_LOOKUP_HOST_TABLE  = 2,
+
+    NETLIB_K_SHUTDOWN_RECEIVER  = 0,
+    NETLIB_K_SHUTDOWN_SENDER    = 1,
+    NETLIB_K_SHUTDOWN_BOTH	= 2;
+
+LITERAL
+    NETLIB_M_ALLOW_LF   	= 1,
+    NETLIB_M_FLUSH  	    	= 2;
+
+LITERAL
+    NETLIB_M_DOMAIN_SEARCH	= 1,
+    NETLIB_M_NO_RECURSION	= 2;
+
+LITERAL
+    NETLIB_K_DNS_TYPE_A 	= %X'01',
+    NETLIB_K_DNS_TYPE_NS	= %X'02',
+    NETLIB_K_DNS_TYPE_MD	= %X'03',
+    NETLIB_K_DNS_TYPE_MF	= %X'04',
+    NETLIB_K_DNS_TYPE_CNAME	= %X'05',
+    NETLIB_K_DNS_TYPE_SOA	= %X'06',
+    NETLIB_K_DNS_TYPE_MB	= %X'07',
+    NETLIB_K_DNS_TYPE_MG	= %X'08',
+    NETLIB_K_DNS_TYPE_MR	= %X'09',
+    NETLIB_K_DNS_TYPE_NULL	= %X'0A',
+    NETLIB_K_DNS_TYPE_WKS	= %X'0B',
+    NETLIB_K_DNS_TYPE_PTR	= %X'0C',
+    NETLIB_K_DNS_TYPE_HINFO	= %X'0D',
+    NETLIB_K_DNS_TYPE_MINFO	= %X'0E',
+    NETLIB_K_DNS_TYPE_MX	= %X'0F',
+    NETLIB_K_DNS_TYPE_TXT	= %X'10',
+
+    NETLIB_K_DNS_QTYPE_ALL	= %X'FF',
+
+    NETLIB_K_DNS_CLASS_IN	= %X'01',
+    NETLIB_K_DNS_CLASS_CS	= %X'02',
+    NETLIB_K_DNS_CLASS_CH	= %X'03',
+    NETLIB_K_DNS_CLASS_HS	= %X'04',
+    NETLIB_K_DNS_QCLASS_ALL	= %X'FF',
+
+    NETLIB_K_DNS_OP_STDQ	= 0,
+    NETLIB_K_DNS_OP_INVQ	= 1,
+    NETLIB_K_DNS_OP_STATUS	= 2,
+
+    NETLIB_K_DNS_RC_SUCCESS	= 0,
+    NETLIB_K_DNS_RC_FMTERR	= 1,
+    NETLIB_K_DNS_RC_SRVFAIL	= 2,
+    NETLIB_K_DNS_RC_NAMERR	= 3,
+    NETLIB_K_DNS_RC_NOTIMP	= 4,
+    NETLIB_K_DNS_RC_REFUSE	= 5;
+
+LITERAL
+    DNS_S_HEADER    	    = 12;
+
+MACRO
+    DNS_W_QUERYID   	    = 0,0,16,0%,
+    DNS_W_FLAGS	    	    = 2,0,16,0%,
+    DNS_V_RECURSION_DESIRED = 2,0,1,0%,
+    DNS_V_TRUNCATED 	    = 2,1,1,0%,
+    DNS_V_AUTHORITATIVE	    = 2,2,1,0%,
+    DNS_V_OPCODE    	    = 2,3,4,0%,
+    DNS_V_REPLY	    	    = 2,7,1,0%,
+    DNS_V_REPLY_CODE	    = 2,8,4,0%,
+    DNS_V_RECURSION_AVAILABLE = 2,15,1,0%,
+    DNS_W_QDCOUNT   	    = 4,0,16,0%,
+    DNS_W_ANCOUNT   	    = 6,0,16,0%,
+    DNS_W_NSCOUNT   	    = 8,0,16,0%,
+    DNS_W_ARCOUNT   	    = 10,0,16,0%,
+    NETLIB_DNS_HEADER	    = BLOCK [DNS_S_HEADER,BYTE]%;
+
+LITERAL
+    SOCKADDR_S_SOCKADDRDEF  = 16,
+    SOCKADDR_S_DATA 	    = 14;
+
+MACRO
+    SOCKADDR_W_FAMILY	    = 0,0,16,0%,
+    SOCKADDR_X_DATA 	    = 2,0,0,0%,
+    SOCKADDRDEF	    	    = BLOCK [SOCKADDR_S_SOCKADDRDEF,BYTE]%;
+
+LITERAL
+    INADDR_S_INADDRDEF	    = 4;
+
+MACRO
+    INADDR_L_ADDR   	    = 0,0,32,0%,
+    INADDRDEF	    	    = BLOCK [INADDR_S_INADDRDEF,BYTE]%;
+
+LITERAL
+    SIN_S_SINDEF    	    = 16,
+    SIN_S_MBZ	    	    = 8;
+
+MACRO
+    SIN_W_FAMILY    	    = 0,0,16,0%,
+    SIN_W_PORT	    	    = 2,0,16,0%,
+    SIN_X_ADDR	    	    = 4,0,32,0%,
+    SIN_X_MBZ	    	    = 8,0,0,0%,
+    SINDEF  	    	    = BLOCK [SIN_S_SINDEF,BYTE]%;
+
+LITERAL
+    IOSB_S_IOSBDEF  	    = 8;
+
+MACRO
+    IOSB_W_STATUS   	    = 0,0,16,0%,
+    IOSB_W_COUNT    	    = 2,0,16,0%,
+    IOSB_L_UNUSED   	    = 4,0,32,0%,
+    IOSBDEF 	    	    = BLOCK [IOSB_S_IOSBDEF,BYTE]%;
+
+LITERAL
+    MXRR_S_MXRRDEF  	    = 136,
+    MXRR_S_NAME	    	    = 128,
+    NETLIB_S_MXRR_NAME      = 128;
+
+MACRO
+    MXRR_L_PREFERENCE	    = 0,0,32,0%,
+    MXRR_L_LENGTH   	    = 4,0,32,0%,
+    MXRR_T_NAME	    	    = 8,0,0,0%,
+    MXRRDEF 	    	    = BLOCK [MXRR_S_MXRRDEF,BYTE]%;
+!+
+!   Definitions for V1 NETLIB - OBSOLETE!
+!-
+LITERAL
+    NET_K_TCP	= 1,
+    NET_K_UDP	= 2,
+    NET_M_PUSH	= 1,
+    NET_M_NOTRM	= 2;
+MACRO
+    NET_V_PUSH	= 0,0,1,0%,
+    NET_V_NOTRM	= 0,1,1,0%;

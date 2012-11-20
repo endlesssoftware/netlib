@@ -1,0 +1,171 @@
+%TITLE 'NETLIB_GET_VERSION'
+MODULE NETLIB_GET_VERSION (IDENT='V1.0', ADDRESSING_MODE (EXTERNAL=GENERAL), MAIN=NETLIB_GET_VERSION) =
+BEGIN
+!++
+! FACILITY: 	    NETLIB
+!
+! ABSTRACT: 	    abstract
+!
+! MODULE DESCRIPTION:
+!
+!   description
+!
+! AUTHOR:   	    M. Madison
+!   	    	    COPYRIGHT © 1998, MADGOAT SOFTWARE, INC.  ALL RIGHTS RESERVED.
+!
+! CREATION DATE:    23-APR-1998
+!
+! MODIFICATION HISTORY:
+!
+!   23-APR-1998	V1.0	Madison	    Initial coding.
+!--
+    LIBRARY 'SYS$LIBRARY:STARLET';
+
+    FORWARD ROUTINE
+    	NETLIB_GET_VERSION,
+    	get_version_routine,
+    	find_image_symbol;
+
+    EXTERNAL ROUTINE
+    	LIB$SIG_TO_RET,
+    	LIB$FIND_IMAGE_SYMBOL,
+    	LIB$SET_SYMBOL;
+
+    EXTERNAL LITERAL
+    	LIB$_KEYNOTFOU;
+
+
+%SBTTL 'NETLIB_GET_VERSION'
+GLOBAL ROUTINE NETLIB_GET_VERSION = 
+BEGIN
+!++
+! FUNCTIONAL DESCRIPTION:
+!
+!   description
+!
+! RETURNS:  	cond_value, longword (unsigned), write only, by value
+!
+! PROTOTYPE:
+!
+!   NETLIB_GET_VERSION
+!
+! IMPLICIT INPUTS:  None.
+!
+! IMPLICIT OUTPUTS: None.
+!
+! COMPLETION CODES:
+!
+!   SS$_NORMAL:	    	normal successful completion.
+!
+! SIDE EFFECTS:
+!
+!   None.
+!--
+    LOCAL
+    	dsc 	: BLOCK [DSC$K_S_BLN,BYTE],
+    	buf 	: VECTOR [64,BYTE],
+    	len 	: WORD,
+    	rtnptr,
+    	status;
+
+    dsc [DSC$B_DTYPE] = DSC$K_DTYPE_T;
+    dsc [DSC$B_CLASS] = DSC$K_CLASS_S;
+    dsc [DSC$W_LENGTH] = %ALLOCATION (buf);
+    dsc [DSC$A_POINTER] = buf;
+
+    status = get_version_routine (rtnptr);
+    IF .status THEN
+    	status = (.rtnptr)(dsc, len)
+    ELSE if .status EQL LIB$_KEYNOTFOU THEN
+    BEGIN
+    	BIND old = %ASCID'NETLIB V2.1 or earlier'   : BLOCK [,BYTE];
+    	dsc [DSC$W_LENGTH] = .old [DSC$W_LENGTH];
+    	CH$MOVE (.dsc [DSC$W_LENGTH], .old [DSC$A_POINTER], .dsc [DSC$A_POINTER]);
+    	status = SS$_NORMAL;
+    END
+    ELSE
+    	dsc [DSC$W_LENGTH] = 0;
+
+    IF .status THEN
+    BEGIN
+    	dsc [DSC$A_POINTER] = CH$PLUS (buf, 7);
+    	dsc [DSC$W_LENGTH] = 1;
+    END;
+    LIB$SET_SYMBOL (%ASCID'NETLIB_OLD_V_TAG', dsc);
+    IF .status THEN
+    BEGIN
+    	dsc [DSC$A_POINTER] = CH$PLUS (buf, 8);
+    	dsc [DSC$W_LENGTH] = .len - 8;
+    END;
+    LIB$SET_SYMBOL (%ASCID'NETLIB_OLD_VERSION', dsc);
+
+    SS$_NORMAL
+
+END; ! NETLIB_GET_VERSION
+
+%SBTTL 'get_version_routine'
+ROUTINE get_version_routine (rtnptr_a) = 
+BEGIN
+!++
+! FUNCTIONAL DESCRIPTION:
+!
+!   description
+!
+! RETURNS:  	cond_value, longword (unsigned), write only, by value
+!
+! PROTOTYPE:
+!
+!   x
+!
+! IMPLICIT INPUTS:  None.
+!
+! IMPLICIT OUTPUTS: None.
+!
+! COMPLETION CODES:
+!
+!   SS$_NORMAL:	    	normal successful completion.
+!
+! SIDE EFFECTS:
+!
+!   None.
+!--
+    ENABLE
+    	LIB$SIG_TO_RET;
+
+    find_image_symbol (%ASCID'NETLIB_SHRXFR', %ASCID'NETLIB_VERSION', .rtnptr_a)
+
+END; ! get_version_routine
+
+%SBTTL 'find_image_symbol'
+ROUTINE find_image_symbol (img_a, sym_a, val_a) = 
+BEGIN
+!++
+! FUNCTIONAL DESCRIPTION:
+!
+!   description
+!
+! RETURNS:  	cond_value, longword (unsigned), write only, by value
+!
+! PROTOTYPE:
+!
+!   x
+!
+! IMPLICIT INPUTS:  None.
+!
+! IMPLICIT OUTPUTS: None.
+!
+! COMPLETION CODES:
+!
+!   SS$_NORMAL:	    	normal successful completion.
+!
+! SIDE EFFECTS:
+!
+!   None.
+!--
+
+    LIB$FIND_IMAGE_SYMBOL (.img_a, .sym_a, .val_a)
+
+END; ! find_image_symbol
+
+END
+ELUDOM
