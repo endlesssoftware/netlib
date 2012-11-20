@@ -15,8 +15,39 @@
 **  	tbs
 **
 **  AUTHOR: 	    M. Madison
-**  	    	    COPYRIGHT © 1994, 1995, 1996, 1997, 1998  MADGOAT SOFTWARE.
-**  	    	    ALL RIGHTS RESERVED.
+**
+**  Copyright (c) 2008, Matthew Madison.
+**  Copyright (c) 2012, Endless Software Solutions.
+**
+**  All rights reserved.
+**
+**  Redistribution and use in source and binary forms, with or without
+**  modification, are permitted provided that the following conditions
+**  are met:
+**
+**      * Redistributions of source code must retain the above
+**        copyright notice, this list of conditions and the following
+**        disclaimer.
+**      * Redistributions in binary form must reproduce the above
+**        copyright notice, this list of conditions and the following
+**        disclaimer in the documentation and/or other materials provided
+**        with the distribution.
+**      * Neither the name of the copyright owner nor the names of any
+**        other contributors may be used to endorse or promote products
+**        derived from this software without specific prior written
+**        permission.
+**
+**  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+**  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+**  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+**  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+**  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+**  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+**  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+**  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+**  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+**  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+**  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **
 **  CREATION DATE:  26-OCT-1994
 **
@@ -36,6 +67,8 @@
 **  	22-DEC-1998 V1.1    Madison 	Add support for UCX V5.0.
 **  	29-DEC-1998 V1.1-1  Madison 	accept() did not use V5 name; make ordering
 **  	    	    	    	    	of V5/V4 checks consistent throughout.
+**	20-NOV-2012 V1.2    Sneddon	Add support for dynamic strings in
+**					NETLIB_READ.
 **--
 */
 #ifdef TCPWARE
@@ -794,11 +827,12 @@ unsigned int netlib_read (struct CTX **xctx, struct dsc$descriptor *dsc,
     VERIFY_CTX(xctx, ctx);
     SETARGCOUNT(argc);
 
-    if (dsc->dsc$b_dtype != DSC$K_DTYPE_T && dsc->dsc$b_dtype != 0) {
+    if (dsc->dsc$b_dtype != DSC$K_DTYPE_T && dsc->dsc$b_dtype != 0)
     	return SS$_BADPARAM;
-    }
-
-    if (dsc->dsc$b_class != DSC$K_CLASS_S && dsc->dsc$b_class != 0) {
+    if (dsc->dsc$b_class == DSC$K_CLASS_D) {
+	if (dsc->dsc$w_length == 0) return SS$_BADPARAM;
+    } else {
+    	if (dsc->dsc$b_class != DSC$K_CLASS_S && dsc->dsc$b_class != 0)
     	return SS$_BADPARAM;
     }
 
