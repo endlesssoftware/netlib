@@ -177,20 +177,22 @@ literal;
 end_literal;
 end_iflanguage cc;
 
+constant SOCKADDR_S_DATA	    equals 14;
     aggregate SOCKADDRDEF structure prefix "sockaddr_";
 	family word unsigned;
-	data byte unsigned dimension 14 tag "x";
+	data byte unsigned dimension SOCKADDR_S_DATA tag "x";
     end SOCKADDRDEF;
 
     aggregate INADDRDEF structure prefix "inaddr_";
 	addr longword unsigned;
     end INADDRDEF;
 
+constant SIN_S_MBZ		    equals 8;
     aggregate SINDEF structure prefix "sin_";
 	family word unsigned;
 	port word unsigned;
 	addr INADDRDEF tag "x";
-	mbx byte unsigned dimension 8 tag "x";
+	mbz byte unsigned dimension SIN_S_MBZ tag "x";
     end SINDEF;
 
     aggregate NETLIBIOSBDEF structure prefix "iosb_";
@@ -205,6 +207,18 @@ constant NETLIB_S_MXRR_NAME  equals 128;
 	"length" longword unsigned;
 	name character length NETLIB_S_MXRR_NAME;
     end MXRRDEF;
+
+iflanguage BLISS BLISS64;
+literal;
+MACRO
+    NETLIB_DNS_HEADER	= BLOCK [DNS_S_HEADER,BYTE]%,
+    SOCKADDRDEF		= BLOCK [SOCKADDR_S_SOCKADDRDEF,BYTE]%,
+    INADDRDEF		= BLOCK [INADDR_S_INADDRDEF,BYTE]%,
+    SINDEF		= BLOCK [SIN_S_SINDEF,BYTE]%,
+    IOSBDEF		= BLOCK [IOSB_S_IOSBDEF,BYTE]%,
+    MXRRDEF		= BLOCK [MXRR_S_MXRRDEF,BYTE]%;
+end_literal;
+end_iflanguage BLISS BLISS64;
 
 iflanguage CC;
 literal;
@@ -253,11 +267,11 @@ literal;
     unsigned short netlib_hton_word(unsigned short *value);
     unsigned short netlib_ntoh_word(unsigned short *value);
     unsigned int   netlib_version(void *dsc, ...);
+#endif /* not __NETLIB_BUILD__ */
 end_literal;
 end_iflanguage CC;
 
-iflanguage ADA BASIC BLISS BLISSF BLISS64 FORTRAN FORTV3 MACRO PASCAL
-	   FORTRAN_STEVE_LIONEL PLI SDML;
+iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
 
 entry netlib_socket parameter (
     address named socket in out typename context,
@@ -314,9 +328,22 @@ entry netlib_getsockopt parameter (
 
 end_iflanguage;
 
+iflanguage BLISS BLISS64 BLISSF;
+!+
+!   Definitions for V1 NETLIB - OBSOLETE!
+!-
+LITERAL
+    NET_K_TCP   = 1,
+    NET_K_UDP   = 2,
+    NET_M_PUSH  = 1,
+    NET_M_NOTRM = 2;
+MACRO
+    NET_V_PUSH  = 0,0,1,0%,
+    NET_V_NOTRM = 0,1,1,0%;
+end_iflanguage BLISS BLISS64 BLISSF;
+
 iflanguage CC;
 literal;
-#endif /* not __NETLIB_BUILD__ */
 #endif /* __NETLIBDEF_H_LOADED__ */
 end_literal;
 end_iflanguage CC;
