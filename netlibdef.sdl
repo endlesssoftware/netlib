@@ -47,12 +47,12 @@
 {				BASIC (thanks to David Sneddon) versions.
 {--
 module NETLIBDEF;
-IFLANGUAGE CC;
-LITERAL;
+iflanguage CC;
+literal;
 #ifndef __NETLIBDEF_H_LOADED__
 #define __NETLIBDEF_H_LOADED__
-END_LITERAL;
-END_IFLANGUAGE CC;
+end_literal;
+end_iflanguage CC;
 
 constant NETLIB_K_TYPE_STREAM 	    equals 1;
 constant NETLIB_K_TYPE_DGRAM  	    equals 2;
@@ -142,6 +142,15 @@ constant NETLIB_K_DNS_RC_NAMERR	    equals 3;
 constant NETLIB_K_DNS_RC_NOTIMP	    equals 4;
 constant NETLIB_K_DNS_RC_REFUSE	    equals 5;
 
+iflanguage cc;
+literal;
+#if defined(__ALPHA) || defined(__ia64__)
+#pragma member_alignment save
+#pragma nomember_alignment
+#endif
+#pragma nostandard
+end_literal;
+end_iflanguage cc;
     aggregate NETLIB_DNS_HEADER structure prefix dns_;
 	queryid word unsigned;
 	flags_overlay union;
@@ -162,6 +171,11 @@ constant NETLIB_K_DNS_RC_REFUSE	    equals 5;
 	nscount word unsigned;
 	arcount word unsigned;
     end NETLIB_DNS_HEADER;
+iflanguage cc;
+literal;
+#pragma standard
+end_literal;
+end_iflanguage cc;
 
     aggregate SOCKADDRDEF structure prefix "sockaddr_";
 	family word unsigned;
@@ -192,18 +206,118 @@ constant NETLIB_S_MXRR_NAME  equals 128;
 	name character length NETLIB_S_MXRR_NAME;
     end MXRRDEF;
 
-IFLANGUAGE CC;
-LITERAL;
+iflanguage CC;
+literal;
 #define netlib_word_swap(x) ((((x)>>8)&0xff)|(((x)&0xff)<<8 ))
 #define netlib_long_swap(x) ((((x)>>24)&0xff)|(((x)>>8)&0xff00)|(((x)&0xff00)<<8)|((x)<<24))
 #ifndef __NETLIB_BUILD__
-END_LITERAL;
-END_IFLANGUAGE CC;
+    unsigned int netlib_socket(void **socket, ...);
+    unsigned int netlib_server_setup(void **socket, void *sa, unsigned int *salen);
+    unsigned int netlib_bind(void **socket, void *sa, unsigned int *salen, ...);
+    unsigned int netlib_getsockname(void **socket, void *sa,
+                    unsigned int *sasize, unsigned int *salen, ...);
+    unsigned int netlib_getpeername(void **socket, void *sa,
+                    unsigned int *sasize, unsigned int *salen, ...);
+    unsigned int netlib_connect(void **socket, void *sa, unsigned int *salen, ...);
+    unsigned int netlib_write(void **socket, void *bufdsc, ...);
+    unsigned int netlib_writeline(void **socket, void *bufdsc, ...);
+    unsigned int netlib_read(void **socket, void *bufdsc, ...);
+    unsigned int netlib_readline(void **socket, void *bufdsc, ...);
+    unsigned int netlib_shutdown(void **socket, ...);
+    unsigned int netlib_close(void **socket, ...);
+    unsigned int netlib_listen(void **socket, ...);
+    unsigned int netlib_accept(void **socket, void **newsock, ...);
+    unsigned int netlib_get_hostname(void *bufdsc, ...);
+    unsigned int netlib_setsockopt(void **socket, unsigned int *level,
+                    unsigned int *option, void *value, unsigned int *vallen, ...);
+    unsigned int netlib_getsockopt(void **socket, unsigned int *level,
+                    unsigned int *option, void *buffer, unsigned int *bufsize, ...);
+    unsigned int netlib_name_to_address(void **socket, unsigned int *which, void *namdsc,
+                    void *addrlist, unsigned int *addrlistsize, ...);
+    unsigned int netlib_address_to_name(void *socket, unsigned int *which, void *addr,
+                    unsigned int *addrsize, void *namdsc, ...);
+    int netlib_dns_skipname(unsigned char *bufp, unsigned short *buflen);
+    unsigned int netlib_dns_expandname(unsigned char *buf, unsigned short *buflen,
+                    unsigned char *bufp, void *namdsc, ...);
+    unsigned int netlib_dns_query(void **socket, void *namdsc,
+                    unsigned int *class, unsigned int *type,
+                    unsigned char *buf, unsigned short *bufsize, ...);
+    unsigned int netlib_strtoaddr(void *dsc, struct INADDRDEF *a);
+    unsigned int netlib_addrtostr(struct INADDRDEF *a, void *dsc, ...);
+    unsigned int netlib_connect_by_name(void **socket,
+                    void *dsc, unsigned short *port, ...);
+    unsigned int netlib_dns_mx_lookup(void **socket, void *dsc,
+                    void *mxrr, unsigned int *mxrrsize, ...);
+    unsigned int netlib_hton_long(unsigned int *value);
+    unsigned int netlib_ntoh_long(unsigned int *value);
+    unsigned short netlib_hton_word(unsigned short *value);
+    unsigned short netlib_ntoh_word(unsigned short *value);
+    unsigned int   netlib_version(void *dsc, ...);
+end_literal;
+end_iflanguage CC;
 
-IFLANGUAGE CC;
-LITERAL;
+iflanguage ADA BASIC BLISS BLISSF BLISS64 FORTRAN FORTV3 MACRO PASCAL
+	   FORTRAN_STEVE_LIONEL PLI SDML;
+
+entry netlib_socket parameter (
+    address named socket in out typename context,
+    address value named p1 in optional list typename varying_arg
+) return longword typename cond_value;
+
+entry netlib_server_setup parameter (
+) return longword typename cond_value;
+
+entry netlib_bind parameter (
+) return longword typename cond_value;
+
+entry netlib_getsockname parameter (
+) return longword typename cond_value;
+
+entry netlib_getpeername parameter (
+) return longword typename cond_value;
+
+entry netlib_connect parameter (
+) return longword typename cond_value;
+
+entry netlib_write parameter (
+) return longword typename cond_value;
+
+entry netlib_writeline parameter (
+) return longword typename cond_value;
+
+entry netlib_read parameter (
+) return longword typename cond_value;
+
+entry netlib_readline parameter (
+) return longword typename cond_value;
+
+entry netlib_shutdown parameter (
+) return longword typename cond_value;
+
+entry netlib_close parameter (
+) return longword typename cond_value;
+
+entry netlib_listen parameter (
+) return longword typename cond_value;
+
+entry netlib_accept parameter (
+) return longword typename cond_value;
+
+entry netlib_get_hostname parameter (
+) return longword typename cond_value;
+
+entry netlib_setsockopt parameter (
+) return longword typename cond_value;
+
+entry netlib_getsockopt parameter (
+) return longword typename cond_value;
+
+end_iflanguage;
+
+iflanguage CC;
+literal;
 #endif /* not __NETLIB_BUILD__ */
 #endif /* __NETLIBDEF_H_LOADED__ */
-END_LITERAL;
-END_IFLANGUAGE CC;
+end_literal;
+end_iflanguage CC;
 end_module NETLIBDEF;
