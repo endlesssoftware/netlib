@@ -47,6 +47,13 @@
 {				BASIC (thanks to David Sneddon) versions.
 {--
 module NETLIBDEF;
+IFLANGUAGE CC;
+LITERAL;
+#ifndef __NETLIBDEF_H_LOADED__
+#define __NETLIBDEF_H_LOADED__
+END_LITERAL;
+END_IFLANGUAGE CC;
+
 constant NETLIB_K_TYPE_STREAM 	    equals 1;
 constant NETLIB_K_TYPE_DGRAM  	    equals 2;
 
@@ -185,4 +192,18 @@ constant NETLIB_S_MXRR_NAME  equals 128;
 	name character length NETLIB_S_MXRR_NAME;
     end MXRRDEF;
 
+IFLANGUAGE CC;
+LITERAL;
+#define netlib_word_swap(x) ((((x)>>8)&0xff)|(((x)&0xff)<<8 ))
+#define netlib_long_swap(x) ((((x)>>24)&0xff)|(((x)>>8)&0xff00)|(((x)&0xff00)<<8)|((x)<<24))
+#ifndef __NETLIB_BUILD__
+END_LITERAL;
+END_IFLANGUAGE CC;
+
+IFLANGUAGE CC;
+LITERAL;
+#endif /* not __NETLIB_BUILD__ */
+#endif /* __NETLIBDEF_H_LOADED__ */
+END_LITERAL;
+END_IFLANGUAGE CC;
 end_module NETLIBDEF;
