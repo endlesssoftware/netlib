@@ -273,62 +273,40 @@ end_iflanguage CC;
 
 iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
 
-entry netlib_socket parameter (
-    address named socket in out typename context,
-    address value named p1 in optional list typename varying_arg
-) return longword typename cond_value;
-
-entry netlib_server_setup parameter (
-) return longword typename cond_value;
-
-entry netlib_bind parameter (
-) return longword typename cond_value;
-
-entry netlib_getsockname parameter (
-) return longword typename cond_value;
-
-entry netlib_getpeername parameter (
-) return longword typename cond_value;
-
-entry netlib_connect parameter (
-) return longword typename cond_value;
-
-entry netlib_write parameter (
-) return longword typename cond_value;
-
-entry netlib_writeline parameter (
-) return longword typename cond_value;
-
-entry netlib_read parameter (
-) return longword typename cond_value;
-
-entry netlib_readline parameter (
-) return longword typename cond_value;
-
-entry netlib_shutdown parameter (
-) return longword typename cond_value;
-
-entry netlib_close parameter (
-) return longword typename cond_value;
-
-entry netlib_listen parameter (
-) return longword typename cond_value;
-
 entry netlib_accept parameter (
+  longword unsigned named socket in,
+  longword unsigned named newsocket out,
+  address(SOCKADDRDEF) named remaddr out optional,
+  longword unsigned named remaddr_size out optional,
+  address(NETLIBIOSBDEF) named iosb out optional,
+  address(entry) named astadr in optional,
+  longword unsigned named astprm in optional
 ) return longword typename cond_value;
 
-entry netlib_get_hostname parameter (
-) return longword typename cond_value;
+entry netlib_hton_long parameter (
+  longword unsigned named "value" in
+) return longword unsigned;
 
-entry netlib_setsockopt parameter (
-) return longword typename cond_value;
+entry netlib_ntoh_long parameter (
+  longword unsigned named "value" in
+) return longword unsigned;
 
-entry netlib_getsockopt parameter (
+entry netlib_hton_word parameter (
+  word unsigned named "value" in
+) return word unsigned;
+
+entry netlib_ntoh_word parameter (
+  word unsigned named "value" in
+) return word unsigned;
+
+entry netlib_version parameter (
+  character descriptor named "dsc" out
 ) return longword typename cond_value;
 
 end_iflanguage;
 
 iflanguage BLISS BLISS64 BLISSF;
+literal;
 !+
 !   Definitions for V1 NETLIB - OBSOLETE!
 !-
@@ -340,6 +318,7 @@ LITERAL
 MACRO
     NET_V_PUSH  = 0,0,1,0%,
     NET_V_NOTRM = 0,1,1,0%;
+end_literal;
 end_iflanguage BLISS BLISS64 BLISSF;
 
 iflanguage CC;
