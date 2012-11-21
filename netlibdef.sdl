@@ -273,35 +273,38 @@ end_iflanguage CC;
 
 iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
 
-entry netlib_accept parameter (
-  longword unsigned named socket in,
-  longword unsigned named newsocket out,
-  address(SOCKADDRDEF) named remaddr out optional,
-  longword unsigned named remaddr_size out optional,
-  address(NETLIBIOSBDEF) named iosb out optional,
-  address(entry) named astadr in optional,
-  longword unsigned named astprm in optional
-) return longword typename cond_value;
-
-entry netlib_hton_long parameter (
-  longword unsigned named "value" in
-) return longword unsigned;
-
-entry netlib_ntoh_long parameter (
-  longword unsigned named "value" in
-) return longword unsigned;
-
-entry netlib_hton_word parameter (
-  word unsigned named "value" in
-) return word unsigned;
-
-entry netlib_ntoh_word parameter (
-  word unsigned named "value" in
-) return word unsigned;
-
-entry netlib_version parameter (
-  character descriptor named "dsc" out
-) return longword typename cond_value;
+entry netlib_socket returns longword unsigned;
+entry netlib_server_setup returns longword unsigned;
+entry netlib_bind returns longword unsigned;
+entry netlib_getsockname returns longword unsigned;
+entry netlib_getpeername returns longword unsigned;
+/*
+entry netlib_connect returns longword unsigned;
+entry netlib_write returns longword unsigned;
+entry netlib_writeline returns longword unsigned;
+entry netlib_read returns longword unsigned;
+entry netlib_readline returns longword unsigned;
+entry netlib_shutdown returns longword unsigned;
+entry netlib_close returns longword unsigned;
+entry netlib_listen returns longword unsigned;
+entry netlib_accept returns longword unsigned;
+entry netlib_get_hostname returns longword unsigned;
+entry netlib_setsockopt returns longword unsigned;
+entry netlib_getsockopt returns longword unsigned;
+entry netlib_name_to_address returns longword unsigned;
+entry netlib_address_to_name returns longword unsigned;
+entry netlib_dns_skipname returns longword;
+entry netlib_dns_expandname returns longword unsigned;
+entry netlib_dns_query returns longword unsigned;
+entry netlib_strtoaddr returns longword unsigned;
+entry netlib_addrtostr returns longword unsigned;
+entry netlib_connect_by_name returns longword unsigned;
+entry netlib_dns_mx_lookup returns longword unsigned;
+entry netlib_hton_long returns longword unsigned;
+entry netlib_ntoh_long returns longword unsigned;
+entry netlib_hton_word returns word unsigned;
+entry netlib_ntoh_word returns word unsigned;
+entry netlib_version returns longword unsigned;
 
 end_iflanguage;
 
