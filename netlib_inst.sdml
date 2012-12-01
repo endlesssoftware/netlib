@@ -1,4 +1,3 @@
-<INCLUDE>(ETC_DIR:DYNAMIC_SYMBOLS.SDML)
 <FRONT_MATTER>(NETLIB_INST_1)
 
 <TITLE_PAGE>
@@ -213,3 +212,18 @@ the VMS DECwindows Bookreader program (VMS V5.3 and later).  To make
 the NETLIB on-line documentation available automatically through Bookreader,
 you should add a reference to the directory containing the documentation
 (if you elected to install those files) to the DECW$BOOK logical name.
+
+<chapter>(Multi-Language Header Files\headers)
+<P>
+The NETLIB software package ships with a header file called NETLIBDEF.SDL.
+This contains definitions for the NETLIB routine entry points and the
+structures and constants used by the NETLIB routines.
+<P>
+This file can be used with the Structure Definition Language (SDL) tool
+to generate a header for any language supported by SDL.  At this point
+only headers for BLISS, C and BASIC are typically shipped as standard.  An
+example of the commands necessary to build a Fortran header using SDL are
+included below.
+<interactive>
+<s>($ )<u>(SDL/VAX/LANGUAGE=FORTRAN NETLIBDEF.SDL)
+<endinteractive>

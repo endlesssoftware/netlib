@@ -6,27 +6,12 @@
 for TCP/IP network programming on VMS systems.
 <ENDABSTRACT>
 <REVISION_INFO>(This is an updated manual.)
-<REVISION_INFO>(Operating System and Version:\OpenVMS Alpha V6.0 or later; OpenVMS Industry Standard 64 V8.2 or later)
+<REVISION_INFO>(Operating System and Version:\OpenVMS VAX V6.2 or later)
+<REVISION_INFO>(\OpenVMS Alpha V6.0 or later;)
+<REVISION_INFO>(\OpenVMS Industry Standard 64 V8.2 or later)
 <REVISION_INFO>(Software Version:\<REFERENCE>(VER))
-<ENDTITLE_PAGE>(Matthew Madison<LINE>MadGoat Software)
-
-<COPYRIGHT_PAGE>
-<PRINT_DATE>(<REFERENCE>(PRTDATE))
-<p>Permission is granted to copy and redistribute this document for
-no commercial gain.
-<P>The information in this document is subject to change without notice 
-and should not be construed as a commitment by the author.
-The author assumes no responsibility for any errors that 
-may appear in this document.
-<p><emphasis>(DISCLAIMER:\bold)   The author, the author's employer,
-    and MadGoat Software make no representations or warranties with
-    respect to the  contents hereof and specifically disclaim any
-    implied warranties of merchantability or fitness  for any particular purpose.
-<P>AXP, DEC, VAX, VMS, and OpenVMS are trademarks of Hewlett-Packard Development Company, LP.
-<P>UNIX is a trademark of The Open Group.
-<COPYRIGHT_DATE>(<REFERENCE>(COPYYEAR)\MadGoat Software.  All Rights Reserved.)
-<ENDCOPYRIGHT_PAGE>
-
+<ENDTITLE_PAGE>(Endless Software Solutions<LINE>Perth, Western Australia)
+<INCLUDE>(SRC_DIR:COPYRIGHT.SDML)
 <CONTENTS_FILE>
 
 <PREFACE>(\NETLIB_DOC_2) 
