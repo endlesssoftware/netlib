@@ -44,7 +44,7 @@ library code at run-time, rather than link-time.
 Now, fast-forward to the 21st century and OpenVMS is avilable on three
 architectures (VAX, Alpha and Industry Standard 64).  There are only three
 major TCP/IP interfaces still in development on OpenVMS.  These are:
-<LIST>(UNNUMBERED>
+<LIST>(UNNUMBERED)
 <LE>HP TCP/IP Services for OpenVMS (formerly Digital UCX)
 <LE>Process Multinet
 <LE>Process TCPware
