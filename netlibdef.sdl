@@ -1,0 +1,332 @@
+{++
+{  NETLIBDEF.SDL
+{
+{  Definitions for use with NETLIB routines.
+{
+{  AUTHOR:         Tim Sneddon.
+{
+{  Copyright (c) 2012, Endless Software Solutions.
+{
+{  All rights reserved.
+{
+{  Redistribution and use in source and binary forms, with or without
+{  modification, are permitted provided that the following conditions
+{  are met:
+{
+{      * Redistributions of source code must retain the above
+{        copyright notice, this list of conditions and the following
+{        disclaimer.
+{      * Redistributions in binary form must reproduce the above
+{        copyright notice, this list of conditions and the following
+{        disclaimer in the documentation and/or other materials provided
+{        with the distribution.
+{      * Neither the name of the copyright owner nor the names of any
+{        other contributors may be used to endorse or promote products
+{        derived from this software without specific prior written
+{        permission.
+{
+{  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+{  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+{  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+{  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+{  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+{  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+{  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+{  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+{  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+{  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+{  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+{
+{  MODIFICATION HISTORY:
+{
+{  29-Sep-1993	    Madison 	Initial coding.
+{  11-Mar-1997	    Madison 	DNS updates, courtesy Claudio Allocchio.
+{  27-Nov-1997	    Madison 	Add NETLIB_M_FLUSH.
+{  07-Nov-2004      Madison     Add ALLOW_CR.
+{  20-Nov-2012      Sneddon     Translate to SDL.  This based on the C and
+{				BASIC (thanks to David Sneddon) versions.
+{--
+module NETLIBDEF;
+iflanguage CC;
+literal;
+#ifndef __NETLIBDEF_H_LOADED__
+#define __NETLIBDEF_H_LOADED__
+end_literal;
+end_iflanguage CC;
+
+constant NETLIB_K_TYPE_STREAM 	    equals 1;
+constant NETLIB_K_TYPE_DGRAM  	    equals 2;
+
+constant NETLIB_K_OPTION_REUSEADDR  equals %x04;
+constant NETLIB_K_OPTION_KEEPALIVE  equals %x08;
+constant NETLIB_K_OPTION_BROADCAST  equals %x20;
+
+constant NETLIB_K_OPTION_SNDBUF	    equals %x1001;
+constant NETLIB_K_OPTION_RCVBUF	    equals %x1002;
+constant NETLIB_K_OPTION_SNDLOWAT   equals %x1003;
+constant NETLIB_K_OPTION_RCVLOWAT   equals %x1004;
+
+constant NETLIB_K_LEVEL_SOCKET	    equals %xffff;
+
+constant NETLIB_K_AF_INET    	    equals 2;
+
+constant NETLIB_K_LOOKUP_DNS 	    equals 1;
+constant NETLIB_K_LOOKUP_HOST_TABLE equals 2;
+
+constant NETLIB_K_SHUTDOWN_RECEIVER equals 0;
+constant NETLIB_K_SHUTDOWN_SENDER   equals 1;
+constant NETLIB_K_SHUTDOWN_BOTH	    equals 2;
+
+constant NETLIB_M_ALLOW_LF   	    equals %x00000001;
+constant NETLIB_M_FLUSH	    	    equals %x00000002;
+constant NETLIB_M_ALLOW_CR          equals %x00000004;
+
+constant NETLIB_M_DOMAIN_SEARCH	    equals %x00000001;
+constant NETLIB_M_NO_RECURSION	    equals %x00000002;
+
+constant NETLIB_K_DNS_TYPE_A 	    equals %x01;
+constant NETLIB_K_DNS_TYPE_NS	    equals %x02;
+constant NETLIB_K_DNS_TYPE_MD	    equals %x03;
+constant NETLIB_K_DNS_TYPE_MF	    equals %x04;
+constant NETLIB_K_DNS_TYPE_CNAME    equals %x05;
+constant NETLIB_K_DNS_TYPE_SOA	    equals %x06;
+constant NETLIB_K_DNS_TYPE_MB	    equals %x07;
+constant NETLIB_K_DNS_TYPE_MG	    equals %x08;
+constant NETLIB_K_DNS_TYPE_MR	    equals %x09;
+constant NETLIB_K_DNS_TYPE_NULL	    equals %x0A;
+constant NETLIB_K_DNS_TYPE_WKS	    equals %x0B;
+constant NETLIB_K_DNS_TYPE_PTR	    equals %x0C;
+constant NETLIB_K_DNS_TYPE_HINFO    equals %x0D;
+constant NETLIB_K_DNS_TYPE_MINFO    equals %x0E;
+constant NETLIB_K_DNS_TYPE_MX	    equals %x0F;
+constant NETLIB_K_DNS_TYPE_TXT	    equals %x10;
+constant NETLIB_K_DNS_TYPE_RP       equals %x11;
+constant NETLIB_K_DNS_TYPE_AFSDB    equals %x12;
+constant NETLIB_K_DNS_TYPE_X25      equals %x13;
+constant NETLIB_K_DNS_TYPE_ISDN     equals %x14;
+constant NETLIB_K_DNS_TYPE_RT       equals %x15;
+constant NETLIB_K_DNS_TYPE_NSAP     equals %x16;
+constant NETLIB_K_DNS_TYPE_NSAP_PTR equals %x17;
+constant NETLIB_K_DNS_TYPE_SIG      equals %x18;
+constant NETLIB_K_DNS_TYPE_KEY      equals %x19;
+constant NETLIB_K_DNS_TYPE_PX       equals %x1A;
+constant NETLIB_K_DNS_TYPE_GPOS     equals %x1B;
+constant NETLIB_K_DNS_TYPE_AAAA     equals %x1C;
+constant NETLIB_K_DNS_TYPE_LOC      equals %x1D;
+
+constant NETLIB_K_DNS_TYPE_UINFO    equals %x64;
+constant NETLIB_K_DNS_TYPE_UID      equals %x65;
+constant NETLIB_K_DNS_TYPE_GID      equals %x66;
+constant NETLIB_K_DNS_TYPE_UNSPEC   equals %x67;
+
+constant NETLIB_K_DNS_TYPE_AXFR     equals %xFC;
+constant NETLIB_K_DNS_TYPE_MAILB    equals %xFD;
+constant NETLIB_K_DNS_TYPE_MAILA    equals %xFE;
+
+constant NETLIB_K_DNS_QTYPE_ALL	    equals %xFF;
+
+constant NETLIB_K_DNS_CLASS_IN	    equals %x01;
+constant NETLIB_K_DNS_CLASS_CS	    equals %x02;
+constant NETLIB_K_DNS_CLASS_CH	    equals %x03;
+constant NETLIB_K_DNS_CLASS_HS	    equals %x04;
+constant NETLIB_K_DNS_QCLASS_ALL    equals %xFF;
+
+constant NETLIB_K_DNS_OP_STDQ	    equals 0;
+constant NETLIB_K_DNS_OP_INVQ	    equals 1;
+constant NETLIB_K_DNS_OP_STATUS	    equals 2;
+
+constant NETLIB_K_DNS_RC_SUCCESS    equals 0;
+constant NETLIB_K_DNS_RC_FMTERR	    equals 1;
+constant NETLIB_K_DNS_RC_SRVFAIL    equals 2;
+constant NETLIB_K_DNS_RC_NAMERR	    equals 3;
+constant NETLIB_K_DNS_RC_NOTIMP	    equals 4;
+constant NETLIB_K_DNS_RC_REFUSE	    equals 5;
+
+iflanguage cc;
+literal;
+#if defined(__ALPHA) || defined(__ia64__)
+#pragma member_alignment save
+#pragma nomember_alignment
+#endif
+#pragma nostandard
+end_literal;
+end_iflanguage cc;
+    aggregate NETLIB_DNS_HEADER structure prefix dns_;
+	queryid word unsigned;
+	flags_overlay union;
+	    flags word unsigned;
+    	    flags union tag "x";
+		recursion_desired bitfield mask;
+		truncated bitfield mask;
+		authoritative bitfield mask;
+		opcode bitfield mask length 4;
+		reply bitfield mask;
+		reply_code bitfield mask length 4;
+		xx_unused_xx bitfield mask length 3;
+		recursion_available bitfield mask;
+	    end flags;
+    	end flags_overlay;
+	qdcount word unsigned;
+	ancount word unsigned;
+	nscount word unsigned;
+	arcount word unsigned;
+    end NETLIB_DNS_HEADER;
+iflanguage cc;
+literal;
+#pragma standard
+end_literal;
+end_iflanguage cc;
+
+constant SOCKADDR_S_DATA	    equals 14;
+    aggregate SOCKADDRDEF structure prefix "sockaddr_";
+	family word unsigned;
+	data byte unsigned dimension SOCKADDR_S_DATA tag "x";
+    end SOCKADDRDEF;
+
+    aggregate INADDRDEF structure prefix "inaddr_";
+	addr longword unsigned;
+    end INADDRDEF;
+
+constant SIN_S_MBZ		    equals 8;
+    aggregate SINDEF structure prefix "sin_";
+	family word unsigned;
+	port word unsigned;
+	addr INADDRDEF tag "x";
+	mbz byte unsigned dimension SIN_S_MBZ tag "x";
+    end SINDEF;
+
+    aggregate NETLIBIOSBDEF structure prefix "iosb_";
+	status word unsigned;
+	count word unsigned;
+	unused longword unsigned;
+    end NETLIBIOSBDEF;
+
+constant NETLIB_S_MXRR_NAME  equals 128;
+    aggregate MXRRDEF structure prefix "mxrr_";
+	preferences longword unsigned;
+	"length" longword unsigned;
+	name character length NETLIB_S_MXRR_NAME;
+    end MXRRDEF;
+
+iflanguage BLISS BLISS64;
+literal;
+MACRO
+    NETLIB_DNS_HEADER	= BLOCK [DNS_S_HEADER,BYTE]%,
+    SOCKADDRDEF		= BLOCK [SOCKADDR_S_SOCKADDRDEF,BYTE]%,
+    INADDRDEF		= BLOCK [INADDR_S_INADDRDEF,BYTE]%,
+    SINDEF		= BLOCK [SIN_S_SINDEF,BYTE]%,
+    IOSBDEF		= BLOCK [IOSB_S_IOSBDEF,BYTE]%,
+    MXRRDEF		= BLOCK [MXRR_S_MXRRDEF,BYTE]%;
+end_literal;
+end_iflanguage BLISS BLISS64;
+
+iflanguage CC;
+literal;
+#define netlib_word_swap(x) ((((x)>>8)&0xff)|(((x)&0xff)<<8 ))
+#define netlib_long_swap(x) ((((x)>>24)&0xff)|(((x)>>8)&0xff00)|(((x)&0xff00)<<8)|((x)<<24))
+#ifndef __NETLIB_BUILD__
+    unsigned int netlib_socket(void **socket, ...);
+    unsigned int netlib_server_setup(void **socket, void *sa, unsigned int *salen);
+    unsigned int netlib_bind(void **socket, void *sa, unsigned int *salen, ...);
+    unsigned int netlib_getsockname(void **socket, void *sa,
+                    unsigned int *sasize, unsigned int *salen, ...);
+    unsigned int netlib_getpeername(void **socket, void *sa,
+                    unsigned int *sasize, unsigned int *salen, ...);
+    unsigned int netlib_connect(void **socket, void *sa, unsigned int *salen, ...);
+    unsigned int netlib_write(void **socket, void *bufdsc, ...);
+    unsigned int netlib_writeline(void **socket, void *bufdsc, ...);
+    unsigned int netlib_read(void **socket, void *bufdsc, ...);
+    unsigned int netlib_readline(void **socket, void *bufdsc, ...);
+    unsigned int netlib_shutdown(void **socket, ...);
+    unsigned int netlib_close(void **socket, ...);
+    unsigned int netlib_listen(void **socket, ...);
+    unsigned int netlib_accept(void **socket, void **newsock, ...);
+    unsigned int netlib_get_hostname(void *bufdsc, ...);
+    unsigned int netlib_setsockopt(void **socket, unsigned int *level,
+                    unsigned int *option, void *value, unsigned int *vallen, ...);
+    unsigned int netlib_getsockopt(void **socket, unsigned int *level,
+                    unsigned int *option, void *buffer, unsigned int *bufsize, ...);
+    unsigned int netlib_name_to_address(void **socket, unsigned int *which, void *namdsc,
+                    void *addrlist, unsigned int *addrlistsize, ...);
+    unsigned int netlib_address_to_name(void *socket, unsigned int *which, void *addr,
+                    unsigned int *addrsize, void *namdsc, ...);
+    int netlib_dns_skipname(unsigned char *bufp, unsigned short *buflen);
+    unsigned int netlib_dns_expandname(unsigned char *buf, unsigned short *buflen,
+                    unsigned char *bufp, void *namdsc, ...);
+    unsigned int netlib_dns_query(void **socket, void *namdsc,
+                    unsigned int *class, unsigned int *type,
+                    unsigned char *buf, unsigned short *bufsize, ...);
+    unsigned int netlib_strtoaddr(void *dsc, struct INADDRDEF *a);
+    unsigned int netlib_addrtostr(struct INADDRDEF *a, void *dsc, ...);
+    unsigned int netlib_connect_by_name(void **socket,
+                    void *dsc, unsigned short *port, ...);
+    unsigned int netlib_dns_mx_lookup(void **socket, void *dsc,
+                    void *mxrr, unsigned int *mxrrsize, ...);
+    unsigned int netlib_hton_long(unsigned int *value);
+    unsigned int netlib_ntoh_long(unsigned int *value);
+    unsigned short netlib_hton_word(unsigned short *value);
+    unsigned short netlib_ntoh_word(unsigned short *value);
+    unsigned int   netlib_version(void *dsc, ...);
+#endif /* not __NETLIB_BUILD__ */
+end_literal;
+end_iflanguage CC;
+
+iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
+
+entry netlib_socket returns longword unsigned;
+entry netlib_server_setup returns longword unsigned;
+entry netlib_bind returns longword unsigned;
+entry netlib_getsockname returns longword unsigned;
+entry netlib_getpeername returns longword unsigned;
+/*
+entry netlib_connect returns longword unsigned;
+entry netlib_write returns longword unsigned;
+entry netlib_writeline returns longword unsigned;
+entry netlib_read returns longword unsigned;
+entry netlib_readline returns longword unsigned;
+entry netlib_shutdown returns longword unsigned;
+entry netlib_close returns longword unsigned;
+entry netlib_listen returns longword unsigned;
+entry netlib_accept returns longword unsigned;
+entry netlib_get_hostname returns longword unsigned;
+entry netlib_setsockopt returns longword unsigned;
+entry netlib_getsockopt returns longword unsigned;
+entry netlib_name_to_address returns longword unsigned;
+entry netlib_address_to_name returns longword unsigned;
+entry netlib_dns_skipname returns longword;
+entry netlib_dns_expandname returns longword unsigned;
+entry netlib_dns_query returns longword unsigned;
+entry netlib_strtoaddr returns longword unsigned;
+entry netlib_addrtostr returns longword unsigned;
+entry netlib_connect_by_name returns longword unsigned;
+entry netlib_dns_mx_lookup returns longword unsigned;
+entry netlib_hton_long returns longword unsigned;
+entry netlib_ntoh_long returns longword unsigned;
+entry netlib_hton_word returns word unsigned;
+entry netlib_ntoh_word returns word unsigned;
+entry netlib_version returns longword unsigned;
+
+end_iflanguage;
+
+iflanguage BLISS BLISS64 BLISSF;
+literal;
+!+
+!   Definitions for V1 NETLIB - OBSOLETE!
+!-
+LITERAL
+    NET_K_TCP   = 1,
+    NET_K_UDP   = 2,
+    NET_M_PUSH  = 1,
+    NET_M_NOTRM = 2;
+MACRO
+    NET_V_PUSH  = 0,0,1,0%,
+    NET_V_NOTRM = 0,1,1,0%;
+end_literal;
+end_iflanguage BLISS BLISS64 BLISSF;
+
+iflanguage CC;
+literal;
+#endif /* __NETLIBDEF_H_LOADED__ */
+end_literal;
+end_iflanguage CC;
+end_module NETLIBDEF;
