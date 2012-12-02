@@ -24,6 +24,6 @@ $ WRITE out "<DEFINE_SYMBOL>(RELDATE\''day'-''amonth'-''year')"
 $ WRITE out "<DEFINE_SYMBOL>(RELMONTH\''month', ''year')"
 $ WRITE out "<DEFINE_SYMBOL>(PRTDATE\''day' ''month' ''year')"
 $ WRITE out "<DEFINE_SYMBOL>(VER\''ident')"
-$ WRITE out "<DEFINE_SYMBOL>(KITVER\''major'''minor')"
+$ WRITE out "<DEFINE_SYMBOL>(NUMVER\''major'''minor')"
 $ CLOSE out
 $ EXIT 1+0*F$VERIFY(v)
