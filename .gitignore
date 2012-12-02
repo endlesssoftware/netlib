@@ -3,4 +3,10 @@
 *\;*
 *-*/*
 *.jou
-
+*.tcb
+*.tce
+*.dvi*
+*.tcf
+*.tci
+*.tex
+*.int_toc

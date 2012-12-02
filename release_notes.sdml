@@ -1,0 +1,192 @@
+<FRONT_MATTER>
+
+<TITLE_PAGE>
+<TITLE>(NETLIB Release Notes)
+<ABSTRACT>(<REFERENCE>(RELMONTH))
+<P>This file contains the release notes for the NETLIB TCP/IP interface
+library.  It describes any last-minute features, restrictions, changes, or
+additions made to NETLIB.
+<ENDABSTRACT>
+<REVISION_INFO>(This is a revised manual.)
+<REVISION_INFO>(Operating System and Version:\VAX/VMS V5.5 or later;
+    	    	OpenVMS Alpha V6.2 or later)
+<REVISION_INFO>(Software Version:\<REFERENCE>(VER))
+<ENDTITLE_PAGE>(Endless Software Solutions<LINE>Perth, Western Australia)
+
+<COPYRIGHT_PAGE>
+<PRINT_DATE>(<REFERENCE>(PRTDATE))
+<p><emphasis>(DISCLAIMER:\bold)   The author, the author's employer,
+    and MadGoat Software make no representations or warranties with
+    respect to the  contents hereof and specifically disclaim any
+    implied warranties of merchantability or fitness  for any particular purpose.
+<P>AXP, DEC, ULTRIX, VAX, VMS, and OpenVMS are trademarks of Digital Equipment Corporation.
+<P>UNIX is a trademark of Unix System Laboratories, Inc.
+<P>MultiNet and TCPware are registered trademarks of Process Software Corporation.
+<P>PathWay is a registered trademark of Attachmate, Inc.
+<COPYRIGHT_DATE>(<REFERENCE>(COPYYEAR)\MadGoat Software.  All Rights Reserved.)
+<ENDCOPYRIGHT_PAGE>
+<CONTENTS_FILE>
+<ENDFRONT_MATTER>
+
+<chapter>(Update History)
+<P>This chapter describes the NETLIB update history.
+<head1>(Updates in <REFERENCE>(ver))
+<P><REFERENCE>(VER) is a maintenance release that includes the following
+fixes:
+<LIST>(UNNUMBERED)
+<LE>The fix to NETLIB_STRTOADDR provided in V2.3C introduced another
+problem, which has been corrected.
+<LE>The retry count for DNS queries was not being initialized on a
+per-nameserver basis.
+<ENDLIST>
+
+<head1>(Updates in V2.3C)
+<P>V2.3C was a maintenance release that included the following
+fixes:
+<LIST>(UNNUMBERED)
+<LE>NETLIB_STRTOADDR would successfully
+translate strings containing a dotted-decimal address followed by extra characters;
+these are now rejected.
+<LE>A new logical name, NETLIB_DNS_QUERY_TIMEOUT, is now supported
+for specifying the length of time NETLIB will wait for a DNS query to
+time out.  This is to work around timeout problems that can occur when
+a system's designated DNS servers are not local and respond too slowly
+for the default timeout.  The logical name may be defined in the process,
+job, group, or system logical name table, and should have a translation string
+that is a valid VMS delta time (e.g., <quote>(0 00:00:15)).  In addition the
+default DNS query timeout has been raised to 10 seconds from its original
+5 seconds in previous versions.
+<ENDLIST>
+
+<head1>(Updates in V2.3B)
+<P>V2.3B fixed the returned-length argument to NETLIB_READLINE so that
+it returns the actual number of characters copied to the returned string, rather than
+the length of the line read from the TCP connection (which could be greater than
+the number of bytes copied if the descriptor for the string is fixed-length).
+
+<head1>(Updates in V2.3A)
+<P>V2.3A changed the installation procedure for NETLIB,
+installing executable images, rather than linking the images at
+installation time.
+<P>In addition, V2.3A contained changes to the DNS_QUERY
+and DNS_MXLOOK routines to improve their handling of DNS error
+reply codes.
+
+<head1>(Updates in V2.2G)
+<P>V2.2G is a maintenance release that includes
+the following fixes:
+<LIST>(UNNUMBERED)
+<LE>Added more armor-plating in routines that could be executed
+at both AST and non-AST level and touch shared data structures.
+<LE>Updated NETLIB_SRI.C to prevent conflicts with new VMS IO$_XXX
+definitions.
+<LE>Fixed the Bookreader library definition so that the appropriate
+text shows up in its display.
+<ENDLIST>
+
+<HEAD1>(Updates in V2.2F)
+<P>V2.2F is a maintenance release which adds support
+for Digital TCP/IP Services for OpenVMS V5.0 and includes the
+following fixes:
+<LIST>(UNNUMBERED)
+<LE>NETLIB_DNS_EXPANDNAME has been fixed to properly expand the root
+    domain.
+<LE>NETLIB_DNS_MXLOOK has been changed to ignore MX records that
+    point to the root domain.
+<LE>The NETLIB_USER_INSTALL.COM procedure has been updated to include
+    the correct linker option files when linking NETLIB images, so that
+    the image identification and global section match information are
+    correct.
+<ENDLIST>
+<HEAD1>(Updates in V2.2E)
+<P><REFERENCE>(VER) is a maintenance release which fixes a
+problem with the NETLIB_ADDRESS_TO_NAME call on TCPware systems.
+<HEAD1>(Updates in V2.2D)
+<P>NETLIB V2.2D was a maintenance release which fixes a problem
+in the interpretation of DNS return codes in the NETLIB_DNS_MX_LOOKUP
+routine.
+<HEAD1>(Updates in V2.2C)
+<P>NETLIB V2.2C was a maintenance release which included
+a fix for an access violation that would occur in the
+implementation of NETLIB_NAME_TO_ADDRESS for CMU TCP/IP.
+<HEAD1>(Updates in V2.2B)
+<LIST>(UNNUMBERED)
+<LE>The TCP/IP package check has been refined to deal with
+    the presence of an INET0 device in recent versions of
+    Digital's TCP/IP Services for OpenVMS.
+<LE>The installation procedure now performs a version check
+and asks for confirmation before installing an upgrade or
+downgrade to the currently installed version.
+<LE>On systems running PathWay, NETLIB_GET_HOSTNAME will now
+automatically attach the domain name (from the INET_DOMAIN_NAME
+logical name) to the host name (from the gethostname() socket
+library call) if it does not already contain a dot.
+<ENDLIST>
+<HEAD1>(Updates in V2.2A)
+<P>NETLIB V2.2A included the following change:
+<list>(unnumbered)
+<le>NETLIB_ADDRESS_TO_NAME has been changed to work around
+    a bug in TCPware's UCX $QIO interface.  The bug caused
+    all address-to-name lookups to fail with an ENDOFFILE
+    status.
+<endlist>
+<head1>(Updates in V2.2)
+<P>The following changes were included in V2.2:
+<list>(unnumbered)
+<le>A new flag, NETLIB_M_FLUSH, has been added to the
+NETLIB_READLINE routine, to provide a way of getting at any
+data that may have been buffered by the NETLIB_READLINE
+routine.  Use this flag when you want to use both NETLIB_READLINE
+and NETLIB_READ on the same TCP input stream.  For more information,
+see the description of NETLIB_READLINE in the documentation.
+<le>A new routine, NETLIB_VERSION, has been added, to allow for
+dynamic retrieval of the current version of NETLIB you have installed
+on the system.
+<le>The <quote>(relaxed) form of NETLIB_READLINE (using the
+NETLIB_M_ALLOW_LF flag) has been further relaxed to better handle
+lines terminated with bare linefeeds.
+<ENDLIST>
+<HEAD1>(Updates in V2.1B)
+<p>The following change was included in V2.1B:
+<list>(unnumbered)
+<le>A bug in the processing of status codes was inadvertently
+introduced in the V2.1A changes, affecting UCX systems only,
+that would lead to incorrect status reports and potentially
+to application failures.
+<endlist>
+<head1>(Updates in V2.1A)
+<p>The following changes were included in V2.1A:
+<list>(unnumbered)
+<le>NETLIB's DNS resolver code would not properly initialize
+on systems running PathWay.  This has been fixed.
+<le>Some potential race conditions were eliminated.
+<le>If NETLIB_CLOSE was called on a socket that had a pending
+timed I/O, the completion I/O status was mistakenly reported
+as SS$_TIMEOUT instead of SS$_CANCEL.  Only genuine timeouts
+are now reported as SS$_TIMEOUT.
+<endlist>
+<head1>(Updates in V2.1)
+<p>NETLIB V2.1 included the following changes from previous
+releases:
+<list>(unnumbered)
+<le>The TCPware library now uses UCX emulation instead of
+SRI emulation.  If you developed a server with NETLIB that
+is started by TCPware's <quote>(master) server, you should
+use NETCU to change the protocol type from STREAM or DGRAM
+to BG_TCP or BG_UDP.
+<le>The NETLIB_STARTUP.COM procedure has been enhanced to
+automatically install all available NETLIB_*_SHR images, and
+to automatically define NETLIB_SHR at startup time based on
+which TCP/IP package is running.  The startup procedure now
+also automatically adds the NETLIB documentation directory
+to the DECwindows Bookreader search list logical name.
+<le>There was a bug in the V2.0 DNS resolver code in the
+creation of the list of domains used for searching the DNS,
+causing it to pad expanded names with nulls.  This has been
+fixed.
+<endlist>
+
+<chapter>(Known Bugs, Restrictions)
+<P>
+There are no known bugs in NETLIB.  Known restrictions are documented
+in the programmer's guide.
