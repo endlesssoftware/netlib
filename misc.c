@@ -26,6 +26,7 @@
 **      10-JAN-2002 V1.2    Madison     Don't allow extra dot after dotted-quad.
 **      04-FEB-2002 V1.2-1  Madison     Last change was not correctly checking
 **                                      final length.
+**	07-FEB-2013 V1.3    Sneddon	Updated copyright message.
 **--
 */
 #include "netlib.h"
@@ -35,7 +36,8 @@
 #pragma extern_model save
 #pragma extern_model common_block shr
 #endif
-    char $$$Copyright[] = "Copyright © 1992,1994,1996-2002  MadGoat Software. All Rights Reserved.";
+    char $$$Copyright[] = "Copyright © 1992,1994,1996-2002  MadGoat Software. All Rights Reserved.\n" \
+			  "Copyright © 2013  Endless Software Solutions.";
 #ifdef __DECC
 #pragma extern_model restore
 #endif
