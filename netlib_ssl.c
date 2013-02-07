@@ -61,9 +61,15 @@
 **  Forward declarations
 */
 
-// netlib_ssl_setup -- broad generic setup function for people who
-// don't want to call C API (like BASIC users...) this can come in line
-// later.
+    unsigned int netlib_ssl_socket(struct CTX **xctx, void **xsocket,
+                                   void **xssl);
+    /*
+    ** These functions are needed by the DNS module
+    */
+    int netlib___get_nameservers(QUEUE *nsq) { return 0; }
+    int netlib___get_domain(char *buf, unsigned short bufsize,
+			    unsigned short *relenp) { return 0; }
+
 
 /*
 **  OWN storage
@@ -98,8 +104,8 @@
 **
 **--
 */
-unsigned int netlib_ssl_socket ( struct CTX **xctx, void **xsocket,
-				 void **xssl) {
+unsigned int netlib_ssl_socket (struct CTX **xctx, void **xsocket,
+				void **xssl) {
 
     int argc;
     struct CTX *ctx;
@@ -184,5 +190,10 @@ Probably need a static variable to test upon entry to all SSL functions
 to return some sort of SS$_ status that indicates that SSL is not available.
 
 Again, this all comes later.  Let's get the API working first.
+
+netlib_ssl_setup...do some generic configuration that means the user does not
+  need to call the SSL API directly.
+
+Don't forget to add the public API into the NETLIBDEF header file...
 */
 #endif
