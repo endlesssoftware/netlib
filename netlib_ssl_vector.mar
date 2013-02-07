@@ -1,0 +1,33 @@
+	.TITLE	NETLIB_SSL_VECTOR
+	.IDENT	/V1.0/
+;
+; FACILITY: 	NETLIB
+;
+; ABSTRACT: 	This module defines the transfer vectors for the NETLIB
+;               OpenSSL network routines library.
+;
+; AUTHOR:   	Tim Sneddon
+;
+; MODIFICATION HISTORY:
+;
+;   07-FEB-2013	V1.0	Sneddon	    Initial coding.
+;
+    	.DISABLE GLOBAL
+;
+; Macro to generate a transfer vector entry.
+;
+	.MACRO	ROUTINE	NAME
+	.EXTRN		NAME
+	.ALIGN	QUAD
+	.TRANSFER	NAME
+	.MASK		NAME
+	JMP		NAME+2
+	.ENDM
+;
+	.PSECT	$$NETLIB_SSL_VECTOR	-
+			PIC,USR,CON,REL,LCL,SHR,EXE,RD,NOWRT,QUAD
+;
+;   SSL Routines
+;
+	ROUTINE	NETLIB_SSL_SOCKET
+	.END
