@@ -63,6 +63,8 @@
 
     unsigned int netlib_ssl_socket(struct CTX **xctx, void **xsocket,
                                    void **xssl);
+    unsigned int netlib_ssl_shutdown(struct CTX **xctx);
+    static unsigned int perform_io(struct IOR *IOR);
     /*
     ** These functions are needed by the DNS module
     */
@@ -139,6 +141,72 @@ unsigned int netlib_ssl_socket (struct CTX **xctx, void **xsocket,
     }
     return status;
 } /* netlib_ssl_socket */
+
+/*
+**++
+**  ROUTINE:	netlib_ssl_shutdown
+**
+**  FUNCTIONAL DESCRIPTION:
+**
+**  	Shutdown an SSL connection.  This does not close the underlying
+**  NETLIB socket.
+**
+**  RETURNS:	cond_value, longword (unsigned), write only, by value
+**
+**  PROTOTYPE:
+**
+**  	tbs
+**
+**  IMPLICIT INPUTS:	None.
+**
+**  IMPLICIT OUTPUTS:	None.
+**
+**  COMPLETION CODES:
+**
+**
+**  SIDE EFFECTS:   	None.
+**
+**--
+*/
+unsigned int netlib_ssl_shutdown (struct CTX **xctx, ast, prm, iosb) {
+
+    // get IOR
+    // configure argument list for lib$callg
+    // set call back to be the SSL function?
+    // dclast perform_ssl_io
+
+} /* netlib_ssl_shutdown */
+
+static unsigned netlib_ssl_shutdown_ast (struct IOR *ior) {
+    if (ior->status == 0) {
+	// dclast again...
+    } else {
+	// set the status in the iosb...depending on what this means...[B
+    }
+} /* netlib_ssl_shutdown_ast */
+
+static unsigned int perform_ssl_io(struct IOR *IOR) {
+
+    // if last ssl_error was WANT_READ
+	// write buffer into rbio
+
+    status = lib$callg();
+    if (status < 0) {
+	// get error
+	switch (error) {
+	case SSL_ERROR_WANT_READ:
+	    // call netlib_read() -- ast permform_ssl_io
+	    break;
+	case SSL_ERROR_WANT_WRITE:
+	    // copy out of wbio
+	    // call netlib_write() -- specify perform_ssl_io as the AST
+	    break;
+	}
+    } else {
+	// call completion ast
+    }
+
+} /* perform_ssl_io */
 
 #if 0
 /*
