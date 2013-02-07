@@ -61,6 +61,10 @@
 **  Forward declarations
 */
 
+// netlib_ssl_setup -- broad generic setup function for people who
+// don't want to call C API (like BASIC users...) this can come in line
+// later.
+
 /*
 **  OWN storage
 */
@@ -69,6 +73,68 @@
 **  External references
 */
 
+/*
+**++
+**  ROUTINE:	netlib_ssl_socket
+**
+**  FUNCTIONAL DESCRIPTION:
+**
+**  	Create an SSL "socket".
+**
+**  RETURNS:	cond_value, longword (unsigned), write only, by value
+**
+**  PROTOTYPE:
+**
+**  	tbs
+**
+**  IMPLICIT INPUTS:	None.
+**
+**  IMPLICIT OUTPUTS:	None.
+**
+**  COMPLETION CODES:
+**
+**
+**  SIDE EFFECTS:   	None.
+**
+**--
+*/
+unsigned int netlib_ssl_socket ( struct CTX **xctx, void **xsocket,
+				 void **xssl) {
+
+    int argc;
+    struct CTX *ctx;
+    unsigned int status = SS$_INSFMEM;
+
+    SETARGCOUNT(argc);
+    if (argc < 3) return SS$_INSFARG;
+    if (xsocket == 0 || xssl == 0) return SS$_BADPARAM;
+    if (*xsocket == 0 || *xssl == 0) return SS$_BADPARAM;
+
+    status = netlib___alloc_ctx(&ctx, SPECCTX_SIZE);
+    if (!OK(status)) return status;
+
+    if ((ctx->specctx->rbio = BIO_new(BIO_s_mem())) != 0) {
+	if ((ctx->specctx->wbio = BIO_new(BIO_s_mem())) != 0) {
+	    if ((ctx->specctx->ssl = SSL_new(*xssl)) != 0) {
+		SSL_set_bio(ctx->specctx->ssl, ctx->specctx->rbio,
+			    ctx->specctx->wbio); 
+		status = SS$_NORMAL;
+	    }
+	}
+    }
+
+    if (!OK(status)) {
+	if (ctx->specctx->rbio != 0) BIO_free(ctx->specctx->rbio);
+	if (ctx->specctx->wbio != 0) BIO_free(ctx->specctx->wbio);
+	if (ctx->specctx->ssl != 0) SSL_free(ctx->specctx->ssl);
+	netlib___free_ctx(ctx);
+    } else {
+	*xctx = ctx;
+    }
+    return status;
+} /* netlib_ssl_socket */
+
+#if 0
 /*
 **++
 **  ROUTINE:	netlib_socket
@@ -94,3 +160,29 @@
 **
 **--
 */
+unsigned int netlib_ssl_accept (struct CTX **xctx, void *
+
+    struct CTX *ctx;
+
+} /* netlib_ssl_accept */
+
+netlib_ssl_accept
+netlib_ssl_write
+netlib_ssl_read
+netlib_ssl_shutdown
+
+// LIB$INITIALIZE...
+/*
+
+This bit need to load the SSL RTL in question and find us the entry points.
+It also needs to call SSL_library_init() and SSL_load_error_strings()
+
+This way we can code around differences in API, rather than being stuck
+linking to a specific version.
+
+Probably need a static variable to test upon entry to all SSL functions
+to return some sort of SS$_ status that indicates that SSL is not available.
+
+Again, this all comes later.  Let's get the API working first.
+*/
+#endif
