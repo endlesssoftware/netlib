@@ -205,6 +205,55 @@ unsigned int netlib_ssl_shutdown (struct CTX **xctx,
     return status;
 } /* netlib_ssl_shutdown */
 
+
+unsigned int netlib_ssl_write (struct CTX **xctx, struct dsc$descriptor *dsc,
+			       struct NETLIBIOSBDEF *iosb,
+			       void (*astadr)(), void *astprm) {
+
+    struct CTX *ctx;
+    void *bufptr;
+    unsigned int status;
+    unsigned short buflen;
+    int argc;
+
+    VERIFY_CTX(xctx, ctx);
+    SETARGCOUNT(argc);
+
+    status = lib$analyze_sdesc(dsc, &buflen, &bufptr);
+    if (!OK(status)) return status;
+
+    if (argc > 3) {
+	struct IOR *ior;
+	GET_IOR(ior, ctx, iosb, astadr, (argc > 4) ? astprm : 0);
+	ctx->spec_bptr = malloc(buflen);
+	if (ctx->spec_bptr != 0) {
+	    memcpy(ctx->spec_bptr, bufptr, buflen);
+	    ctx->spec_blen = buflen;
+	    argv = malloc(3 + 1);
+	    if (argv != 0) {
+	    	argv[0] = 3;
+	    	argv[1] = ctx->spec_ssl;
+	    	argv[2] = bufptr;
+	    	argv[3] = buflen;
+	    	ior->spec_argv = argv;
+	    	ior->spec_call = SSL_write;
+	    	status = sys$dclast(io_perform, ior, 0);
+	    } else {
+	    	status = SS$_INSFMEM;
+	    }
+	} else {
+	    status = SS$_INSFMEM;
+	}
+	if (!OK(status)) {
+	    if (ior->spec_bptr != 0) free(ior->spec_bptr);
+	    if (ior->spec_argv != 0) free(ior->spec_argv);
+	    FREE_IOR(ior);
+	}
+    } else {
+	// not handling sychronous stuff right now...
+    }
+}
+
 static unsigned int io_perform(struct IOR *ior) {
 
     int ret, status;
@@ -225,29 +274,43 @@ static unsigned int io_perform(struct IOR *ior) {
 	    ior->iosbp->iosb_w_unused = 0;
 	    ior->iosbp->iosb_w_count = ret;
 	}
-
-	// cancel timer AST too...
-
+	// cancel Timer?
 	if (ior->spec_argv != 0) free(ior->spec_argv);
 	if (ior->astadr != 0) (*(ior->astadr))(ior->astprm);
 	FREE_IOR(ior);
 	break;
 
     case SSL_ERROR_WANT_READ:
-	status = netlib_read(ctx->spec_socket, buffer, 0, 0,
+	ior->spec_rdsc.dsc$w_length = BUF_MAX;
+	ior->spec_rdsc.dsc$b_dtype = DSC$K_DTYPE_T;
+	ior->spec_rdsc.dsc$b_class = DSC$K_CLASS_S;
+	ior->spec_rdsc.dsc$a_pointer = ior->rbuf;
+	status = netlib_read(ctx->spec_socket, &ior->rdsc, 0, 0,
 			     0, timeout, &ior->iosb, io_perform, ior);
 	if (!OK(status)) {
-	    // error, this needs to be passed to iosbp...
+	    if (ior->iosbp != 0) {
+		ior->iosbp->iosb_w_status = status;
+		ior->iosbp->iosb_w_count = 0;
+		ior->iosbp->iosb_l_unsused = 0;
+	    }
+	    if (ior->spec_argv != 0) free(ior->spec_argv);
+	    if (ior->astadr != 0) (*(ior->astadr))(ior->astprm);
+	    FREE_IOR(ior);
 	}
 	break;
 
     case SSL_ERROR_WANT_WRITE:
-	// read out of the BIO and in to the buffer...
+	ret = BIO_read(ctx->wbio, b, l);
+	if (ret < 1) {
+	    // houston we have a problem
+	} else {
+	    struct dsc$descriptor buf;
 
-	status = netlib_write(ctx->spec_socket, buffer, 0, 0,
-			      &iot->iosb, io_perform, ior);
-	if (!OK(status)) {
-	    // error, this needs to be passed to iosbp...
+	    status = netlib_write(ctx->spec_socket, &buf, 0, 0, &ior->iosb,
+				  io_perform, ior);
+	    if (!OK(status)) {
+	    	// error, this needs to be passed to iosbp...
+	    }
 	}
 	break;
 
