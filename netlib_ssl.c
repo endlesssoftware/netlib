@@ -168,45 +168,102 @@ unsigned int netlib_ssl_socket (struct CTX **xctx, void **xsocket,
 **
 **--
 */
-unsigned int netlib_ssl_shutdown (struct CTX **xctx, ast, prm, iosb) {
+unsigned int netlib_ssl_shutdown (struct CTX **xctx,
+				  struct NETLIBIOSBDEF *iosb,
+				  void (*astadr)(), void *astprm) {
 
-    // get IOR
-    // configure argument list for lib$callg
-    // set call back to be the SSL function?
-    // dclast perform_ssl_io
+    struct CTX *ctx;
+    unsigned int status;
+    int argc;
 
-} /* netlib_ssl_shutdown */
+    VERIFY_CTX(xctx, ctx);
+    SETARGCOUNT(arc);
 
-static unsigned netlib_ssl_shutdown_ast (struct IOR *ior) {
-    if (ior->status == 0) {
-	// dclast again...
-    } else {
-	// set the status in the iosb...depending on what this means...[B
-    }
-} /* netlib_ssl_shutdown_ast */
+    if (argc < 1) return SS$_INSFARG;
 
-static unsigned int perform_ssl_io(struct IOR *IOR) {
-
-    // if last ssl_error was WANT_READ
-	// write buffer into rbio
-
-    status = lib$callg();
-    if (status < 0) {
-	// get error
-	switch (error) {
-	case SSL_ERROR_WANT_READ:
-	    // call netlib_read() -- ast permform_ssl_io
-	    break;
-	case SSL_ERROR_WANT_WRITE:
-	    // copy out of wbio
-	    // call netlib_write() -- specify perform_ssl_io as the AST
-	    break;
+    if (argc > 2 && astadr != 0) {
+	struct IOR *ior;
+	GET_IOR(ior, ctx, iosb, astadr, (argc > 3) ? astprm : 0);
+	argv = malloc(1 + 1);
+	if (argv == 0) {
+	    status = SS$_INSFMEM;
+	} else {
+	    argv[0] = 1;
+	    argv[1] = ctx->specctx->ssl;
+	    ior->spec_argv = argv;
+	    ior->spec_call = SSL_shutdown;
+	    status = sys$dclast(io_perform, ior, 0);
+	}
+	if (!OK(status)) {
+	    if (ior->spec_argv != 0) free(ior->spec_argv);
+	    FREE_IOR(ior);
 	}
     } else {
-	// call completion ast
+	// we don't do anything here yet...how are we going to handle this?
     }
 
-} /* perform_ssl_io */
+    return status;
+} /* netlib_ssl_shutdown */
+
+static unsigned int io_perform(struct IOR *ior) {
+
+    int ret, status;
+    struct CTX *ctx = ior->ctx;
+
+    if (SSL_want(ctx->spec_ssl) == SSL_WANT_READ) {
+	// write into bio the contents of buffer...
+	ret = BIO_write(ctx->spec_ssl, buf, len);
+	// what do we do with ret?
+    }
+
+    ret = lib$callg(ior->spec_argv, ior->spec_call);
+    switch (status = SSL_get_error(ctx->spec_ssl, ret)) {
+    case SSL_ERROR_NONE:
+    case SSL_ERROR_ZERO_RETURN:
+	if (ior->iosbp != 0) {
+	    ior->iosbp->iosb_w_status = SS$_NORMAL;
+	    ior->iosbp->iosb_w_unused = 0;
+	    ior->iosbp->iosb_w_count = ret;
+	}
+
+	// cancel timer AST too...
+
+	if (ior->spec_argv != 0) free(ior->spec_argv);
+	if (ior->astadr != 0) (*(ior->astadr))(ior->astprm);
+	FREE_IOR(ior);
+	break;
+
+    case SSL_ERROR_WANT_READ:
+	status = netlib_read(ctx->spec_socket, buffer, 0, 0,
+			     0, timeout, &ior->iosb, io_perform, ior);
+	if (!OK(status)) {
+	    // error, this needs to be passed to iosbp...
+	}
+	break;
+
+    case SSL_ERROR_WANT_WRITE:
+	// read out of the BIO and in to the buffer...
+
+	status = netlib_write(ctx->spec_socket, buffer, 0, 0,
+			      &iot->iosb, io_perform, ior);
+	if (!OK(status)) {
+	    // error, this needs to be passed to iosbp...
+	}
+	break;
+
+    default:
+	// fall through here for the moment...
+	break;
+    }
+
+    // need a flag in the contect that specifies if we need to clean up the
+    // socket after.  However...we can't do it until the pending I/O has
+    // been completed...
+
+    // SSL_free, BIO_free, etc...
+
+    return ...;
+} /* io_perform */
 
 #if 0
 /*
