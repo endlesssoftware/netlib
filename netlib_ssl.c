@@ -144,6 +144,130 @@ unsigned int netlib_ssl_socket (struct CTX **xctx, void **xsocket,
 
 /*
 **++
+**  ROUTINE:	netlib_ssl_accept
+**
+**  FUNCTIONAL DESCRIPTION:
+**
+**  	Server side that accepts and incoming SSL connection.
+**
+**  RETURNS:	cond_value, longword (unsigned), write only, by value
+**
+**  PROTOTYPE:
+**
+**  	tbs
+**
+**  IMPLICIT INPUTS:	None.
+**
+**  IMPLICIT OUTPUTS:	None.
+**
+**  COMPLETION CODES:
+**
+**
+**  SIDE EFFECTS:   	None.
+**
+**--
+*/
+unsigned int netlib_ssl_accept (struct CTX **xctx,
+			        struct NETLIBIOSBDEF *iosb,
+			        void (*astadr)(), void *astprm) {
+
+    struct CTX *ctx;
+    unsigned int status;
+    int argc;
+
+    VERIFY_CTX(xctx, ctx);
+    SETARGCOUNT(arc);
+
+    if (argc < 1) return SS$_INSFARG;
+
+    if (argc > 2 && astadr != 0) {
+	struct IOR *ior;
+	GET_IOR(ior, ctx, iosb, astadr, (argc > 3) ? astprm : 0);
+	argv = malloc(1 + 1);
+	if (argv == 0) {
+	    status = SS$_INSFMEM;
+	} else {
+	    argv[0] = 1;
+	    argv[1] = ctx->spec_ssl;
+	    ior->spec_argv = argv;
+	    ior->spec_call = SSL_accept;
+	    status = sys$dclast(io_perform, ior, 0);
+	}
+	if (!OK(status)) {
+	    if (ior->spec_argv != 0) free(ior->spec_argv);
+	    FREE_IOR(ior);
+	}
+    } else {
+	// we don't do anything here yet...how are we going to handle this?
+    }
+
+    return status;
+} /* netlib_ssl_accept */
+
+/*
+**++
+**  ROUTINE:	netlib_ssl_connect
+**
+**  FUNCTIONAL DESCRIPTION:
+**
+**  	Client side routine that makes an outgoing SSL connection.
+**
+**  RETURNS:	cond_value, longword (unsigned), write only, by value
+**
+**  PROTOTYPE:
+**
+**  	tbs
+**
+**  IMPLICIT INPUTS:	None.
+**
+**  IMPLICIT OUTPUTS:	None.
+**
+**  COMPLETION CODES:
+**
+**
+**  SIDE EFFECTS:   	None.
+**
+**--
+*/
+unsigned int netlib_ssl_connect (struct CTX **xctx,
+			         struct NETLIBIOSBDEF *iosb,
+			         void (*astadr)(), void *astprm) {
+
+    struct CTX *ctx;
+    unsigned int status;
+    int argc;
+
+    VERIFY_CTX(xctx, ctx);
+    SETARGCOUNT(arc);
+
+    if (argc < 1) return SS$_INSFARG;
+
+    if (argc > 2 && astadr != 0) {
+	struct IOR *ior;
+	GET_IOR(ior, ctx, iosb, astadr, (argc > 3) ? astprm : 0);
+	argv = malloc(1 + 1);
+	if (argv == 0) {
+	    status = SS$_INSFMEM;
+	} else {
+	    argv[0] = 1;
+	    argv[1] = ctx->spec_ssl;
+	    ior->spec_argv = argv;
+	    ior->spec_call = SSL_connect;
+	    status = sys$dclast(io_perform, ior, 0);
+	}
+	if (!OK(status)) {
+	    if (ior->spec_argv != 0) free(ior->spec_argv);
+	    FREE_IOR(ior);
+	}
+    } else {
+	// we don't do anything here yet...how are we going to handle this?
+    }
+
+    return status;
+} /* netlib_ssl_connect */
+
+/*
+**++
 **  ROUTINE:	netlib_ssl_shutdown
 **
 **  FUNCTIONAL DESCRIPTION:
