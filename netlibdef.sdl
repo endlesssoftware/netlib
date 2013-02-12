@@ -45,6 +45,7 @@
 {  07-Nov-2004      Madison     Add ALLOW_CR.
 {  20-Nov-2012      Sneddon     Translate to SDL.  This based on the C and
 {				BASIC (thanks to David Sneddon) versions.
+{  12-FEB-2013	    Sneddon	Add SSL constants.
 {--
 module NETLIBDEF;
 iflanguage CC;
@@ -219,6 +220,11 @@ MACRO
     MXRRDEF		= BLOCK [MXRR_S_MXRRDEF,BYTE]%;
 end_literal;
 end_iflanguage BLISS BLISS64;
+
+constant NETLIB_K_METHOD_SSL2  equals 1;
+constant NETLIB_K_METHOD_SSL3  equals 1;
+constant NETLIB_K_METHOD_TLS1  equals 1;
+constant NETLIB_K_METHOD_SSL23 equals 1;
 
 iflanguage CC;
 literal;
