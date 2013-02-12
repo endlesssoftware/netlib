@@ -1,11 +1,11 @@
 #ifndef __NETLIB_SSL_H__
 #define __NETLIB_SSL_H__
+#include "netlibdef.h"
 #ifndef __NETLIB_BUILD__
 #define __NETLIB_BUILD__
 #endif
 #include <openssl/bio.h>
 #include <openssl/ssl.h>
-#include "netlibdef.h"
 
 #define BUF_MAX  16384
 
