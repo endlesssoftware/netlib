@@ -221,10 +221,10 @@ MACRO
 end_literal;
 end_iflanguage BLISS BLISS64;
 
+constant NETLIB_K_METHOD_ANY   equals 0;
 constant NETLIB_K_METHOD_SSL2  equals 1;
-constant NETLIB_K_METHOD_SSL3  equals 1;
-constant NETLIB_K_METHOD_TLS1  equals 1;
-constant NETLIB_K_METHOD_SSL23 equals 1;
+constant NETLIB_K_METHOD_SSL3  equals 2;
+constant NETLIB_K_METHOD_TLS1  equals 3;
 
 iflanguage CC;
 literal;
