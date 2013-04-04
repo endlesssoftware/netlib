@@ -46,6 +46,7 @@
 {  20-Nov-2012      Sneddon     Translate to SDL.  This based on the C and
 {				BASIC (thanks to David Sneddon) versions.
 {  12-FEB-2013	    Sneddon	Add SSL constants.
+{  04-APR-2013	    Sneddon	More corrections to replace old C header.
 {--
 module NETLIBDEF;
 iflanguage CC;
@@ -145,6 +146,10 @@ constant NETLIB_K_DNS_RC_REFUSE	    equals 5;
 
 iflanguage cc;
 literal;
+#define INADDRDEF inaddrdef
+#define MXRRDEF mxrrdef
+#define NETLIBIOSBDEF netlibiosbdef
+#define SINDEF sindef
 #if defined(__ALPHA) || defined(__ia64__)
 #pragma member_alignment save
 #pragma nomember_alignment
