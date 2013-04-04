@@ -210,7 +210,7 @@ constant SIN_S_MBZ		    equals 8;
 
 constant NETLIB_S_MXRR_NAME  equals 128;
     aggregate MXRRDEF structure prefix "mxrr_";
-	preferences longword unsigned;
+	preference longword unsigned;
 	"length" longword unsigned;
 	name character length NETLIB_S_MXRR_NAME;
     end MXRRDEF;
