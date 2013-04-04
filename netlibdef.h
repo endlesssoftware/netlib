@@ -1,8 +1,42 @@
 /********************************************************************************************************************************/
-/* Created:  4-Apr-2013 22:14:24 by OpenVMS SDL EV2-3      */
-/* Source:  04-APR-2013 22:13:46 MG_SRC:[NETLIB]NETLIBDEF.SDL;11 */
+/* Created:  4-Apr-2013 22:18:13 by OpenVMS SDL EV2-3      */
+/* Source:  04-APR-2013 22:18:09 MG_SRC:[NETLIB]NETLIBDEF.SDL;12 */
 /********************************************************************************************************************************/
 /*** MODULE NETLIBDEF ***/
+#ifndef __NETLIBDEF_LOADED
+#define __NETLIBDEF_LOADED 1
+ 
+#pragma __nostandard			 /* This file uses non-ANSI-Standard features */
+#ifdef __INITIAL_POINTER_SIZE			 /* Defined whenever ptr size pragmas supported */
+#pragma __required_pointer_size __save		 /* Save the previously-defined required ptr size */
+#pragma __required_pointer_size __short		 /* And set ptr size default to 32-bit pointers */
+#endif
+ 
+#ifdef __cplusplus
+    extern "C" {
+#define __unknown_params ...
+#define __optional_params ...
+#else
+#define __unknown_params
+#define __optional_params ...
+#endif
+ 
+#ifndef __struct
+#if !defined(__VAXC)
+#define __struct struct
+#else
+#define __struct variant_struct
+#endif
+#endif
+ 
+#ifndef __union
+#if !defined(__VAXC)
+#define __union union
+#else
+#define __union variant_union
+#endif
+#endif
+ 
 #ifndef __NETLIBDEF_H_LOADED__
 #define __NETLIBDEF_H_LOADED__
 #define NETLIB_K_TYPE_STREAM 1
@@ -88,19 +122,20 @@
 #pragma nomember_alignment
 #endif
 #pragma nostandard
-#define dns_m_recursion_desired 0x1
-#define dns_m_truncated 0x1
-#define dns_m_authoritative 0x1
-#define dns_m_opcode 0xF
-#define dns_m_reply 0x1
-#define dns_m_reply_code 0xF
-#define dns_m_xx_unused_xx 0x7
-#define dns_m_recursion_available 0x1
-struct NETLIB_DNS_HEADER {
+#define DNS_M_RECURSION_DESIRED 0x1
+#define DNS_M_TRUNCATED 0x1
+#define DNS_M_AUTHORITATIVE 0x1
+#define DNS_M_OPCODE 0xF
+#define DNS_M_REPLY 0x1
+#define DNS_M_REPLY_CODE 0xF
+#define DNS_M_XX_UNUSED_XX 0x7
+#define DNS_M_RECURSION_AVAILABLE 0x1
+	
+struct netlib_dns_header {
     unsigned short int dns_w_queryid;
-    union  {
+    __union  {
         unsigned short int dns_w_flags;
-        union  {
+        __union  {
             unsigned dns_v_recursion_desired : 1;
             unsigned dns_v_truncated : 1;
             unsigned dns_v_authoritative : 1;
@@ -116,30 +151,49 @@ struct NETLIB_DNS_HEADER {
     unsigned short int dns_w_nscount;
     unsigned short int dns_w_arcount;
     } ;
+ 
+#if !defined(__VAXC)
+#define dns_w_flags dns_r_flags_overlay.dns_w_flags
+#define dns_x_flags	dns_r_flags_overlay.dns_x_flags
+#define dns_v_recursion_desired dns_x_flags.dns_v_recursion_desired
+#define dns_v_truncated dns_x_flags.dns_v_truncated
+#define dns_v_authoritative dns_x_flags.dns_v_authoritative
+#define dns_v_opcode dns_x_flags.dns_v_opcode
+#define dns_v_reply dns_x_flags.dns_v_reply
+#define dns_v_reply_code dns_x_flags.dns_v_reply_code
+#define dns_v_xx_unused_xx dns_x_flags.dns_v_xx_unused_xx
+#define dns_v_recursion_available dns_x_flags.dns_v_recursion_available
+#endif		/* #if !defined(__VAXC) */
+ 
 	
 #pragma standard
 #define SOCKADDR_S_DATA 14
-struct SOCKADDRDEF {
+	
+struct sockaddrdef {
     unsigned short int sockaddr_w_family;
     unsigned char sockaddr_x_data [14];
     } ;
-struct INADDRDEF {
+	
+struct inaddrdef {
     unsigned int inaddr_l_addr;
     } ;
 #define SIN_S_MBZ 8
-struct SINDEF {
+	
+struct sindef {
     unsigned short int sin_w_family;
     unsigned short int sin_w_port;
     struct INADDRDEF sin_x_addr;
     unsigned char sin_x_mbz [8];
     } ;
-struct NETLIBIOSBDEF {
+	
+struct netlibiosbdef {
     unsigned short int iosb_w_status;
     unsigned short int iosb_w_count;
     unsigned int iosb_l_unused;
     } ;
 #define NETLIB_S_MXRR_NAME 128
-struct MXRRDEF {
+	
+struct mxrrdef {
     unsigned int mxrr_l_preference;
     unsigned int mxrr_l_length;
     char mxrr_t_name [128];
@@ -202,4 +256,14 @@ struct MXRRDEF {
 	
 	
 #endif /* __NETLIBDEF_H_LOADED__ */
+ 
+#ifdef __INITIAL_POINTER_SIZE			 /* Defined whenever ptr size pragmas supported */
+#pragma __required_pointer_size __restore		 /* Restore the previously-defined required ptr size */
+#endif
+#ifdef __cplusplus
+    }
+#endif
+#pragma __standard
+ 
+#endif /* __NETLIBDEF_LOADED */
  
