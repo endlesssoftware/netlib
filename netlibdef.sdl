@@ -149,6 +149,7 @@ literal;
 #define INADDRDEF inaddrdef
 #define MXRRDEF mxrrdef
 #define NETLIBIOSBDEF netlibiosbdef
+#define NETLIB_DNS_HEADER netlib_dns_header
 #define SINDEF sindef
 #if defined(__ALPHA) || defined(__ia64__)
 #pragma member_alignment save
