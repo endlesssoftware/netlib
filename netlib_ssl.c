@@ -63,8 +63,17 @@
 
     unsigned int netlib_ssl_socket(struct CTX **xctx, void **xsocket,
                                    void **xssl);
-    unsigned int netlib_ssl_shutdown(struct CTX **xctx);
-    static unsigned int perform_io(struct IOR *IOR);
+    unsigned int netlib_ssl_accept(struct CTX **xctx,
+				   struct NETLIBIOSBDEF *iosb,
+			           void (*astadr)(), void *astprm);
+    unsigned int netlib_ssl_connect(struct CTX **xctx,
+				   struct NETLIBIOSBDEF *iosb,
+			           void (*astadr)(), void *astprm);
+    unsigned int netlib_ssl_shutdown(struct CTX **xctx,
+				     struct NETLIBIOSBDEF *iosb,
+			             void (*astadr)(), void *astprm);
+    static unsigned int io_perform(struct IOR *IOR);
+
     /*
     ** These functions are needed by the DNS module
     */
@@ -80,6 +89,79 @@
 /*
 **  External references
 */
+
+/*
+**
+**  SS$_INSFMEM - unable to allocate internal SSL structures
+**  SS$_BADCHECKSUM - key and cert do not match
+*/
+unsigned int netlib_ssl_context (void **xssl, unsigned int method,
+				 struct dsc$descriptor *cert_d, int *cert_type,
+				 struct dsc$descriptor *key_d, int *key_type,
+				 unsigned int *verify) {
+
+    SSL_CTX *ssl;
+    int argc, ret, status = SS$_NORMAL;
+    char *cert = 0, *key = 0, *ptr;
+    unsigned short len;
+
+    SETARGCOUNT(argc);
+
+    ssl = SSL_CTX_new((method == NETLIB_K_METHOD_SSL2) ? SSLv2_method() :
+		      (method == NETLIB_K_METHOD_SSL3) ? SSLv3_method() :
+		      (method == NETLIB_K_METHOD_TLS1) ? TLSv1_method() :
+		       SSLv23_method());
+    if (ssl == 0) return SS$_INSFMEM;
+
+    status = lib$analyze_sdesc(&cert_d, &len, &ptr);
+    if (OK(status)) {
+	cert = malloc(len+1);
+	if (cert == 0) {
+	    status = SS$_INSFMEM;
+	} else {
+	    memcpy(cert, ptr, len);
+	    cert[len] = '\0';
+
+	    status = lib$analyze_sdesc(&key_d, &len, &ptr);
+	    if (OK(status)) {
+		key = malloc(len+1);
+		if (key == 0) {
+		    status = SS$_INSFMEM;
+		} else {
+		    memcpy(key, ptr, len);
+		    key[len] = '\0';
+		}
+	    }
+	}
+    }
+
+    if (OK(status)) {
+	ret = SSL_CTX_use_certificate_file(ssl, cert, cert_type);
+	if (ret <= 0) {
+	    // error in here...
+	    // errno and vaxc$errno can be used?
+	} else {
+	    ret = SSL_CTX_use_PrivateKey_file(ssl, key, key_type);
+	    if (ret <= 0) {
+		// errno and vaxc$errno can be used
+		// error in here...
+	    } else {
+		ret = SSL_CTX_check_private_key(ssl);
+		status = SS$_BADCHECKSUM;
+	    }
+	}
+    }
+
+    if (cert != 0) free(cert);
+    if (key != 0) free(key);
+
+    if (!OK(status)) {
+	SSL_CTX_free(ssl);
+    } else {
+	*xssl = ssl;
+    }
+    return status;
+} /* netlib_ssl_context */
 
 /*
 **++
@@ -101,6 +183,8 @@
 **
 **  COMPLETION CODES:
 **
+**	SS$_BADCONTEXT - SSL context is bad
+**
 **
 **  SIDE EFFECTS:   	None.
 **
@@ -121,20 +205,21 @@ unsigned int netlib_ssl_socket (struct CTX **xctx, void **xsocket,
     status = netlib___alloc_ctx(&ctx, SPECCTX_SIZE);
     if (!OK(status)) return status;
 
-    if ((ctx->specctx->rbio = BIO_new(BIO_s_mem())) != 0) {
-	if ((ctx->specctx->wbio = BIO_new(BIO_s_mem())) != 0) {
-	    if ((ctx->specctx->ssl = SSL_new(*xssl)) != 0) {
-		SSL_set_bio(ctx->specctx->ssl, ctx->specctx->rbio,
-			    ctx->specctx->wbio); 
+    if ((ctx->spec_rbio = BIO_new(BIO_s_mem())) != 0) {
+	if ((ctx->spec_wbio = BIO_new(BIO_s_mem())) != 0) {
+	    if ((ctx->spec_ssl = SSL_new(*xssl)) != 0) {
+		SSL_set_bio(ctx->spec_ssl, ctx->spec_rbio, ctx->spec_wbio); 
 		status = SS$_NORMAL;
+	    } else {
+		status = SS$_BADCONTEXT;
 	    }
 	}
     }
 
     if (!OK(status)) {
-	if (ctx->specctx->rbio != 0) BIO_free(ctx->specctx->rbio);
-	if (ctx->specctx->wbio != 0) BIO_free(ctx->specctx->wbio);
-	if (ctx->specctx->ssl != 0) SSL_free(ctx->specctx->ssl);
+	if (ctx->spec_rbio != 0) BIO_free(ctx->spec_rbio);
+	if (ctx->spec_wbio != 0) BIO_free(ctx->spec_wbio);
+	if (ctx->spec_ssl != 0) SSL_free(ctx->spec_ssl);
 	netlib___free_ctx(ctx);
     } else {
 	*xctx = ctx;
@@ -173,10 +258,10 @@ unsigned int netlib_ssl_accept (struct CTX **xctx,
 
     struct CTX *ctx;
     unsigned int status;
-    int argc;
+    int argc, *argv;
 
     VERIFY_CTX(xctx, ctx);
-    SETARGCOUNT(arc);
+    SETARGCOUNT(argc);
 
     if (argc < 1) return SS$_INSFARG;
 
@@ -188,10 +273,10 @@ unsigned int netlib_ssl_accept (struct CTX **xctx,
 	    status = SS$_INSFMEM;
 	} else {
 	    argv[0] = 1;
-	    argv[1] = ctx->spec_ssl;
+	    argv[1] = (int) ctx->spec_ssl;
 	    ior->spec_argv = argv;
 	    ior->spec_call = SSL_accept;
-	    status = sys$dclast(io_perform, ior, 0);
+	    //status = sys$dclast(io_perform, ior, 0);
 	}
 	if (!OK(status)) {
 	    if (ior->spec_argv != 0) free(ior->spec_argv);
@@ -235,10 +320,10 @@ unsigned int netlib_ssl_connect (struct CTX **xctx,
 
     struct CTX *ctx;
     unsigned int status;
-    int argc;
+    int argc, *argv;
 
     VERIFY_CTX(xctx, ctx);
-    SETARGCOUNT(arc);
+    SETARGCOUNT(argc);
 
     if (argc < 1) return SS$_INSFARG;
 
@@ -250,10 +335,10 @@ unsigned int netlib_ssl_connect (struct CTX **xctx,
 	    status = SS$_INSFMEM;
 	} else {
 	    argv[0] = 1;
-	    argv[1] = ctx->spec_ssl;
+	    argv[1] = (int) ctx->spec_ssl;
 	    ior->spec_argv = argv;
 	    ior->spec_call = SSL_connect;
-	    status = sys$dclast(io_perform, ior, 0);
+	    //status = sys$dclast(io_perform, ior, 0);
 	}
 	if (!OK(status)) {
 	    if (ior->spec_argv != 0) free(ior->spec_argv);
@@ -298,10 +383,10 @@ unsigned int netlib_ssl_shutdown (struct CTX **xctx,
 
     struct CTX *ctx;
     unsigned int status;
-    int argc;
+    int argc, *argv;
 
     VERIFY_CTX(xctx, ctx);
-    SETARGCOUNT(arc);
+    SETARGCOUNT(argc);
 
     if (argc < 1) return SS$_INSFARG;
 
@@ -313,10 +398,10 @@ unsigned int netlib_ssl_shutdown (struct CTX **xctx,
 	    status = SS$_INSFMEM;
 	} else {
 	    argv[0] = 1;
-	    argv[1] = ctx->specctx->ssl;
+	    argv[1] = (int) ctx->spec_ssl;
 	    ior->spec_argv = argv;
 	    ior->spec_call = SSL_shutdown;
-	    status = sys$dclast(io_perform, ior, 0);
+	    //status = sys$dclast(io_perform, ior, 0);
 	}
 	if (!OK(status)) {
 	    if (ior->spec_argv != 0) free(ior->spec_argv);
@@ -329,7 +414,7 @@ unsigned int netlib_ssl_shutdown (struct CTX **xctx,
     return status;
 } /* netlib_ssl_shutdown */
 
-
+#if 0
 unsigned int netlib_ssl_write (struct CTX **xctx, struct dsc$descriptor *dsc,
 			       struct NETLIBIOSBDEF *iosb,
 			       void (*astadr)(), void *astprm) {
@@ -377,7 +462,9 @@ unsigned int netlib_ssl_write (struct CTX **xctx, struct dsc$descriptor *dsc,
 	// not handling sychronous stuff right now...
     }
 }
+#endif
 
+#if 0
 static unsigned int io_perform(struct IOR *ior) {
 
     int ret, status;
@@ -451,6 +538,7 @@ static unsigned int io_perform(struct IOR *ior) {
 
     return ...;
 } /* io_perform */
+#endif
 
 #if 0
 /*
