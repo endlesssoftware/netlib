@@ -136,12 +136,12 @@ unsigned int netlib_ssl_context (void **xssl, unsigned int method,
     }
 
     if (OK(status)) {
-	ret = SSL_CTX_use_certificate_file(ssl, cert, cert_type);
+	ret = SSL_CTX_use_certificate_file(ssl, cert, *cert_type);
 	if (ret <= 0) {
 	    // error in here...
 	    // errno and vaxc$errno can be used?
 	} else {
-	    ret = SSL_CTX_use_PrivateKey_file(ssl, key, key_type);
+	    ret = SSL_CTX_use_PrivateKey_file(ssl, key, *key_type);
 	    if (ret <= 0) {
 		// errno and vaxc$errno can be used
 		// error in here...
