@@ -25,15 +25,11 @@
 !   21-SEP-2003 V2.3E   Madison     Fix for dns_skipname.
 !   07-NOV-2004 V2.4    Madison     IA64 support.  Removed VAX.
 !   19-NOV-2012 V3.0	Sneddon     VAX support. SSL support.
+!   04-APR-2013 V3.0-1  Sneddon	    Moved version definitions into
+!				     NETLIB_VERSION.MMS.
 !--
 
-!+
-! The following three lines control all the version information
-! embedded throughout the code, linker options files, and documentation.
-!-
-NUM_VERSION  = 030
-TEXT_VERSION = V3.0
-GSMATCH      = LEQUAL,1,7
+.INCLUDE NETLIB_VERSION.MMS
 
 .IFDEF __MADGOAT_BUILD__
 .IFDEF MG_FACILITY
@@ -123,6 +119,8 @@ SSLOPTFILE = NETLIB_SSL$(OPT)
 VERFILE = NETLIB_VERSION.OPT
 .ENDIF
 
+SDL = SDL/VAX
+
 SSL_MODULES	    = NETLIB_SSL
 UCX_MODULES 	    = NETLIB_UCX
 COMMON_MODULES	    = MEM, LINEMODE, MISC, CONNECT, COMPATIBILITY, -
@@ -172,6 +170,17 @@ $(BINDIR)COMPATIBILITY.OBJ  	: $(SRCDIR)NETLIBDEF.H
 $(BINDIR)MISC.OBJ   	    	: $(SRCDIR)MISC.C, $(SRCDIR)NETLIB.H, $(SRCDIR)NETLIBDEF.H, $(ETCDIR)NETLIB_VERSION.H
     @ DEFINE/USER ETC_DIR $(ETCDIR)
     $(CC) $(CFLAGS) $(SRCDIR)MISC.C
+
+$(SRCDIR)NETLIBDEF.H		: $(SRCDIR)NETLIBDEF.SDL
+    $(SDL)/LANGUAGE=CC=$(MMS$TARGET) $(MMS$SOURCE)
+
+$(VERFILE)			: $(SRCDIR)NETLIB_VERSION.MMS
+    @ define/user sys$input nl:
+    @ create $(MMS$TARGET)
+    @ open/append x $(MMS$TARGET)
+    @ write x "IDENT=""NETLIB $(TEXT_VERSION)"""
+    @ write x "GSMATCH=$(GSMATCH)"
+    @ close x
 
 $(ETCDIR)NETLIB_VERSION.H    	: $(VERFILE)
     @ open/read x $(VERFILE)
