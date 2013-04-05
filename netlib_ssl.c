@@ -85,10 +85,6 @@
 /*
 **  OWN storage
 */
-
-/*
-**  External references
-*/
 
 /*
 **
@@ -107,6 +103,7 @@ unsigned int netlib_ssl_context (void **xssl, unsigned int method,
 
     SETARGCOUNT(argc);
 
+printf("even get in here\n");
     ssl = SSL_CTX_new((method == NETLIB_K_METHOD_SSL2) ? SSLv2_method() :
 		      (method == NETLIB_K_METHOD_SSL3) ? SSLv3_method() :
 		      (method == NETLIB_K_METHOD_TLS1) ? TLSv1_method() :

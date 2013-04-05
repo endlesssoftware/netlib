@@ -321,6 +321,8 @@ entry netlib_hton_word returns word unsigned;
 entry netlib_ntoh_word returns word unsigned;
 entry netlib_version returns longword unsigned;
 
+entry netlib_ssl_context returns longword unsigned;
+
 end_iflanguage;
 
 iflanguage BLISS BLISS64 BLISSF;
