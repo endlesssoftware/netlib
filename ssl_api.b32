@@ -1,0 +1,107 @@
+%TITLE 'SSL_API'
+MODULE SSL_API (IDENT='V1.0', ADDRESSING_MODE (EXTERNAL=GENERAL)) =
+BEGIN
+!++
+! FACILITY:         NETLIB
+!
+! ABSTRACT:         OpenSSL API Routines
+!
+! MODULE DESCRIPTION:
+!
+!	The OpenSSL, as is provided by HP (and installed by default on
+! Alpha and I64), is not backward compatible.  Every time you change
+! versions of the SSL library it is necessary to relink (or re-compile).
+! This can also mean that your software will stop working after an upgrade
+! of the operating system.
+!
+! To combat this NETLIB dynamically loads the SSL routines using the routine
+! LIB$FIND_IMAGE_SYMBOL (LIB$FIS).  A major effort is made to code around
+! these restrictions in NETLIB, thus avoiding all the hassle associated with
+! using NETLIB.
+!
+! AUTHOR:           Tim Sneddon
+!
+! Copyright (c) 2013, Endless Software Solutions.
+!
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!     * Redistributions of source code must retain the above
+!       copyright notice, this list of conditions and the following
+!       disclaimer.
+!     * Redistributions in binary form must reproduce the above
+!       copyright notice, this list of conditions and the following
+!       disclaimer in the documentation and/or other materials provided
+!       with the distribution.
+!     * Neither the name of the copyright owner nor the names of any
+!       other contributors may be used to endorse or promote products
+!       derived from this software without specific prior written
+!       permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+! A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+! OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+! SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+! LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+! DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+! THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+! (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+! OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+!
+! CREATION DATE:    19-APR-2013
+!
+! MODIFICATION HISTORY:
+!
+!   19-APR-2013 V1.0    Sneddon     Initial coding.
+!--
+
+    LIBRARY 'SYS$LIBRARY:STARLET';
+
+    EXTERNAL ROUTINE
+	LIB$FIND_IMAGE_SYMBOL;
+
+    BIND
+	SSL$LIBSSL_SHR32 = UPLIT(%ASCID'SSL$LIBSSL_SHR32');
+
+    MACRO SSL_CALL(RTN) =
+	GLOBAL ROUTINE RTN =
+	BEGIN
+	    BUILTIN
+		AP, CALLG;
+	    OWN
+		%NAME('__',RTN) : INITIAL(0);
+
+	    IF (.%NAME('__',RTN) EQLA 0) THEN
+		LIB$FIND_IMAGE_SYMBOL(SSL$LIBSSL_SHR32, %ASCID %STRING(NAME),
+				      %NAME('__',RTN));
+	    CALLG(.AP, .%NAME('__',RTN))
+	END;
+    %;
+
+    SSL_CALL(BIO_free);
+    SSL_CALL(BIO_new);
+    SSL_CALL(BIO_s_mem);
+    SSL_CALL(SSLv2_method);
+    SSL_CALL(SSLv23_method);
+    SSL_CALL(SSLv3_method);
+    SSL_CALL(SSL_CTX_check_private_key);
+    SSL_CALL(SSL_CTX_free);
+    SSL_CALL(SSL_CTX_new);
+    SSL_CALL(SSL_CTX_use_PrivateKey_file);
+    SSL_CALL(SSL_CTX_use_certificate_file);
+    SSL_CALL(SSL_accept);
+    SSL_CALL(SSL_connect);
+    SSL_CALL(SSL_free);
+    SSL_CALL(SSL_library_init);
+    SSL_CALL(SSL_new);
+    SSL_CALL(SSL_set_bio);
+    SSL_CALL(SSL_shutdown);
+    SSL_CALL(TLSv1_method);
+
+END
+ELUDOM
