@@ -68,7 +68,7 @@ BEGIN
     BIND
 	SSL$LIBSSL_SHR32 = UPLIT(%ASCID'SSL$LIBSSL_SHR32');
 
-    MACRO SSL_CALL(RTN) =
+    MACRO SSL_ROUTINE(RTN) =
 	GLOBAL ROUTINE RTN =
 	BEGIN
 	    BUILTIN
@@ -83,25 +83,25 @@ BEGIN
 	END;
     %;
 
-    SSL_CALL(BIO_free);
-    SSL_CALL(BIO_new);
-    SSL_CALL(BIO_s_mem);
-    SSL_CALL(SSLv2_method);
-    SSL_CALL(SSLv23_method);
-    SSL_CALL(SSLv3_method);
-    SSL_CALL(SSL_CTX_check_private_key);
-    SSL_CALL(SSL_CTX_free);
-    SSL_CALL(SSL_CTX_new);
-    SSL_CALL(SSL_CTX_use_PrivateKey_file);
-    SSL_CALL(SSL_CTX_use_certificate_file);
-    SSL_CALL(SSL_accept);
-    SSL_CALL(SSL_connect);
-    SSL_CALL(SSL_free);
-    SSL_CALL(SSL_library_init);
-    SSL_CALL(SSL_new);
-    SSL_CALL(SSL_set_bio);
-    SSL_CALL(SSL_shutdown);
-    SSL_CALL(TLSv1_method);
+    SSL_ROUTINE(BIO_free);
+    SSL_ROUTINE(BIO_new);
+    SSL_ROUTINE(BIO_s_mem);
+    SSL_ROUTINE(SSLv2_method);
+    SSL_ROUTINE(SSLv23_method);
+    SSL_ROUTINE(SSLv3_method);
+    SSL_ROUTINE(SSL_CTX_check_private_key);
+    SSL_ROUTINE(SSL_CTX_free);
+    SSL_ROUTINE(SSL_CTX_new);
+    SSL_ROUTINE(SSL_CTX_use_PrivateKey_file);
+    SSL_ROUTINE(SSL_CTX_use_certificate_file);
+    SSL_ROUTINE(SSL_accept);
+    SSL_ROUTINE(SSL_connect);
+    SSL_ROUTINE(SSL_free);
+    SSL_ROUTINE(SSL_library_init);
+    SSL_ROUTINE(SSL_new);
+    SSL_ROUTINE(SSL_set_bio);
+    SSL_ROUTINE(SSL_shutdown);
+    SSL_ROUTINE(TLSv1_method);
 
 END
 ELUDOM
