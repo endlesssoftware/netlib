@@ -60,29 +60,51 @@ BEGIN
 !   19-APR-2013 V1.0    Sneddon     Initial coding.
 !--
 
-    LIBRARY 'SYS$LIBRARY:STARLET';
+    LIBRARY 'SYS$LIBRARY:LIB';
 
     EXTERNAL ROUTINE
 	LIB$FIND_IMAGE_SYMBOL;
 
     BIND
-	SSL$LIBSSL_SHR32 = UPLIT(%ASCID'SSL$LIBSSL_SHR32');
+	SSL$LIBSSL_SHR32 = %ASCID'SSL$LIBSSL_SHR32';
+
+    OWN
+	SSL_API_INIT : INITIAL(0);
 
     MACRO SSL_ROUTINE(RTN) =
 	GLOBAL ROUTINE RTN =
 	BEGIN
 	    BUILTIN
 		AP, CALLG;
+
+	    EXTERNAL ROUTINE
+		SSL_library_init;
+
 	    OWN
 		%NAME('__',RTN) : INITIAL(0);
 
+	    LOCAL
+		STATUS;
+
 	    IF (.%NAME('__',RTN) EQLA 0) THEN
-		LIB$FIND_IMAGE_SYMBOL(SSL$LIBSSL_SHR32, %ASCID %STRING(NAME),
-				      %NAME('__',RTN));
+	    BEGIN
+		STATUS = LIB$FIND_IMAGE_SYMBOL(SSL$LIBSSL_SHR32,
+					       %ASCID %STRING(RTN),
+				     	       %NAME('__',RTN));
+		IF (NOT .STATUS) THEN SIGNAL_STOP(.STATUS);
+	    END;
+
+	    IF (NOT .SSL_API_INIT) THEN
+	    BEGIN
+		SSL_API_INIT = 1;
+		SSL_library_init();
+	    END;
+
 	    CALLG(.AP, .%NAME('__',RTN))
 	END;
     %;
 
+    SSL_ROUTINE(SSL_library_init);
     SSL_ROUTINE(BIO_free);
     SSL_ROUTINE(BIO_new);
     SSL_ROUTINE(BIO_s_mem);
@@ -97,7 +119,6 @@ BEGIN
     SSL_ROUTINE(SSL_accept);
     SSL_ROUTINE(SSL_connect);
     SSL_ROUTINE(SSL_free);
-    SSL_ROUTINE(SSL_library_init);
     SSL_ROUTINE(SSL_new);
     SSL_ROUTINE(SSL_set_bio);
     SSL_ROUTINE(SSL_shutdown);
