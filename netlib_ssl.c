@@ -103,14 +103,13 @@ unsigned int netlib_ssl_context (void **xssl, unsigned int method,
 
     SETARGCOUNT(argc);
 
-printf("even get in here\n");
     ssl = SSL_CTX_new((method == NETLIB_K_METHOD_SSL2) ? SSLv2_method() :
 		      (method == NETLIB_K_METHOD_SSL3) ? SSLv3_method() :
 		      (method == NETLIB_K_METHOD_TLS1) ? TLSv1_method() :
 		       SSLv23_method());
     if (ssl == 0) return SS$_INSFMEM;
 
-    status = lib$analyze_sdesc(&cert_d, &len, &ptr);
+    status = lib$analyze_sdesc(cert_d, &len, &ptr);
     if (OK(status)) {
 	cert = malloc(len+1);
 	if (cert == 0) {
@@ -119,7 +118,7 @@ printf("even get in here\n");
 	    memcpy(cert, ptr, len);
 	    cert[len] = '\0';
 
-	    status = lib$analyze_sdesc(&key_d, &len, &ptr);
+	    status = lib$analyze_sdesc(key_d, &len, &ptr);
 	    if (OK(status)) {
 		key = malloc(len+1);
 		if (key == 0) {
