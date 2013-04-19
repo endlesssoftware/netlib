@@ -62,8 +62,7 @@
 */
 
     static void netlib___ssl_initialize(void);
-    static void netlib___ssl_fis(char *symbol, int len, void (*value)(void))
-
+    static void netlib___ssl_fis(char *symbol, int len, void (*value)(void));
 
 /*
 **  Global storage
@@ -83,7 +82,7 @@
     void (*SSL_accept)(void);
     void (*SSL_connect)(void);
     void (*SSL_free)(void);
-    void (*SSL_library_init)(void)
+    void (*SSL_library_init)(void);
     void (*SSL_new)(void);
     void (*SSL_set_bio)(void);
     void (*SSL_shutdown)(void);
@@ -93,7 +92,7 @@
 **  Some helpful macro
 */
 
-#define ssl_fis(name) netlib___ssl_fis(#name, sizeof(#name), name
+#define ssl_fis(name) netlib___ssl_fis(#name, sizeof(#name), name)
 
 /*
 **  Setup LIB$INTIAILIZE..
@@ -103,7 +102,7 @@
 #ifdef __VAX
 #  pragma extern_model strict_refdef "LIB$INITIALIZE" nowrt,long,nopic
 #else
-#  pragma extern_model strict_refdef "LIB$INTIAILIZE" nowrt,long
+#  pragma extern_model strict_refdef "LIB$INITIALIZE" nowrt,long
 #  if __INITIAL_POINTER_SIZE
 #    pragma __pointer_size __save
 #    pragma __pointer_size 32
@@ -119,7 +118,7 @@
 #  else
 #    pragma __required_pointer_size __restore
 #  endif
-#endi
+#endif
 
 /*
 ** Force a reference to LIB$INITIALIZE to ensure it exists
@@ -157,7 +156,7 @@ static void netlib___ssl_initialize(void) {
 }
 
 static void netlib___ssl_fis(char *symbol, int len, void (*value)(void)) {
-    static $DESCRIPTOR(libssl, "SSL$LIBSSL_SHR32")
+    static $DESCRIPTOR(libssl, "SSL$LIBSSL_SHR32");
 
     struct dsc$descriptor symbol_d;
 
