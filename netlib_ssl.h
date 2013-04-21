@@ -4,7 +4,13 @@
 #ifndef __NETLIB_BUILD__
 #define __NETLIB_BUILD__
 #endif
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <strings.h>
 #include <openssl/bio.h>
+#include <openssl/err.h>
 #include <openssl/ssl.h>
 
 #define BUF_MAX  16384
