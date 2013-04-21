@@ -1,5 +1,5 @@
 %TITLE 'SSL_API'
-MODULE SSL_API (IDENT='V1.0', ADDRESSING_MODE (EXTERNAL=GENERAL)) =
+MODULE SSL_API (IDENT='V1.1', ADDRESSING_MODE (EXTERNAL=GENERAL)) =
 BEGIN
 !++
 ! FACILITY:         NETLIB
@@ -58,6 +58,8 @@ BEGIN
 ! MODIFICATION HISTORY:
 !
 !   19-APR-2013 V1.0    Sneddon     Initial coding.
+!   21-APR-2013 V1.1    Sneddon     Add ERR routines.  Update SSL_ROUTINE
+!				    to handle differernt shareable images.
 !--
 
     LIBRARY 'SYS$LIBRARY:LIB';
