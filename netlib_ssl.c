@@ -73,6 +73,7 @@
 				     struct NETLIBIOSBDEF *iosb,
 			             void (*astadr)(), void *astprm);
     static unsigned int io_perform(struct IOR *IOR);
+    int netlib___cvt_status(int err, ...);
 
     /*
     ** These functions are needed by the DNS module
@@ -134,16 +135,32 @@ unsigned int netlib_ssl_context (void **xssl, unsigned int method,
     if (OK(status)) {
 	ret = SSL_CTX_use_certificate_file(ssl, cert, *cert_type);
 	if (ret <= 0) {
-	    // error in here...
-	    // errno and vaxc$errno can be used?
+	    status = vaxc$errno;
+printf("use_cer,ret=%d,errno=%d,vaxc$errno=%d,%s\n",ret,errno,vaxc$errno,
+		strerror(errno,vaxc$errno));
+ret = ERR_peek_error();
+printf("SSL = %d\n", ret);
+printf("LIB = %d, FUNC = %d, REASON = %d\n", ERR_GET_LIB(ret),
+		ERR_GET_FUNC(ret), ERR_GET_REASON(ret));
 	} else {
 	    ret = SSL_CTX_use_PrivateKey_file(ssl, key, *key_type);
 	    if (ret <= 0) {
-		// errno and vaxc$errno can be used
-		// error in here...
+		status = vaxc$errno;
+printf("use_priv,ret=%d,errno=%d,vaxc$errno=%d,%s\n",ret,errno,vaxc$errno,
+		strerror(errno,vaxc$errno));
+ret = ERR_peek_error();
+printf("SSL = %d\n", ret);
+printf("LIB = %d, FUNC = %d, REASON = %d\n", ERR_GET_LIB(ret),
+		ERR_GET_FUNC(ret), ERR_GET_REASON(ret));
+printf("\n");
 	    } else {
 		ret = SSL_CTX_check_private_key(ssl);
-		status = SS$_BADCHECKSUM;
+		if (ret <= 0) {
+		    printf("errno=%d,ret=%d,vaxc$errno=%d,%s\n",
+				errno,ret,vaxc$errno,
+				strerror(errno,vaxc$errno));
+		    status = SS$_BADCHECKSUM;
+		}
 	    }
 	}
     }
@@ -593,3 +610,61 @@ netlib_ssl_setup...do some generic configuration that means the user does not
 Don't forget to add the public API into the NETLIBDEF header file...
 */
 #endif
+
+/*
+
+Translate SSL status codes to OpenVMS ones...
+
+Should we store these somewhere and provide an interface to fetch the
+full status via a netlib_ssl_xxx routine?  This way you could find out what
+was really going on.  Although, we still need to document the kind of
+errors that occur when processing the errors...
+
+*/
+int netlib___cvt_status(int err,
+			...) {
+
+    va_list argptr;
+    int argc;
+    int _errno = EVMSERR, _vaxc$errno = SS$_NORMAL;
+    int lib, func, reason;
+
+    SET_ARGCOUNT(argc);
+
+    if (argc > 1) {
+	va_start(sslerr, argptr);
+	_errno = va_arg(argptr, int);
+	if (argc > 2) _vaxc$errno = va_arg(argptr, int);
+	va_end(argptr);
+    }
+
+    lib = ERR_GET_LIB(err);
+    func = ERR_GET_FUND(err);
+    reason = ERR_GET_REASON(err);
+
+    switch (lib) {
+    case ERR_LIB_SYS:
+	status = _vaxc$errno;
+	break;
+
+    case ERR_LIB_X509:
+	switch (reason) {
+	case X509_R_INVALID_DIRECTORY:
+	    status = RMS$_DNF;
+	    break;
+	case X509_R_KEY_TYPE_MISMATCH:
+	case X509_R_KEY_VALUES_MISMATCH:
+	    status = RMS$_KEY_MISMATCH;
+	    break;
+	case X509_R_UNSUPPORTED_ALGORITHM:
+	    status = SS$_UNSUPPORTED;
+	    break;
+	default:
+	    status = SS$_BADCHECKSUM;
+	    break;
+	}
+	break;
+    }
+
+    return status;
+}
