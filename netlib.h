@@ -16,13 +16,14 @@
 **  29-Sep-1993	    Madison 	Initial commenting.
 **  31-May-1997	    Madison 	Fix queue access.
 **  07-Nov-2004     Madison     IA64 support.
+**  25-Jul-2013     Sneddon     Swap varargs.h for stdarg.h.
 */
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <varargs.h>
+#include <stdarg.h>
 #include <socket.h>
 #include <in.h>
 #include <netdb.h>

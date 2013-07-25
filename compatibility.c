@@ -34,13 +34,14 @@
 **  	17-FEB-1995 V1.1-4  Madison 	Allow SS$_LINKDISCON as success on
 **  	    	    	    	    	    tcp_disconnect.
 **      07-NOV-2004 V1.1-5  Madison     IA64 support.
+**      25-JUL-2013 V1.1-6  Sneddon     Swap varargs.h for stdarg.h.
 **--
 */
 #include "netlibdef.h"
 #include <ssdef.h>
 #include <descrip.h>
 #include <stsdef.h>
-#include <varargs.h>
+#include <stdarg.h>
 #include <string.h>
 #include <lib$routines.h>
 #include <starlet.h>
