@@ -50,6 +50,7 @@
 #define __NETLIB_BUILD__
 #endif
 #include <errno.h>
+#include <rmsdef.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>

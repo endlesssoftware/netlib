@@ -627,19 +627,19 @@ int netlib___cvt_status(int err,
     va_list argptr;
     int argc;
     int _errno = EVMSERR, _vaxc$errno = SS$_NORMAL;
-    int lib, func, reason;
+    int lib, func, reason, status;
 
-    SET_ARGCOUNT(argc);
+    SETARGCOUNT(argc);
 
     if (argc > 1) {
-	va_start(sslerr, argptr);
+	va_start(argptr, err);
 	_errno = va_arg(argptr, int);
 	if (argc > 2) _vaxc$errno = va_arg(argptr, int);
 	va_end(argptr);
     }
 
     lib = ERR_GET_LIB(err);
-    func = ERR_GET_FUND(err);
+    func = ERR_GET_FUNC(err);
     reason = ERR_GET_REASON(err);
 
     switch (lib) {
