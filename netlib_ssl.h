@@ -63,7 +63,7 @@
 #define BUF_MAX  16384
 
 /*
-** Socket-level SSL specific fields.
+** Connect-level SSL specific fields.
 */
 #define spec_socket	specctx->socket
 #define spec_ssl	specctx->ssl
@@ -85,13 +85,13 @@
 /*
 ** I/O-level SSL specific fields.
 */
-#define spec_call	arg[0].address
-#define spec_argv	arg[1].address
-#define spec_bptr	arg[2].address
-#define spec_blen	arg[3].longword
+
+#define spec_argc	arg[0].longword
+#define spec_argv(i)	arg[(i)+1]
+#define spec_call	specior.call
 
     struct SPECIOR {
-    	unsigned short fromlen;
+	int (*call)();
     };
 #define __SPECIOR struct SPECIOR
 
