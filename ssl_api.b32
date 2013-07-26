@@ -62,7 +62,8 @@ BEGIN
 !				    to handle differernt shareable images.
 !   25-JUL-2013 V1.1-1  Sneddon     Correct RTL containing BIO*.
 !   26-JUL-2013 V1.1-2  Sneddon     Add BIO_get_retry_reason, BIO_ctrl,
-!				    BIO_get_retry_BIO.
+!				    BIO_get_retry_BIO, BIO_push, BIO_pop,
+!				    BIO_f_buffer.
 !--
 
     LIBRARY 'SYS$LIBRARY:LIB';
@@ -115,8 +116,11 @@ BEGIN
     SSL_ROUTINE(SSL_library_init, SSL$LIBSSL_SHR32);
     SSL_ROUTINE(BIO_free, SSL$LIBCRYPTO_SHR32);
     SSL_ROUTINE(BIO_new, SSL$LIBCRYPTO_SHR32);
+    SSL_ROUTINE(BIO_f_buffer, SSL$LIBCRYPTO_SHR32);
     SSL_ROUTINE(BIO_s_mem, SSL$LIBCRYPTO_SHR32);
     SSL_ROUTINE(BIO_ctrl, SSL$LIBCRYPTO_SHR32);
+    SSL_ROUTINE(BIO_push, SSL$LIBCRYPTO_SHR32);
+    SSL_ROUTINE(BIO_pop, SSL$LIBCRYPTO_SHR32);
     SSL_ROUTINE(BIO_get_retry_reason, SSL$LIBCRYPTO_SHR32);
     SSL_ROUTINE(BIO_get_retry_BIO, SSL$LIBCRYPTO_SHR32);
     SSL_ROUTINE(ERR_get_error, SSL$LIBCRYPTO_SHR32);
