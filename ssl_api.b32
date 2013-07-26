@@ -1,5 +1,5 @@
 %TITLE 'SSL_API'
-MODULE SSL_API (IDENT='V1.1-1', ADDRESSING_MODE (EXTERNAL=GENERAL)) =
+MODULE SSL_API (IDENT='V1.1-2', ADDRESSING_MODE (EXTERNAL=GENERAL)) =
 BEGIN
 !++
 ! FACILITY:         NETLIB
@@ -61,6 +61,7 @@ BEGIN
 !   21-APR-2013 V1.1    Sneddon     Add ERR routines.  Update SSL_ROUTINE
 !				    to handle differernt shareable images.
 !   25-JUL-2013 V1.1-1  Sneddon     Correct RTL containing BIO*.
+!   26-JUL-2013 V1.1-2  Sneddon     Add BIO_get_retry_reason.
 !--
 
     LIBRARY 'SYS$LIBRARY:LIB';
@@ -114,6 +115,7 @@ BEGIN
     SSL_ROUTINE(BIO_free, SSL$LIBCRYPTO_SHR32);
     SSL_ROUTINE(BIO_new, SSL$LIBCRYPTO_SHR32);
     SSL_ROUTINE(BIO_s_mem, SSL$LIBCRYPTO_SHR32);
+    SSL_ROUTINE(BIO_get_retry_reason, SSL$LIBCRYPTO_SHR32);
     SSL_ROUTINE(ERR_get_error, SSL$LIBCRYPTO_SHR32);
     SSL_ROUTINE(ERR_peek_error, SSL$LIBCRYPTO_SHR32);
     SSL_ROUTINE(ERR_peek_last_error, SSL$LIBCRYPTO_SHR32);
