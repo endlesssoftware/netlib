@@ -61,7 +61,8 @@ BEGIN
 !   21-APR-2013 V1.1    Sneddon     Add ERR routines.  Update SSL_ROUTINE
 !				    to handle differernt shareable images.
 !   25-JUL-2013 V1.1-1  Sneddon     Correct RTL containing BIO*.
-!   26-JUL-2013 V1.1-2  Sneddon     Add BIO_get_retry_reason, BIO_get_retry_BIO.
+!   26-JUL-2013 V1.1-2  Sneddon     Add BIO_get_retry_reason, BIO_ctrl,
+!				    BIO_get_retry_BIO.
 !--
 
     LIBRARY 'SYS$LIBRARY:LIB';
