@@ -17,6 +17,7 @@
 **  31-May-1997	    Madison 	Fix queue access.
 **  07-Nov-2004     Madison     IA64 support.
 **  25-Jul-2013     Sneddon     Swap varargs.h for stdarg.h.
+**  29-Jul-2013	    Sneddon	Moved *BLOCK_ASTS in here.
 */
 #include <stdio.h>
 #include <stddef.h>
@@ -212,5 +213,17 @@ typedef struct { unsigned short bufsiz, itmcod; void *bufadr, *retlen; } ITMLST;
     unsigned int netlib___alloc_dnsreq(struct DNSREQ **);
     unsigned int netlib___free_dnsreq(struct DNSREQ *);
 #endif
+
+#define BLOCK_ASTS(stat_) do { \
+        if (lib$ast_in_prog()) \
+            (stat_) = 0; \
+        else \
+            (stat_) = sys$setast(0); \
+        } while (0)
+
+#define UNBLOCK_ASTS(stat_) do { \
+        if ((stat_) == SS$_WASSET) \
+            sys$setast(1); \
+        } while (0)
 
 #endif /* NETLIB_H_LOADED */

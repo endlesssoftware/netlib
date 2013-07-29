@@ -24,6 +24,7 @@
 **  	09-NOV-1994 V1.1    Madison 	Add IOR, DNSREQ.
 **  	31-AUG-1995 V1.1-1  Madison 	Update free_ctx() to free wlinebuf.
 **  	05-FEB-2000 V1.1-2  Madison 	Improve AST/non-AST synchronization.
+**	29-Jul-2013 V1.2    Sneddon	Move *BLOCK_ASTS to netlib.h.
 **--
 */
 #define __NETLIB_MODULE_MEM__
@@ -53,18 +54,6 @@
 #pragma standard
     static volatile QUEUE iorque = {(void *) &iorque, (void *) &iorque};
     static volatile QUEUE dnsreqque = {(void *) &dnsreqque, (void *) &dnsreqque};
-
-#define BLOCK_ASTS(stat_) do { \
-    	if (lib$ast_in_prog()) \
-    	    (stat_) = 0; \
-    	else \
-    	    (stat_) = sys$setast(0); \
-    	} while (0)
-
-#define UNBLOCK_ASTS(stat_) do { \
-    	if ((stat_) == SS$_WASSET) \
-    	    sys$setast(1); \
-    	} while (0)
 
 /*
 **  External references
