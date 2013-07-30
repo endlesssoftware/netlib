@@ -109,7 +109,7 @@ BEGIN
 		SSL_library_init();
 	    END;
 
-	    CALLG(.AP, .%NAME('__',RTN))
+	    CALLG(.AP, ..%NAME('__',RTN))
 	END;
     %;
 

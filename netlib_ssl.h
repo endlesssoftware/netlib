@@ -49,6 +49,7 @@
 #ifndef __NETLIB_BUILD__
 #define __NETLIB_BUILD__
 #endif
+#include <descrip.h>
 #include <errno.h>
 #include <rmsdef.h>
 #include <stdarg.h>
@@ -69,15 +70,17 @@
 #define spec_ssl	specctx->ssl
 #define spec_rbio	specctx->rbio
 #define spec_wbio	specctx->wbio
+#define spec_buf	specctx->buf
+#define spec_flags	specctx->flags
+
+#define IOR_M_COMPLETE  (1<<16)
 
     struct SPECCTX {
 	void *socket;
 	SSL *ssl;
 	BIO *rbio, *wbio;
-	struct {
-	    char buf[BUF_MAX], *ptr;
-	    int alloc, len;
-	} rbuf, wbuf;
+	struct dsc$descriptor buf;
+	unsigned flags;
     };
 #define __SPECCTX struct SPECCTX
 #define SPECCTX_SIZE sizeof(__SPECCTX)
@@ -86,6 +89,7 @@
 ** I/O-level SSL specific fields.
 */
 
+#define spec_args	arg
 #define spec_argc	arg[0].longword
 #define spec_argv(i)	arg[(i)+1]
 #define spec_call	specior.call

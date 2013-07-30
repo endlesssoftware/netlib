@@ -66,13 +66,15 @@
     unsigned int netlib_ssl_accept(struct CTX **xctx,
 				   struct NETLIBIOSBDEF *iosb,
 			           void (*astadr)(), void *astprm);
-    unsigned int netlib_ssl_connect(struct CTX **xctx,
+    unsigned int netlib_ssl_connect(struct CTX **xctx, TIME *timeout,
 				   struct NETLIBIOSBDEF *iosb,
 			           void (*astadr)(), void *astprm);
     unsigned int netlib_ssl_shutdown(struct CTX **xctx,
 				     struct NETLIBIOSBDEF *iosb,
 			             void (*astadr)(), void *astprm);
     static unsigned int io_perform(struct IOR *IOR);
+    static unsigned int io_read(struct IOR *ior);
+    static unsigned int io_write(struct IOR *ior);
     int netlib___cvt_status(int err, ...);
 
     /*
@@ -86,13 +88,16 @@
 /*
 **  OWN storage
 */
+
+    volatile unsigned netlib_ssl_efn = 0xffffffff;
+
 
 /*
 **
 **  SS$_INSFMEM - unable to allocate internal SSL structures
 **  SS$_BADCHECKSUM - key and cert do not match
 */
-unsigned int netlib_ssl_context (void **xssl, unsigned int method,
+unsigned int netlib_ssl_context (void **xssl, unsigned int *method,
 				 struct dsc$descriptor *cert_d, int *cert_type,
 				 struct dsc$descriptor *key_d, int *key_type,
 				 unsigned int *verify) {
@@ -103,10 +108,10 @@ unsigned int netlib_ssl_context (void **xssl, unsigned int method,
     unsigned short len;
 
     SETARGCOUNT(argc);
-
-    ssl = SSL_CTX_new((method == NETLIB_K_METHOD_SSL2) ? SSLv2_method() :
-		      (method == NETLIB_K_METHOD_SSL3) ? SSLv3_method() :
-		      (method == NETLIB_K_METHOD_TLS1) ? TLSv1_method() :
+SSL_library_init();
+    ssl = SSL_CTX_new((*method == NETLIB_K_METHOD_SSL2) ? SSLv2_method() :
+		      (*method == NETLIB_K_METHOD_SSL3) ? SSLv3_method() :
+		      (*method == NETLIB_K_METHOD_TLS1) ? TLSv1_method() :
 		       SSLv23_method());
     if (ssl == 0) return SS$_INSFMEM;
 
@@ -165,6 +170,14 @@ printf("\n");
 	}
     }
 
+    // if status OK and verify location path was supplied
+	// SSL_CTX_load_verify_locations
+	// if works
+	    // SSL_CTX_set_erify(ssl, SSL_VERIFY_PEER, 0);
+	    // SSL_CT_set_verify_depth(ssl, 1);
+	// else
+	    // RMS$_DNF?
+
     if (cert != 0) free(cert);
     if (key != 0) free(key);
 
@@ -176,6 +189,27 @@ printf("\n");
     return status;
 } /* netlib_ssl_context */
 
+long bio_mem_callback(BIO *b,
+		      int oper,
+		      const char *argp,
+		      int argi,
+		      long argl,
+		      long retvalue) {
+
+    struct CTX *ctx = (struct CTX *)BIO_get_callback_arg(b);
+
+    if (oper == (BIO_CB_RETURN|BIO_CB_WRITE)) {
+	if (ctx->spec_flags & IOR_M_COMPLETE) {
+	    ctx->spec_flags &= ~IOR_M_COMPLETE;
+	} else {
+	    BIO_set_retry_write(b);
+	    retvalue = -1;
+	}
+    }
+
+    return retvalue;
+}
+
 /*
 **++
 **  ROUTINE:	netlib_ssl_socket
@@ -208,23 +242,45 @@ unsigned int netlib_ssl_socket (struct CTX **xctx, void **xsocket,
 
     int argc;
     struct CTX *ctx;
-    unsigned int status = SS$_INSFMEM;
+    unsigned int aststat, status;
 
     SETARGCOUNT(argc);
     if (argc < 3) return SS$_INSFARG;
     if (xsocket == 0 || xssl == 0) return SS$_BADPARAM;
     if (*xsocket == 0 || *xssl == 0) return SS$_BADPARAM;
 
+    BLOCK_ASTS(aststat);
+    if (netlib_ssl_efn == 0xffffffff) {
+    	status = lib$get_ef(&netlib_ssl_efn);
+    	if (!OK(status)) {
+    	    UNBLOCK_ASTS(aststat);
+    	    return status;
+    	}
+    }
+    UNBLOCK_ASTS(aststat);
+
     status = netlib___alloc_ctx(&ctx, SPECCTX_SIZE);
     if (!OK(status)) return status;
 
+    ctx->spec_socket = *xsocket;
+
+    status = SS$_INSFMEM;
     if ((ctx->spec_rbio = BIO_new(BIO_s_mem())) != 0) {
 	if ((ctx->spec_wbio = BIO_new(BIO_s_mem())) != 0) {
+	    BIO_set_callback(ctx->spec_wbio, bio_mem_callback);
+	    BIO_set_callback_arg(ctx->spec_wbio, ctx);
 	    if ((ctx->spec_ssl = SSL_new(*xssl)) != 0) {
-		SSL_set_bio(ctx->spec_ssl, ctx->spec_rbio, ctx->spec_wbio); 
-		status = SS$_NORMAL;
+	    	SSL_set_bio(ctx->spec_ssl, ctx->spec_rbio, ctx->spec_wbio);
+
+	    	ctx->spec_buf.dsc$w_length = 0;
+	    	ctx->spec_buf.dsc$b_dtype = DSC$K_DTYPE_T;
+	    	ctx->spec_buf.dsc$b_class = DSC$K_CLASS_S;
+	    	ctx->spec_buf.dsc$a_pointer = malloc(BUF_MAX);
+	    	if (ctx->spec_buf.dsc$a_pointer != 0) {
+		    status = SS$_NORMAL;
+	    	}
 	    } else {
-		status = SS$_BADCONTEXT;
+	    	status = SS$_BADCONTEXT;
 	    }
 	}
     }
@@ -233,6 +289,8 @@ unsigned int netlib_ssl_socket (struct CTX **xctx, void **xsocket,
 	if (ctx->spec_rbio != 0) BIO_free(ctx->spec_rbio);
 	if (ctx->spec_wbio != 0) BIO_free(ctx->spec_wbio);
 	if (ctx->spec_ssl != 0) SSL_free(ctx->spec_ssl);
+	if (ctx->spec_buf.dsc$a_pointer != 0)
+	    free(ctx->spec_buf.dsc$a_pointer);
 	netlib___free_ctx(ctx);
     } else {
 	*xctx = ctx;
@@ -329,10 +387,11 @@ unsigned int netlib_ssl_accept (struct CTX **xctx,
 **
 **--
 */
-unsigned int netlib_ssl_connect (struct CTX **xctx,
+unsigned int netlib_ssl_connect (struct CTX **xctx, TIME *timeout,
 			         struct NETLIBIOSBDEF *iosb,
 			         void (*astadr)(), void *astprm) {
 
+    
     struct CTX *ctx;
     unsigned int status;
     int argc, *argv;
@@ -342,9 +401,9 @@ unsigned int netlib_ssl_connect (struct CTX **xctx,
 
     if (argc < 1) return SS$_INSFARG;
 
-    if (argc > 2 && astadr != 0) {
+    if (argc > 3 && astadr != 0) {
 	struct IOR *ior;
-	GET_IOR(ior, ctx, iosb, astadr, (argc > 3) ? astprm : 0);
+	GET_IOR(ior, ctx, iosb, astadr, (argc > 4) ? astprm : 0);
 	ior->spec_argc = 1;
 	ior->spec_argv(0).address = ctx->spec_ssl;
 	ior->spec_call = SSL_connect;
@@ -354,8 +413,97 @@ unsigned int netlib_ssl_connect (struct CTX **xctx,
 	// we don't do anything here yet...how are we going to handle this?
     }
 
+    // SSL timeouts need to be handled by ourselves...the netlib routines
+    // underneatch should likely be called without...
+
     return status;
+
 } /* netlib_ssl_connect */
+
+static unsigned int io_perform(struct IOR *ior) {
+
+    int ret, status;
+    struct CTX *ctx = ior->ctx;
+
+// need to check the iosb status first!
+
+    ret = lib$callg(ior->arg, ior->spec_call);
+    status = SSL_get_error(ctx->spec_ssl, ret);
+    if (status == SSL_ERROR_WANT_READ) {
+	status = netlib_read(&ctx->spec_socket, &ctx->spec_buf, 0, 0,
+			     0, 0, &ior->iosb, io_read, ior);
+    } else if (status == SSL_ERROR_WANT_WRITE) {
+	ret = BIO_read(ctx->spec_wbio, ctx->spec_buf.dsc$a_pointer, BUF_MAX);
+	if (ret > 0) {
+	    /*
+	    ** ACHTUNG!  Pay attentiong here...at this point we assume that
+	    **		 no buffer will exceed 65535.  This is likely not
+	    **		 going to be the case at some point and we should be
+	    **		 read to cope with it.
+	    */
+	    ctx->spec_buf.dsc$w_length = ret;
+	    status = netlib_write(&ctx->spec_socket, &ctx->spec_buf, 0, 0,
+				  &ior->iosb, io_write, ior);
+	} else {
+	    /*
+	    ** There is no reason that a BIO_read from a memory BIO should
+	    ** fail, so we just assume it didn't and queue the next try.
+	    */
+	    status = sys$dclast(io_perform, ior, 0);
+	    // if status is bad?
+		// update the user's iosb...
+	    printf("dclast=%d\n",status);
+	}
+    } else {
+	// setup the iosb status
+	// set the iosb status to the length of what was supposed to be
+	//  written, or if incomplete?  How can we track that?
+	// maybe use the extra fields of the iosb to report how much ssl
+	//  traffic read/write was done...
+
+	if (ior->astadr != 0) (*(ior->astadr))(ior->astprm);
+
+	FREE_IOR(ior);
+    }
+
+    return SS$_NORMAL;
+} /* io_perform */
+
+static unsigned int io_write(struct IOR *ior) {
+
+    int status;
+    struct CTX *ctx = ior->ctx;
+
+    if (OK(ior->iosb.iosb_w_status)) {
+	ctx->spec_flags |= IOR_M_COMPLETE;
+    }
+
+    sys$dclast(io_perform, ior, 0);
+
+    return SS$_NORMAL;
+}
+
+static unsigned int io_read(struct IOR *ior) {
+
+    int status;
+    struct CTX *ctx = ior->ctx;
+
+    if (OK(ior->iosb.iosb_w_status)) {
+	status = BIO_write(ctx->spec_rbio, ctx->spec_buf.dsc$a_pointer,
+			   ior->iosb.iosb_w_count);
+	if (status > 0) {
+	    status = sys$dclast(io_perform, ior, 0);
+	} else {
+	    status = BIO_get_retry_reason(ctx->spec_rbio);
+	    status = sys$dclast(io_perform, ior, 0);
+
+	    /** WHY ARE WE IN HERE?  The doco is lacking! **/
+	}
+    } else {
+    }
+
+    return SS$_NORMAL;
+}
 
 #if 0
 /*
