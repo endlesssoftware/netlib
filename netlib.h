@@ -18,6 +18,7 @@
 **  07-Nov-2004     Madison     IA64 support.
 **  25-Jul-2013     Sneddon     Swap varargs.h for stdarg.h.
 **  29-Jul-2013	    Sneddon	Moved *BLOCK_ASTS in here.
+**  30-Jul-2013     Sneddon	GET_IOR now initializes the internal IOSB.
 */
 #include <stdio.h>
 #include <stddef.h>
@@ -71,10 +72,12 @@ typedef struct { unsigned short bufsiz, itmcod; void *bufadr, *retlen; } ITMLST;
 #define INIT_QUEUE(que) {que.head = que.tail = &que;}
 #define SETARGCOUNT(x) va_count(x)
 #define VERIFY_CTX(x,c) {if ((x) == 0) return SS$_BADPARAM; c = *x;}
-#define GET_IOR(x, _ctx, _iosb, _astadr, _astprm) {unsigned int status;\
+#define GET_IOR(x, _ctx, _iosb, _astadr, _astprm) do {unsigned int status;\
     	    status = netlib___alloc_ior(&x);\
     	    if (!OK(status)) return status; (x)->ctx = (_ctx);\
-    	    (x)->iosbp=(_iosb); (x)->astadr=(_astadr); (x)->astprm=(_astprm);}
+	    (x)->iosb.iosb_w_status = SS$_NORMAL; (x)->iosb.iosb_w_count = 0;\
+    	    (x)->iosbp=(_iosb); (x)->astadr=(_astadr); (x)->astprm=(_astprm);\
+	    } while (0)
 #define FREE_IOR(x) netlib___free_ior(x);
 #define GET_DNSREQ(x, _ctx, _iosb, _astadr, _astprm) {unsigned int status;\
     	    status = netlib___alloc_dnsreq(&x);\
