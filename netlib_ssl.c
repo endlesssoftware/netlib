@@ -331,7 +331,7 @@ unsigned int netlib_ssl_accept (struct CTX **xctx, TIME *timeout,
     ior->spec_argc = 1;
     ior->spec_argv(0).address = ctx->spec_ssl;
     ior->spec_call = SSL_accept;
-    status = sys$dclast(io_queue, ior, 0);
+    status = io_queue(ior);
 
     // at this point if we were NOT AST, then we would wait on the
     // netlib_ssl_efn
@@ -384,7 +384,7 @@ unsigned int netlib_ssl_connect (struct CTX **xctx, TIME *timeout,
     ior->spec_argc = 1;
     ior->spec_argv(0).address = ctx->spec_ssl;
     ior->spec_call = SSL_connect;
-    status = sys$dclast(io_queue, ior, 0);
+    status = io_queue(ior);
 
     // at this point if we were NOT AST, then we would wait on the
     // netlib_ssl_efn
@@ -438,7 +438,7 @@ unsigned int netlib_ssl_shutdown (struct CTX **xctx,
     ior->spec_argc = 1;
     ior->spec_argv(0).address = ctx->spec_ssl;
     ior->spec_call = SSL_shutdown;
-    status = sys$dclast(io_queue, ior, 0);
+    status = io_queue(ior);
 
     // at this point if we were NOT AST, then we would wait on the
     // netlib_ssl_efn
@@ -497,7 +497,7 @@ unsigned int netlib_ssl_read (struct CTX **xctx, struct dsc$descriptor *dsc,
     ior->spec_argv(1).address = bufptr;
     ior->spec_argv(2).longword = buflen;
     ior->spec_call = SSL_read;
-    status = sys$dclast(io_queue, ior, 0);
+    status = io_queue(ior);
 
     // at this point if we were NOT AST, then we would wait on the
     // netlib_ssl_efn
@@ -556,7 +556,7 @@ unsigned int netlib_ssl_write (struct CTX **xctx, struct dsc$descriptor *dsc,
     ior->spec_argv(1).address = bufptr;
     ior->spec_argv(2).longword = buflen;
     ior->spec_call = SSL_write;
-    status = sys$dclast(io_queue, ior, 0);
+    status = io_queue(ior);
 
     // at this point if we were NOT AST, then we would wait on the
     // netlib_ssl_efn
@@ -564,17 +564,14 @@ unsigned int netlib_ssl_write (struct CTX **xctx, struct dsc$descriptor *dsc,
     return status;
 } /* netlib_ssl_write */
 
-/*
-
-We do this from an AST to get protection from firing whie queing IORs
-
-*/
 static unsigned int io_queue (struct IOR *ior) {
 
-    int ret, status;
+    int status;
     struct CTX *ctx = ior->ctx;
 
+    BLOCK_ASTS(status);
     queue_insert(ior, ctx->iorque.tail);
+    UNBLOCK_ASTS(status);
 
     return SS$_NORMAL;
 }
