@@ -317,6 +317,7 @@ unsigned int netlib_ssl_connect (struct CTX **xctx, TIME *timeout,
     
     struct CTX *ctx;
     unsigned int status;
+    int argc;
 
     VERIFY_CTX(xctx, ctx);
     SETARGCOUNT(argc);
@@ -374,6 +375,7 @@ unsigned int netlib_ssl_shutdown (struct CTX **xctx,
 
     struct CTX *ctx;
     unsigned int status;
+    int argc;
 
     VERIFY_CTX(xctx, ctx);
     SETARGCOUNT(argc);
@@ -424,8 +426,11 @@ unsigned int netlib_ssl_write (struct CTX **xctx, struct dsc$descriptor *dsc,
                                struct NETLIBIOSBDEF *iosb,
                                void (*astadr)(), void *astprm) {
 
+    int argc;
     struct CTX *ctx;
+    void *bufptr;
     unsigned int status;
+    unsigned short buflen;
 
     VERIFY_CTX(xctx, ctx);
     SETARGCOUNT(argc);
@@ -435,18 +440,32 @@ unsigned int netlib_ssl_write (struct CTX **xctx, struct dsc$descriptor *dsc,
     status = lib$analyze_sdesc(dsc, &buflen, bufptr);
     if (!OK(status)) return status;
 
-    if (argc > 3 && astadr != 0) {
-	struct IOR *ior;
-	GET_IOR(ior, ctx, iosb, astadr, (argc > 4) ? astprm : 0);
-	ior->spec_argc = 3;
-	ior->spec_argv(2).long = ...length...;
-	ior->spec_argv(1).address = ...ptr...;
-	ior->spec_argv(0).address = ctx->spec_ssl;
-	ior->spec_call = SSL_write;
-	status = sys$dclast(io_perform, ior, 0);
-	if (!OK(status)) FREE_IOR(ior);
+    if (buflen == 0) {
+	if (argc > 2 && iosb != 0) {
+	    iosb->iosb_w_status = SS$_NORMAL;
+	    iosb->iosb_w_count = 0;
+	    iosb->iosb_l_unused = 0;
+	}
+	if (argc > 3 && astadr != 0) {
+	    status = sys$dclast(astadr, (argc > 4) ? astprm : 0, 0);
+	} else {
+	    status = SS$_NORMAL;
+	}
     } else {
-	// we don't do anything here yet...how are we going to handle this?
+    	if (argc > 3 && astadr != 0) {
+	    struct IOR *ior;
+
+	    GET_IOR(ior, ctx, iosb, astadr, (argc > 4) ? astprm : 0);
+	    ior->spec_argc = 3;
+	    ior->spec_argv(2).longword = buflen;
+	    ior->spec_argv(1).address = bufptr;
+	    ior->spec_argv(0).address = ctx->spec_ssl;
+	    ior->spec_call = SSL_write;
+	    status = sys$dclast(io_perform, ior, 0);
+	    if (!OK(status)) FREE_IOR(ior);
+        } else {
+	    // we don't do anything here yet...how are we going to handle this?
+	}
     }
 
     return status;
