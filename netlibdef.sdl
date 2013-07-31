@@ -5,7 +5,7 @@
 {
 {  AUTHOR:         Tim Sneddon.
 {
-{  Copyright (c) 2012, Endless Software Solutions.
+{  Copyright (c) 2013, Endless Software Solutions.
 {
 {  All rights reserved.
 {
@@ -322,6 +322,9 @@ entry netlib_ntoh_word returns word unsigned;
 entry netlib_version returns longword unsigned;
 
 entry netlib_ssl_context returns longword unsigned;
+entry netlib_ssl_connect returns longword unsigned;
+entry netlib_ssl_shutdown returns longword unsigned;
+entry netlib_ssl_socket returns longword unsigned;
 
 end_iflanguage;
 

@@ -404,7 +404,6 @@ unsigned int netlib_ssl_connect (struct CTX **xctx, TIME *timeout,
 
 } /* netlib_ssl_connect */
 
-#if 0
 /*
 **++
 **  ROUTINE:	netlib_ssl_shutdown
@@ -444,30 +443,20 @@ unsigned int netlib_ssl_shutdown (struct CTX **xctx,
 
     if (argc < 1) return SS$_INSFARG;
 
-    if (argc > 2 && astadr != 0) {
+    if (argc > 3 && astadr != 0) {
 	struct IOR *ior;
-	GET_IOR(ior, ctx, iosb, astadr, (argc > 3) ? astprm : 0);
-	argv = malloc(1 + 1);
-	if (argv == 0) {
-	    status = SS$_INSFMEM;
-	} else {
-	    argv[0] = 1;
-	    argv[1] = (int) ctx->spec_ssl;
-	    ior->spec_argv = argv;
-	    ior->spec_call = SSL_shutdown;
-	    //status = sys$dclast(io_perform, ior, 0);
-	}
-	if (!OK(status)) {
-	    if (ior->spec_argv != 0) free(ior->spec_argv);
-	    FREE_IOR(ior);
-	}
+	GET_IOR(ior, ctx, iosb, astadr, (argc > 4) ? astprm : 0);
+	ior->spec_argc = 1;
+	ior->spec_argv(0).address = ctx->spec_ssl;
+	ior->spec_call = SSL_shutdown;
+	status = sys$dclast(io_perform, ior, 0);
+	if (!OK(status)) FREE_IOR(ior);
     } else {
 	// we don't do anything here yet...how are we going to handle this?
     }
 
     return status;
 } /* netlib_ssl_shutdown */
-#endif
 
 #if 0
 unsigned int netlib_ssl_write (struct CTX **xctx, struct dsc$descriptor *dsc,
@@ -574,8 +563,7 @@ ERR_print_errors_fp(stdout);
 
     // convert the iosb
 
-    //if (ior->astadr != 0) (*(ior->astadr))(ior->astprm);
-
+    if (ior->astadr != 0) (*(ior->astadr))(ior->astprm);
     FREE_IOR(ior);
 
     return SS$_NORMAL;

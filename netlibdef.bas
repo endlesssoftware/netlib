@@ -1,6 +1,6 @@
  !********************************************************************************************************************************
- ! Created: 19-Apr-2013 14:12:09 by OpenVMS SDL EV2-3      
- ! Source:  09-APR-2013 01:06:55 MG_SRC:[NETLIB]NETLIBDEF.SDL;15 
+ ! Created: 31-Jul-2013 14:45:37 by OpenVMS SDL EV2-3      
+ ! Source:  31-JUL-2013 13:31:39 MG_SRC:[NETLIB]NETLIBDEF.SDL;20 
  !********************************************************************************************************************************
       ! *** PREDECLARED TYPES
      
@@ -232,3 +232,6 @@
       EXTERNAL WORD FUNCTION  netlib_ntoh_word
       EXTERNAL LONG FUNCTION  netlib_version
       EXTERNAL LONG FUNCTION  netlib_ssl_context
+      EXTERNAL LONG FUNCTION  netlib_ssl_connect
+      EXTERNAL LONG FUNCTION  netlib_ssl_shutdown
+      EXTERNAL LONG FUNCTION  netlib_ssl_socket
