@@ -44,6 +44,7 @@
 **  MODIFICATION HISTORY:
 **
 **  06-Feb-2013     Sneddon     Initial coding.
+**  31-Jul-2013     Sneddon   	Changes to implement IOR queue.
 */
 #include "netlibdef.h"
 #ifndef __NETLIB_BUILD__
@@ -72,6 +73,7 @@
 #define spec_outbio	specctx->outbio
 #define spec_data	specctx->data
 #define spec_flags	specctx->flags
+#define spec_iorque	specctx->iorque
 
 #define IOR_M_COMPLETE  (1<<16)
 
@@ -81,6 +83,7 @@
 	BIO *inbio, *outbio;
 	struct dsc$descriptor data;
 	unsigned flags;
+	QUEUE iorque;
     };
 #define __SPECCTX struct SPECCTX
 #define SPECCTX_SIZE sizeof(__SPECCTX)

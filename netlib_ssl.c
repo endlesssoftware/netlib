@@ -72,6 +72,7 @@
     unsigned int netlib_ssl_shutdown(struct CTX **xctx,
 				     struct NETLIBIOSBDEF *iosb,
 			             void (*astadr)(), void *astprm);
+    static unsigned int io_queue(struct IOR *IOR);
     static unsigned int io_perform(struct IOR *IOR);
     static unsigned int io_read(struct IOR *ior);
     static unsigned int io_write(struct IOR *ior);
@@ -250,6 +251,7 @@ unsigned int netlib_ssl_socket (struct CTX **xctx, void **xsocket,
     if (!OK(status)) return status;
 
     ctx->spec_socket = *xsocket;
+    INIT_QUEUE(ctx->spec_iorque);
 
     status = SS$_INSFMEM;
     if ((ctx->spec_inbio = BIO_new(BIO_s_mem())) != 0) {
@@ -287,6 +289,59 @@ unsigned int netlib_ssl_socket (struct CTX **xctx, void **xsocket,
 
 /*
 **++
+**  ROUTINE:	netlib_ssl_accept
+**
+**  FUNCTIONAL DESCRIPTION:
+**
+**  	tbs
+**
+**  RETURNS:	cond_value, longword (unsigned), write only, by value
+**
+**  PROTOTYPE:
+**
+**  	tbs
+**
+**  IMPLICIT INPUTS:	None.
+**
+**  IMPLICIT OUTPUTS:	None.
+**
+**  COMPLETION CODES:
+**
+**
+**  SIDE EFFECTS:   	None.
+**
+**--
+*/
+unsigned int netlib_ssl_accept (struct CTX **xctx, TIME *timeout,
+			        struct NETLIBIOSBDEF *iosb,
+			        void (*astadr)(), void *astprm) {
+
+    struct CTX *ctx;
+    struct IOR *ior;
+    unsigned int status;
+    int argc;
+
+    VERIFY_CTX(xctx, ctx);
+    SETARGCOUNT(argc);
+
+    if (argc < 1) return SS$_INSFARG;
+
+    GET_IOR(ior, ctx, (argc > 2) ? iosb : 0, (argc > 3) ? astadr : 0,
+	    (argc > 4) ? astprm : 0);
+    ior->spec_argc = 1;
+    ior->spec_argv(0).address = ctx->spec_ssl;
+    ior->spec_call = SSL_accept;
+    status = sys$dclast(io_queue, ior, 0);
+
+    // at this point if we were NOT AST, then we would wait on the
+    // netlib_ssl_efn
+
+    return status;
+
+} /* netlib_ssl_accept */
+
+/*
+**++
 **  ROUTINE:	netlib_ssl_connect
 **
 **  FUNCTIONAL DESCRIPTION:
@@ -314,8 +369,8 @@ unsigned int netlib_ssl_connect (struct CTX **xctx, TIME *timeout,
 			         struct NETLIBIOSBDEF *iosb,
 			         void (*astadr)(), void *astprm) {
 
-    
     struct CTX *ctx;
+    struct IOR *ior;
     unsigned int status;
     int argc;
 
@@ -324,20 +379,15 @@ unsigned int netlib_ssl_connect (struct CTX **xctx, TIME *timeout,
 
     if (argc < 1) return SS$_INSFARG;
 
-    if (argc > 3 && astadr != 0) {
-	struct IOR *ior;
-	GET_IOR(ior, ctx, iosb, astadr, (argc > 4) ? astprm : 0);
-	ior->spec_argc = 1;
-	ior->spec_argv(0).address = ctx->spec_ssl;
-	ior->spec_call = SSL_connect;
-	status = sys$dclast(io_perform, ior, 0);
-	if (!OK(status)) FREE_IOR(ior);
-    } else {
-	// we don't do anything here yet...how are we going to handle this?
-    }
+    GET_IOR(ior, ctx, (argc > 2) ? iosb : 0, (argc > 3) ? astadr : 0,
+	    (argc > 4) ? astprm : 0);
+    ior->spec_argc = 1;
+    ior->spec_argv(0).address = ctx->spec_ssl;
+    ior->spec_call = SSL_connect;
+    status = sys$dclast(io_queue, ior, 0);
 
-    // SSL timeouts need to be handled by ourselves...the netlib routines
-    // underneatch should likely be called without...
+    // at this point if we were NOT AST, then we would wait on the
+    // netlib_ssl_efn
 
     return status;
 
@@ -374,6 +424,7 @@ unsigned int netlib_ssl_shutdown (struct CTX **xctx,
 				  void (*astadr)(), void *astprm) {
 
     struct CTX *ctx;
+    struct IOR *ior;
     unsigned int status;
     int argc;
 
@@ -382,95 +433,153 @@ unsigned int netlib_ssl_shutdown (struct CTX **xctx,
 
     if (argc < 1) return SS$_INSFARG;
 
-    if (argc > 3 && astadr != 0) {
-	struct IOR *ior;
-	GET_IOR(ior, ctx, iosb, astadr, (argc > 4) ? astprm : 0);
-	ior->spec_argc = 1;
-	ior->spec_argv(0).address = ctx->spec_ssl;
-	ior->spec_call = SSL_shutdown;
-	status = sys$dclast(io_perform, ior, 0);
-	if (!OK(status)) FREE_IOR(ior);
-    } else {
-	// we don't do anything here yet...how are we going to handle this?
-    }
+    GET_IOR(ior, ctx, (argc > 1) ? iosb : 0, (argc > 2) ? astadr : 0,
+	    (argc > 3) ? astprm : 0);
+    ior->spec_argc = 1;
+    ior->spec_argv(0).address = ctx->spec_ssl;
+    ior->spec_call = SSL_shutdown;
+    status = sys$dclast(io_queue, ior, 0);
+
+    // at this point if we were NOT AST, then we would wait on the
+    // netlib_ssl_efn
 
     return status;
 } /* netlib_ssl_shutdown */
 
 /*
 **++
-**  ROUTINE:    netlib_ssl_write
+**  ROUTINE:	netlib_ssl_read
 **
 **  FUNCTIONAL DESCRIPTION:
 **
-**      tbs
+**  	tbs
 **
-**  RETURNS:    cond_value, longword (unsigned), write only, by value
+**  RETURNS:	cond_value, longword (unsigned), write only, by value
 **
 **  PROTOTYPE:
 **
-**      tbs
+**  	tbs
 **
-**  IMPLICIT INPUTS:    None.
+**  IMPLICIT INPUTS:	None.
 **
-**  IMPLICIT OUTPUTS:   None.
+**  IMPLICIT OUTPUTS:	None.
 **
 **  COMPLETION CODES:
 **
 **
-**  SIDE EFFECTS:       None.
+**  SIDE EFFECTS:   	None.
 **
 **--
 */
-unsigned int netlib_ssl_write (struct CTX **xctx, struct dsc$descriptor *dsc,
-                               struct NETLIBIOSBDEF *iosb,
-                               void (*astadr)(), void *astprm) {
+unsigned int netlib_ssl_read (struct CTX **xctx, struct dsc$descriptor *dsc,
+			      TIME *timeout, struct NETLIBIOSBDEF *iosb,
+			      void (*astadr)(), void *astprm) {
 
-    int argc;
     struct CTX *ctx;
+    struct IOR *ior;
     void *bufptr;
-    unsigned int status;
     unsigned short buflen;
+    unsigned int status;
+    int argc;
 
     VERIFY_CTX(xctx, ctx);
     SETARGCOUNT(argc);
 
-    if (argc < 2) return SS$_INSFARG;
+    if (argc < 1) return SS$_INSFARG;
 
-    status = lib$analyze_sdesc(dsc, &buflen, bufptr);
+    status = lib$analyze_sdesc(dsc, &buflen, &bufptr);
     if (!OK(status)) return status;
 
-    if (buflen == 0) {
-	if (argc > 2 && iosb != 0) {
-	    iosb->iosb_w_status = SS$_NORMAL;
-	    iosb->iosb_w_count = 0;
-	    iosb->iosb_l_unused = 0;
-	}
-	if (argc > 3 && astadr != 0) {
-	    status = sys$dclast(astadr, (argc > 4) ? astprm : 0, 0);
-	} else {
-	    status = SS$_NORMAL;
-	}
-    } else {
-    	if (argc > 3 && astadr != 0) {
-	    struct IOR *ior;
+    GET_IOR(ior, ctx, (argc > 3) ? iosb : 0, (argc > 4) ? astadr : 0,
+	    (argc > 5) ? astprm : 0);
+    ior->spec_argc = 1;
+    ior->spec_argv(0).address = ctx->spec_ssl;
+    ior->spec_argv(1).address = bufptr;
+    ior->spec_argv(2).longword = buflen;
+    ior->spec_call = SSL_read;
+    status = sys$dclast(io_queue, ior, 0);
 
-	    GET_IOR(ior, ctx, iosb, astadr, (argc > 4) ? astprm : 0);
-	    ior->spec_argc = 3;
-	    ior->spec_argv(2).longword = buflen;
-	    ior->spec_argv(1).address = bufptr;
-	    ior->spec_argv(0).address = ctx->spec_ssl;
-	    ior->spec_call = SSL_write;
-	    status = sys$dclast(io_perform, ior, 0);
-	    if (!OK(status)) FREE_IOR(ior);
-        } else {
-	    // we don't do anything here yet...how are we going to handle this?
-	}
-    }
+    // at this point if we were NOT AST, then we would wait on the
+    // netlib_ssl_efn
+
+    return status;
+} /* netlib_ssl_read */
+
+/*
+**++
+**  ROUTINE:	netlib_ssl_write
+**
+**  FUNCTIONAL DESCRIPTION:
+**
+**  	tbs
+**
+**  RETURNS:	cond_value, longword (unsigned), write only, by value
+**
+**  PROTOTYPE:
+**
+**  	tbs
+**
+**  IMPLICIT INPUTS:	None.
+**
+**  IMPLICIT OUTPUTS:	None.
+**
+**  COMPLETION CODES:
+**
+**
+**  SIDE EFFECTS:   	None.
+**
+**--
+*/
+unsigned int netlib_ssl_write (struct CTX **xctx, struct dsc$descriptor *dsc,
+			       TIME *timeout, struct NETLIBIOSBDEF *iosb,
+			       void (*astadr)(), void *astprm) {
+
+    struct CTX *ctx;
+    struct IOR *ior;
+    void *bufptr;
+    unsigned short buflen;
+    unsigned int status;
+    int argc;
+
+    VERIFY_CTX(xctx, ctx);
+    SETARGCOUNT(argc);
+
+    if (argc < 1) return SS$_INSFARG;
+
+    status = lib$analyze_sdesc(dsc, &buflen, &bufptr);
+    if (!OK(status)) return status;
+
+    GET_IOR(ior, ctx, (argc > 3) ? iosb : 0, (argc > 4) ? astadr : 0,
+	    (argc > 5) ? astprm : 0);
+    ior->spec_argc = 1;
+    ior->spec_argv(0).address = ctx->spec_ssl;
+    ior->spec_argv(1).address = bufptr;
+    ior->spec_argv(2).longword = buflen;
+    ior->spec_call = SSL_write;
+    status = sys$dclast(io_queue, ior, 0);
+
+    // at this point if we were NOT AST, then we would wait on the
+    // netlib_ssl_efn
 
     return status;
 } /* netlib_ssl_write */
 
+/*
+
+We do this from an AST to get protection from firing whie queing IORs
+
+*/
+static unsigned int io_queue (struct IOR *ior) {
+
+    int ret, status;
+    struct CTX *ctx = ior->ctx;
+
+    queue_insert(ior, ctx->iorque.tail);
+
+    return SS$_NORMAL;
+}
+
+
 static unsigned int io_perform (struct IOR *ior) {
 
     int ret, status;
