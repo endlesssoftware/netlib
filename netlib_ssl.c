@@ -245,8 +245,6 @@ unsigned int netlib_ssl_socket (struct CTX **xctx, void **xsocket,
     if (!OK(status)) return status;
 
     ctx->spec_socket = *xsocket;
-    ctx->spec_inbuf.ptr = 0;
-    ctx->spec_inbuf.size = 0;
 
     status = SS$_INSFMEM;
     if ((ctx->spec_inbio = BIO_new(BIO_s_mem())) != 0) {
@@ -521,15 +519,6 @@ static unsigned int io_perform (struct IOR *ior) {
 			     	 0, 0, &ior->iosb, io_read, ior);
 	    if (OK(status)) return SS$_NORMAL;
     	} else {
-	    /*
-	    ** Tidy up any remaining input buffer that might be
-	    ** hanging round.
-	    */
-	    if (ctx->spec_inbuf.ptr != 0) {
-	    	ctx->spec_inbuf.size = 0;
-	    	free(ctx->spec_inbuf.ptr);
-	    }
-
 	    if (status == SSL_ERROR_WANT_WRITE) {
 	    	ret = BIO_read(ctx->spec_outbio, ctx->spec_data.dsc$a_pointer,
 			       BUF_MAX);
@@ -561,8 +550,7 @@ ERR_print_errors_fp(stdout);
 	ior->iosb.iosb_w_status = status;
     }
 
-    // convert the iosb
-
+    if (ior->iosbp != 0) netlib___cvt_iosb(ior->iosbp, &ior->iosb);
     if (ior->astadr != 0) (*(ior->astadr))(ior->astprm);
     FREE_IOR(ior);
 
@@ -576,27 +564,16 @@ static unsigned int io_read (struct IOR *ior) {
     struct CTX *ctx = ior->ctx;
 
     if (OK(ior->iosb.iosb_w_status)) {
-	size = ctx->spec_inbuf.size + ior->iosb.iosb_w_count;
-	ptr = realloc(ctx->spec_inbuf.ptr, size);
-	if (ptr == 0) {
-	    status = SS$_INSFMEM;
-	} else {
-	    memcpy(ptr+ctx->spec_inbuf.size, ctx->spec_data.dsc$a_pointer,
-		   ior->iosb.iosb_w_count);
-	    ctx->spec_inbuf.ptr = ptr;
-	    ctx->spec_inbuf.size = size;
-
-	    status = BIO_write(ctx->spec_inbio, ctx->spec_data.dsc$a_pointer,
-			       ior->iosb.iosb_w_count);
-	    if (status > 0) {
+	status = BIO_write(ctx->spec_inbio, ctx->spec_data.dsc$a_pointer,
+			   ior->iosb.iosb_w_count);
+	if (status > 0) {
 		status = SS$_NORMAL;
-	    } else {
-		/*
-		** According to the SSL documentation the only thing that
-		** can cause a BIO_s_mem to fail is a lack of VM.
-		*/
-		status = SS$_INSFMEM;
-	    }
+	} else {
+	    /*
+	    ** According to the SSL documentation the only thing that
+	    ** can cause a BIO_s_mem to fail is a lack of VM.
+	    */
+	    status = SS$_INSFMEM;
         }
 	ior->iosb.iosb_w_status = status;
     }
