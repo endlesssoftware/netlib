@@ -68,9 +68,10 @@
 */
 #define spec_socket	specctx->socket
 #define spec_ssl	specctx->ssl
-#define spec_rbio	specctx->rbio
-#define spec_wbio	specctx->wbio
-#define spec_buf	specctx->buf
+#define spec_inbio	specctx->inbio
+#define spec_outbio	specctx->outbio
+#define spec_inbuf	specctx->inbuf
+#define spec_data	specctx->data
 #define spec_flags	specctx->flags
 
 #define IOR_M_COMPLETE  (1<<16)
@@ -78,9 +79,13 @@
     struct SPECCTX {
 	void *socket;
 	SSL *ssl;
-	BIO *rbio, *wbio;
-	struct dsc$descriptor buf;
+	BIO *inbio, *outbio;
+	struct dsc$descriptor data;
 	unsigned flags;
+	struct {
+	    char *ptr;
+	    unsigned size;
+	} inbuf;
     };
 #define __SPECCTX struct SPECCTX
 #define SPECCTX_SIZE sizeof(__SPECCTX)

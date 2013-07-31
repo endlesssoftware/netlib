@@ -75,6 +75,8 @@
     static unsigned int io_perform(struct IOR *IOR);
     static unsigned int io_read(struct IOR *ior);
     static unsigned int io_write(struct IOR *ior);
+    static long outbio_callback(BIO *b, int oper, const char *argp, int argi,
+				long argl, long retvalue);
     int netlib___cvt_status(int err, ...);
 
     /*
@@ -109,6 +111,7 @@ unsigned int netlib_ssl_context (void **xssl, unsigned int *method,
 
     SETARGCOUNT(argc);
 SSL_library_init();
+SSL_load_error_strings();
     ssl = SSL_CTX_new((*method == NETLIB_K_METHOD_SSL2) ? SSLv2_method() :
 		      (*method == NETLIB_K_METHOD_SSL3) ? SSLv3_method() :
 		      (*method == NETLIB_K_METHOD_TLS1) ? TLSv1_method() :
@@ -189,27 +192,6 @@ printf("\n");
     return status;
 } /* netlib_ssl_context */
 
-long bio_mem_callback(BIO *b,
-		      int oper,
-		      const char *argp,
-		      int argi,
-		      long argl,
-		      long retvalue) {
-
-    struct CTX *ctx = (struct CTX *)BIO_get_callback_arg(b);
-
-    if (oper == (BIO_CB_RETURN|BIO_CB_WRITE)) {
-	if (ctx->spec_flags & IOR_M_COMPLETE) {
-	    ctx->spec_flags &= ~IOR_M_COMPLETE;
-	} else {
-	    BIO_set_retry_write(b);
-	    retvalue = -1;
-	}
-    }
-
-    return retvalue;
-}
-
 /*
 **++
 **  ROUTINE:	netlib_ssl_socket
@@ -263,20 +245,22 @@ unsigned int netlib_ssl_socket (struct CTX **xctx, void **xsocket,
     if (!OK(status)) return status;
 
     ctx->spec_socket = *xsocket;
+    ctx->spec_inbuf.ptr = 0;
+    ctx->spec_inbuf.size = 0;
 
     status = SS$_INSFMEM;
-    if ((ctx->spec_rbio = BIO_new(BIO_s_mem())) != 0) {
-	if ((ctx->spec_wbio = BIO_new(BIO_s_mem())) != 0) {
-	    BIO_set_callback(ctx->spec_wbio, bio_mem_callback);
-	    BIO_set_callback_arg(ctx->spec_wbio, ctx);
+    if ((ctx->spec_inbio = BIO_new(BIO_s_mem())) != 0) {
+	if ((ctx->spec_outbio = BIO_new(BIO_s_mem())) != 0) {
+	    BIO_set_callback(ctx->spec_outbio, outbio_callback);
+	    BIO_set_callback_arg(ctx->spec_outbio, ctx);
 	    if ((ctx->spec_ssl = SSL_new(*xssl)) != 0) {
-	    	SSL_set_bio(ctx->spec_ssl, ctx->spec_rbio, ctx->spec_wbio);
+	    	SSL_set_bio(ctx->spec_ssl, ctx->spec_inbio, ctx->spec_outbio);
 
-	    	ctx->spec_buf.dsc$w_length = 0;
-	    	ctx->spec_buf.dsc$b_dtype = DSC$K_DTYPE_T;
-	    	ctx->spec_buf.dsc$b_class = DSC$K_CLASS_S;
-	    	ctx->spec_buf.dsc$a_pointer = malloc(BUF_MAX);
-	    	if (ctx->spec_buf.dsc$a_pointer != 0) {
+	    	ctx->spec_data.dsc$w_length = 0;
+	    	ctx->spec_data.dsc$b_dtype = DSC$K_DTYPE_T;
+	    	ctx->spec_data.dsc$b_class = DSC$K_CLASS_S;
+	    	ctx->spec_data.dsc$a_pointer = malloc(BUF_MAX);
+	    	if (ctx->spec_data.dsc$a_pointer != 0) {
 		    status = SS$_NORMAL;
 	    	}
 	    } else {
@@ -286,11 +270,11 @@ unsigned int netlib_ssl_socket (struct CTX **xctx, void **xsocket,
     }
 
     if (!OK(status)) {
-	if (ctx->spec_rbio != 0) BIO_free(ctx->spec_rbio);
-	if (ctx->spec_wbio != 0) BIO_free(ctx->spec_wbio);
+	if (ctx->spec_inbio != 0) BIO_free(ctx->spec_inbio);
+	if (ctx->spec_outbio != 0) BIO_free(ctx->spec_outbio);
 	if (ctx->spec_ssl != 0) SSL_free(ctx->spec_ssl);
-	if (ctx->spec_buf.dsc$a_pointer != 0)
-	    free(ctx->spec_buf.dsc$a_pointer);
+	if (ctx->spec_data.dsc$a_pointer != 0)
+	    free(ctx->spec_data.dsc$a_pointer);
 	netlib___free_ctx(ctx);
     } else {
 	*xctx = ctx;
@@ -419,91 +403,6 @@ unsigned int netlib_ssl_connect (struct CTX **xctx, TIME *timeout,
     return status;
 
 } /* netlib_ssl_connect */
-
-static unsigned int io_perform(struct IOR *ior) {
-
-    int ret, status;
-    struct CTX *ctx = ior->ctx;
-
-// need to check the iosb status first!
-
-    ret = lib$callg(ior->arg, ior->spec_call);
-    status = SSL_get_error(ctx->spec_ssl, ret);
-    if (status == SSL_ERROR_WANT_READ) {
-	status = netlib_read(&ctx->spec_socket, &ctx->spec_buf, 0, 0,
-			     0, 0, &ior->iosb, io_read, ior);
-    } else if (status == SSL_ERROR_WANT_WRITE) {
-	ret = BIO_read(ctx->spec_wbio, ctx->spec_buf.dsc$a_pointer, BUF_MAX);
-	if (ret > 0) {
-	    /*
-	    ** ACHTUNG!  Pay attentiong here...at this point we assume that
-	    **		 no buffer will exceed 65535.  This is likely not
-	    **		 going to be the case at some point and we should be
-	    **		 read to cope with it.
-	    */
-	    ctx->spec_buf.dsc$w_length = ret;
-	    status = netlib_write(&ctx->spec_socket, &ctx->spec_buf, 0, 0,
-				  &ior->iosb, io_write, ior);
-	} else {
-	    /*
-	    ** There is no reason that a BIO_read from a memory BIO should
-	    ** fail, so we just assume it didn't and queue the next try.
-	    */
-	    status = sys$dclast(io_perform, ior, 0);
-	    // if status is bad?
-		// update the user's iosb...
-	    printf("dclast=%d\n",status);
-	}
-    } else {
-	// setup the iosb status
-	// set the iosb status to the length of what was supposed to be
-	//  written, or if incomplete?  How can we track that?
-	// maybe use the extra fields of the iosb to report how much ssl
-	//  traffic read/write was done...
-
-	if (ior->astadr != 0) (*(ior->astadr))(ior->astprm);
-
-	FREE_IOR(ior);
-    }
-
-    return SS$_NORMAL;
-} /* io_perform */
-
-static unsigned int io_write(struct IOR *ior) {
-
-    int status;
-    struct CTX *ctx = ior->ctx;
-
-    if (OK(ior->iosb.iosb_w_status)) {
-	ctx->spec_flags |= IOR_M_COMPLETE;
-    }
-
-    sys$dclast(io_perform, ior, 0);
-
-    return SS$_NORMAL;
-}
-
-static unsigned int io_read(struct IOR *ior) {
-
-    int status;
-    struct CTX *ctx = ior->ctx;
-
-    if (OK(ior->iosb.iosb_w_status)) {
-	status = BIO_write(ctx->spec_rbio, ctx->spec_buf.dsc$a_pointer,
-			   ior->iosb.iosb_w_count);
-	if (status > 0) {
-	    status = sys$dclast(io_perform, ior, 0);
-	} else {
-	    status = BIO_get_retry_reason(ctx->spec_rbio);
-	    status = sys$dclast(io_perform, ior, 0);
-
-	    /** WHY ARE WE IN HERE?  The doco is lacking! **/
-	}
-    } else {
-    }
-
-    return SS$_NORMAL;
-}
 
 #if 0
 /*
@@ -577,7 +476,7 @@ unsigned int netlib_ssl_write (struct CTX **xctx, struct dsc$descriptor *dsc,
 
     struct CTX *ctx;
     void *bufptr;
-    unsigned int status;
+    int status;
     unsigned short buflen;
     int argc;
 
@@ -620,139 +519,141 @@ unsigned int netlib_ssl_write (struct CTX **xctx, struct dsc$descriptor *dsc,
 }
 #endif
 
-#if 0
-static unsigned int io_perform(struct IOR *ior) {
+static unsigned int io_perform (struct IOR *ior) {
 
     int ret, status;
     struct CTX *ctx = ior->ctx;
 
-    if (SSL_want(ctx->spec_ssl) == SSL_WANT_READ) {
-	// write into bio the contents of buffer...
-	ret = BIO_write(ctx->spec_ssl, buf, len);
-	// what do we do with ret?
-    }
-
-    ret = lib$callg(ior->spec_argv, ior->spec_call);
-    switch (status = SSL_get_error(ctx->spec_ssl, ret)) {
-    case SSL_ERROR_NONE:
-    case SSL_ERROR_ZERO_RETURN:
-	if (ior->iosbp != 0) {
-	    ior->iosbp->iosb_w_status = SS$_NORMAL;
-	    ior->iosbp->iosb_w_unused = 0;
-	    ior->iosbp->iosb_w_count = ret;
-	}
-	// cancel Timer?
-	if (ior->spec_argv != 0) free(ior->spec_argv);
-	if (ior->astadr != 0) (*(ior->astadr))(ior->astprm);
-	FREE_IOR(ior);
-	break;
-
-    case SSL_ERROR_WANT_READ:
-	ior->spec_rdsc.dsc$w_length = BUF_MAX;
-	ior->spec_rdsc.dsc$b_dtype = DSC$K_DTYPE_T;
-	ior->spec_rdsc.dsc$b_class = DSC$K_CLASS_S;
-	ior->spec_rdsc.dsc$a_pointer = ior->rbuf;
-	status = netlib_read(ctx->spec_socket, &ior->rdsc, 0, 0,
-			     0, timeout, &ior->iosb, io_perform, ior);
-	if (!OK(status)) {
-	    if (ior->iosbp != 0) {
-		ior->iosbp->iosb_w_status = status;
-		ior->iosbp->iosb_w_count = 0;
-		ior->iosbp->iosb_l_unsused = 0;
+    if (OK(ior->iosb.iosb_w_status)) {
+    	ret = lib$callg(ior->arg, ior->spec_call);
+    	status = SSL_get_error(ctx->spec_ssl, ret);
+    	if (status == SSL_ERROR_WANT_READ) {
+	    status = netlib_read(&ctx->spec_socket, &ctx->spec_data, 0, 0,
+			     	 0, 0, &ior->iosb, io_read, ior);
+	    if (OK(status)) return SS$_NORMAL;
+    	} else {
+	    /*
+	    ** Tidy up any remaining input buffer that might be
+	    ** hanging round.
+	    */
+	    if (ctx->spec_inbuf.ptr != 0) {
+	    	ctx->spec_inbuf.size = 0;
+	    	free(ctx->spec_inbuf.ptr);
 	    }
-	    if (ior->spec_argv != 0) free(ior->spec_argv);
-	    if (ior->astadr != 0) (*(ior->astadr))(ior->astprm);
-	    FREE_IOR(ior);
-	}
-	break;
 
-    case SSL_ERROR_WANT_WRITE:
-	ret = BIO_read(ctx->wbio, b, l);
-	if (ret < 1) {
-	    // houston we have a problem
-	} else {
-	    struct dsc$descriptor buf;
-
-	    status = netlib_write(ctx->spec_socket, &buf, 0, 0, &ior->iosb,
-				  io_perform, ior);
-	    if (!OK(status)) {
-	    	// error, this needs to be passed to iosbp...
+	    if (status == SSL_ERROR_WANT_WRITE) {
+	    	ret = BIO_read(ctx->spec_outbio, ctx->spec_data.dsc$a_pointer,
+			       BUF_MAX);
+	    	if (ret > 0) {
+	    	    ctx->spec_data.dsc$w_length = ret;
+	    	    status = netlib_write(&ctx->spec_socket, &ctx->spec_data,
+					  0, 0, &ior->iosb, io_write, ior);
+		    if (OK(status)) return SS$_NORMAL;
+	    	} else {
+		    /*
+		    ** We should not arrive in here, so it should be
+		    ** considered a catastrophic failure if we do.  Well, at
+		    ** least time to log an issue in Github ;-)
+		    */
+		    status = SS$_SSFAIL;
+	    	}
+	    } else if (status == SSL_ERROR_NONE) {
+	    	status = SS$_NORMAL;
+    	    } else {
+printf("SSL_ERROR_WANT_? = %d\n", status);
+ERR_print_errors_fp(stdout);
+	    	// setup the iosb status
+	    	// set the iosb status to the length of what was supposed to be
+	    	//  written, or if incomplete?  How can we track that?
+	    	// maybe use the extra fields of the iosb to report how much ssl
+	    	//  traffic read/write was done...
 	    }
 	}
-	break;
-
-    default:
-	// fall through here for the moment...
-	break;
+	ior->iosb.iosb_w_status = status;
     }
 
-    // need a flag in the contect that specifies if we need to clean up the
-    // socket after.  However...we can't do it until the pending I/O has
-    // been completed...
+    // convert the iosb
 
-    // SSL_free, BIO_free, etc...
+    //if (ior->astadr != 0) (*(ior->astadr))(ior->astprm);
 
-    return ...;
+    FREE_IOR(ior);
+
+    return SS$_NORMAL;
 } /* io_perform */
-#endif
 
-#if 0
-/*
-**++
-**  ROUTINE:	netlib_socket
-**
-**  FUNCTIONAL DESCRIPTION:
-**
-**  	Create a "socket".
-**
-**  RETURNS:	cond_value, longword (unsigned), write only, by value
-**
-**  PROTOTYPE:
-**
-**  	tbs
-**
-**  IMPLICIT INPUTS:	None.
-**
-**  IMPLICIT OUTPUTS:	None.
-**
-**  COMPLETION CODES:
-**
-**
-**  SIDE EFFECTS:   	None.
-**
-**--
-*/
-unsigned int netlib_ssl_accept (struct CTX **xctx, void *
+static unsigned int io_read (struct IOR *ior) {
 
-    struct CTX *ctx;
+    char *ptr;
+    int size, status;
+    struct CTX *ctx = ior->ctx;
 
-} /* netlib_ssl_accept */
+    if (OK(ior->iosb.iosb_w_status)) {
+	size = ctx->spec_inbuf.size + ior->iosb.iosb_w_count;
+	ptr = realloc(ctx->spec_inbuf.ptr, size);
+	if (ptr == 0) {
+	    status = SS$_INSFMEM;
+	} else {
+	    memcpy(ptr+ctx->spec_inbuf.size, ctx->spec_data.dsc$a_pointer,
+		   ior->iosb.iosb_w_count);
+	    ctx->spec_inbuf.ptr = ptr;
+	    ctx->spec_inbuf.size = size;
 
-netlib_ssl_accept
-netlib_ssl_write
-netlib_ssl_read
-netlib_ssl_shutdown
+	    status = BIO_write(ctx->spec_inbio, ctx->spec_data.dsc$a_pointer,
+			       ior->iosb.iosb_w_count);
+	    if (status > 0) {
+		status = SS$_NORMAL;
+	    } else {
+		/*
+		** According to the SSL documentation the only thing that
+		** can cause a BIO_s_mem to fail is a lack of VM.
+		*/
+		status = SS$_INSFMEM;
+	    }
+        }
+	ior->iosb.iosb_w_status = status;
+    }
 
-// LIB$INITIALIZE...
-/*
+    sys$dclast(io_perform, ior, 0);
+    return SS$_NORMAL;
+} /* io_read */
+
+static unsigned int io_write (struct IOR *ior) {
 
-This bit need to load the SSL RTL in question and find us the entry points.
-It also needs to call SSL_library_init() and SSL_load_error_strings()
+    int status;
+    struct CTX *ctx = ior->ctx;
 
-This way we can code around differences in API, rather than being stuck
-linking to a specific version.
+    if (OK(ior->iosb.iosb_w_status)) {
+	ctx->spec_flags |= IOR_M_COMPLETE;
+    }
 
-Probably need a static variable to test upon entry to all SSL functions
-to return some sort of SS$_ status that indicates that SSL is not available.
+    sys$dclast(io_perform, ior, 0);
 
-Again, this all comes later.  Let's get the API working first.
+    return SS$_NORMAL;
+} /* io_write */
+
+static long outbio_callback (BIO *b, int oper, const char *argp, int argi,
+			     long argl, long retvalue) {
 
-netlib_ssl_setup...do some generic configuration that means the user does not
-  need to call the SSL API directly.
+    struct CTX *ctx = (struct CTX *)BIO_get_callback_arg(b);
 
-Don't forget to add the public API into the NETLIBDEF header file...
-*/
-#endif
+    switch (oper) {
+    default:
+	break;
+
+    case BIO_CB_WRITE|BIO_CB_RETURN:
+	if (ctx->spec_flags & IOR_M_COMPLETE) {
+	    ctx->spec_flags &= ~IOR_M_COMPLETE;
+	    BIO_reset(b);
+	} else {
+	    BIO_set_retry_write(b);
+	    retvalue = -1;
+	}
+	break;
+
+    }
+
+    return retvalue;
+} /* outbio_callback */
 
 /*
 
