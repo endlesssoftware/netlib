@@ -566,20 +566,19 @@ unsigned int netlib_ssl_write (struct CTX **xctx, struct dsc$descriptor *dsc,
 
 static unsigned int io_queue (struct IOR *ior) {
 
-    int status = SS$_NORMAL;
+    int aststat, status = SS$_NORMAL;
     struct CTX *ctx = ior->ctx;
 
-    BLOCK_ASTS(status);
+    BLOCK_ASTS(aststat);
     queue_insert(ior, ctx->iorque.tail);
     if (ctx->iorque.head == ctx->iorque.tail) {
 	status = sys$dclast(io_perform, ior, 0);
     }
-    UNBLOCK_ASTS(status);
+    UNBLOCK_ASTS(aststat);
 
-    return SS$_NORMAL;
+    return status;
 }
 
-
 static unsigned int io_perform (struct IOR *ior) {
 
     int ret, status;
