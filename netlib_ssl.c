@@ -93,6 +93,11 @@
 
     volatile unsigned netlib_ssl_efn = 0xffffffff;
 
+
+#define netlib___cvt_iosb(_dst, _src) {\
+            (_dst)->iosb_w_status = (_src)->iosb_w_status;\
+            (_dst)->iosb_w_count =  (_src)->iosb_w_count;\
+            (_dst)->iosb_l_unused = 0;}
 
 /*
 **
@@ -280,70 +285,6 @@ unsigned int netlib_ssl_socket (struct CTX **xctx, void **xsocket,
     return status;
 } /* netlib_ssl_socket */
 
-#if 0
-/*
-**++
-**  ROUTINE:	netlib_ssl_accept
-**
-**  FUNCTIONAL DESCRIPTION:
-**
-**  	Server side that accepts and incoming SSL connection.
-**
-**  RETURNS:	cond_value, longword (unsigned), write only, by value
-**
-**  PROTOTYPE:
-**
-**  	tbs
-**
-**  IMPLICIT INPUTS:	None.
-**
-**  IMPLICIT OUTPUTS:	None.
-**
-**  COMPLETION CODES:
-**
-**
-**  SIDE EFFECTS:   	None.
-**
-**--
-*/
-unsigned int netlib_ssl_accept (struct CTX **xctx,
-			        struct NETLIBIOSBDEF *iosb,
-			        void (*astadr)(), void *astprm) {
-
-    struct CTX *ctx;
-    unsigned int status;
-    int argc, *argv;
-
-    VERIFY_CTX(xctx, ctx);
-    SETARGCOUNT(argc);
-
-    if (argc < 1) return SS$_INSFARG;
-
-    if (argc > 2 && astadr != 0) {
-	struct IOR *ior;
-	GET_IOR(ior, ctx, iosb, astadr, (argc > 3) ? astprm : 0);
-	argv = malloc(1 + 1);
-	if (argv == 0) {
-	    status = SS$_INSFMEM;
-	} else {
-	    argv[0] = 1;
-	    argv[1] = (int) ctx->spec_ssl;
-	    ior->spec_argv = argv;
-	    ior->spec_call = SSL_accept;
-	    //status = sys$dclast(io_perform, ior, 0);
-	}
-	if (!OK(status)) {
-	    if (ior->spec_argv != 0) free(ior->spec_argv);
-	    FREE_IOR(ior);
-	}
-    } else {
-	// we don't do anything here yet...how are we going to handle this?
-    }
-
-    return status;
-} /* netlib_ssl_accept */
-#endif
-
 /*
 **++
 **  ROUTINE:	netlib_ssl_connect
@@ -376,7 +317,6 @@ unsigned int netlib_ssl_connect (struct CTX **xctx, TIME *timeout,
     
     struct CTX *ctx;
     unsigned int status;
-    int argc, *argv;
 
     VERIFY_CTX(xctx, ctx);
     SETARGCOUNT(argc);
@@ -434,7 +374,6 @@ unsigned int netlib_ssl_shutdown (struct CTX **xctx,
 
     struct CTX *ctx;
     unsigned int status;
-    int argc, *argv;
 
     VERIFY_CTX(xctx, ctx);
     SETARGCOUNT(argc);
@@ -456,55 +395,62 @@ unsigned int netlib_ssl_shutdown (struct CTX **xctx,
     return status;
 } /* netlib_ssl_shutdown */
 
-#if 0
+/*
+**++
+**  ROUTINE:    netlib_ssl_write
+**
+**  FUNCTIONAL DESCRIPTION:
+**
+**      tbs
+**
+**  RETURNS:    cond_value, longword (unsigned), write only, by value
+**
+**  PROTOTYPE:
+**
+**      tbs
+**
+**  IMPLICIT INPUTS:    None.
+**
+**  IMPLICIT OUTPUTS:   None.
+**
+**  COMPLETION CODES:
+**
+**
+**  SIDE EFFECTS:       None.
+**
+**--
+*/
 unsigned int netlib_ssl_write (struct CTX **xctx, struct dsc$descriptor *dsc,
-			       struct NETLIBIOSBDEF *iosb,
-			       void (*astadr)(), void *astprm) {
+                               struct NETLIBIOSBDEF *iosb,
+                               void (*astadr)(), void *astprm) {
 
     struct CTX *ctx;
-    void *bufptr;
-    int status;
-    unsigned short buflen;
-    int argc;
+    unsigned int status;
 
     VERIFY_CTX(xctx, ctx);
     SETARGCOUNT(argc);
 
-    status = lib$analyze_sdesc(dsc, &buflen, &bufptr);
+    if (argc < 2) return SS$_INSFARG;
+
+    status = lib$analyze_sdesc(dsc, &buflen, bufptr);
     if (!OK(status)) return status;
 
-    if (argc > 3) {
+    if (argc > 3 && astadr != 0) {
 	struct IOR *ior;
 	GET_IOR(ior, ctx, iosb, astadr, (argc > 4) ? astprm : 0);
-	ctx->spec_bptr = malloc(buflen);
-	if (ctx->spec_bptr != 0) {
-	    memcpy(ctx->spec_bptr, bufptr, buflen);
-	    ctx->spec_blen = buflen;
-	    argv = malloc(3 + 1);
-	    if (argv != 0) {
-	    	argv[0] = 3;
-	    	argv[1] = ctx->spec_ssl;
-	    	argv[2] = bufptr;
-	    	argv[3] = buflen;
-	    	ior->spec_argv = argv;
-	    	ior->spec_call = SSL_write;
-	    	status = sys$dclast(io_perform, ior, 0);
-	    } else {
-	    	status = SS$_INSFMEM;
-	    }
-	} else {
-	    status = SS$_INSFMEM;
-	}
-	if (!OK(status)) {
-	    if (ior->spec_bptr != 0) free(ior->spec_bptr);
-	    if (ior->spec_argv != 0) free(ior->spec_argv);
-	    FREE_IOR(ior);
-	}
+	ior->spec_argc = 3;
+	ior->spec_argv(2).long = ...length...;
+	ior->spec_argv(1).address = ...ptr...;
+	ior->spec_argv(0).address = ctx->spec_ssl;
+	ior->spec_call = SSL_write;
+	status = sys$dclast(io_perform, ior, 0);
+	if (!OK(status)) FREE_IOR(ior);
     } else {
-	// not handling sychronous stuff right now...
+	// we don't do anything here yet...how are we going to handle this?
     }
-}
-#endif
+
+    return status;
+} /* netlib_ssl_write */
 
 static unsigned int io_perform (struct IOR *ior) {
 

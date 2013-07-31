@@ -325,6 +325,7 @@ entry netlib_ssl_context returns longword unsigned;
 entry netlib_ssl_connect returns longword unsigned;
 entry netlib_ssl_shutdown returns longword unsigned;
 entry netlib_ssl_socket returns longword unsigned;
+entry netlib_ssl_write returns longword unsigned;
 
 end_iflanguage;
 
