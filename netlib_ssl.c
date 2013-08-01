@@ -569,9 +569,17 @@ static unsigned int io_queue (struct IOR *ior) {
     int aststat, status = SS$_NORMAL;
     struct CTX *ctx = ior->ctx;
 
+    /*
+    ** Block ASTs and load the IOR into the IOR queue
+    ** for this socket.
+    */
     BLOCK_ASTS(aststat);
     queue_insert(ior, ctx->iorque.tail);
     if (ctx->iorque.head == ctx->iorque.tail) {
+	/*
+	** The IOR we just inserted is the only one in
+	** the queue, so fire up the IO handler.
+	*/
 	status = sys$dclast(io_perform, ior, 0);
     }
     UNBLOCK_ASTS(aststat);
@@ -585,47 +593,81 @@ static unsigned int io_perform (struct IOR *ior) {
     struct CTX *ctx = ior->ctx;
 
     if (OK(ior->iosb.iosb_w_status)) {
+	/*
+	** Execute the SSL call and retrieve the actual error.
+	*/
     	ret = lib$callg(ior->arg, ior->spec_call);
     	status = SSL_get_error(ctx->spec_ssl, ret);
-    	if (status == SSL_ERROR_WANT_READ) {
+	switch (status) {
+	default:
+	    // something bad happened in here...
+	    break;
+
+	case SSL_ERROR_NONE:
+	    status = SS$_NORMAL;
+	    break;
+
+	case SSL_ERROR_WANT_READ:
+	    /*
+	    ** The SSL software wants more input, so queue the real
+	    ** I/O.  The data will be copied into the BIO and the SSL
+	    ** call requeued by the io_read AST.
+	    */
 	    status = netlib_read(&ctx->spec_socket, &ctx->spec_data, 0, 0,
 			     	 0, 0, &ior->iosb, io_read, ior);
 	    if (OK(status)) return SS$_NORMAL;
-    	} else {
-	    if (status == SSL_ERROR_WANT_WRITE) {
-	    	ret = BIO_read(ctx->spec_outbio, ctx->spec_data.dsc$a_pointer,
-			       BUF_MAX);
-	    	if (ret > 0) {
-	    	    ctx->spec_data.dsc$w_length = ret;
-	    	    status = netlib_write(&ctx->spec_socket, &ctx->spec_data,
-					  0, 0, &ior->iosb, io_write, ior);
-		    if (OK(status)) return SS$_NORMAL;
-	    	} else {
-		    /*
-		    ** We should not arrive in here, so it should be
-		    ** considered a catastrophic failure if we do.  Well, at
-		    ** least time to log an issue in Github ;-)
-		    */
-		    status = SS$_SSFAIL;
-	    	}
-	    } else if (status == SSL_ERROR_NONE) {
-	    	status = SS$_NORMAL;
-    	    } else {
-printf("SSL_ERROR_WANT_? = %d\n", status);
-ERR_print_errors_fp(stdout);
-	    	// setup the iosb status
-	    	// set the iosb status to the length of what was supposed to be
-	    	//  written, or if incomplete?  How can we track that?
-	    	// maybe use the extra fields of the iosb to report how much ssl
-	    	//  traffic read/write was done...
+	    break;
+
+	case SSL_ERROR_WANT_WRITE:
+	    /*
+	    ** The SSL software wants us to write out the buffer.  So,
+	    ** we fetch it 
+	    */
+	    ret = BIO_read(ctx->spec_outbio, ctx->spec_data.dsc$a_pointer,
+			   BUF_MAX);
+	    if (ret > 0) {
+	        ctx->spec_data.dsc$w_length = ret;
+	        status = netlib_write(&ctx->spec_socket, &ctx->spec_data,
+				      0, 0, &ior->iosb, io_write, ior);
+		if (OK(status)) return SS$_NORMAL;
+	    } else {
+	    	/*
+	    	** We should not arrive in here, so it should be
+	    	** considered a catastrophic failure if we do.  Well, at
+	    	** least time to log an issue in Github ;-)
+	    	*/
+	    	status = SS$_SSFAIL;
 	    }
+	    break;
 	}
 	ior->iosb.iosb_w_status = status;
     }
 
+    /*
+    ** If the SSL call required more I/O, then (assuming it was a
+    ** successful call) the code will return immediately after
+    ** queueing the I/O.  We only get down here if there was an
+    ** error of the SSL routine completed without requiring further
+    ** assistance.
+    **
+    **
+    ** Copy the IOSB, if supplied and call any supplied AST routines.
+    */
     if (ior->iosbp != 0) netlib___cvt_iosb(ior->iosbp, &ior->iosb);
-    if (ior->astadr != 0) (*(ior->astadr))(ior->astprm);
+    if (ior->astadr != 0) {
+	(*(ior->astadr))(ior->astprm);
+    } else {
+	// if there was no AST routine then we are running a synchronous
+	// call, which means that we are waiting on an event flag.
+	// So, trigger the netlib_ssl_efn...
+    }
+
+    // remove ior from queue
     FREE_IOR(ior);
+
+    // test for another ior in queue
+    // if found
+	// dclast io_perform...
 
     return SS$_NORMAL;
 } /* io_perform */
