@@ -99,6 +99,11 @@
             (_dst)->iosb_w_status = (_src)->iosb_w_status;\
             (_dst)->iosb_w_count =  (_src)->iosb_w_count;\
             (_dst)->iosb_l_unused = 0;}
+
+	// the above macro needs to include the ior
+	// that way we can say what we wrote out...in trems of the
+	// buffer...
+
 
 /*
 **
@@ -620,24 +625,10 @@ static unsigned int io_perform (struct IOR *ior) {
 
 	case SSL_ERROR_WANT_WRITE:
 	    /*
-	    ** The SSL software wants us to write out the buffer.  So,
-	    ** we fetch it 
+	    ** The SSL software wants us to write out the buffer.
 	    */
-	    ret = BIO_read(ctx->spec_outbio, ctx->spec_data.dsc$a_pointer,
-			   BUF_MAX);
-	    if (ret > 0) {
-	        ctx->spec_data.dsc$w_length = ret;
-	        status = netlib_write(&ctx->spec_socket, &ctx->spec_data,
-				      0, 0, &ior->iosb, io_write, ior);
-		if (OK(status)) return SS$_NORMAL;
-	    } else {
-	    	/*
-	    	** We should not arrive in here, so it should be
-	    	** considered a catastrophic failure if we do.  Well, at
-	    	** least time to log an issue in Github ;-)
-	    	*/
-	    	status = SS$_SSFAIL;
-	    }
+	    status = sys$dclast(io_write, ior, 0);
+	    if (OK(status)) return SS$_NORMAL;
 	    break;
 	}
 	ior->iosb.iosb_w_status = status;
@@ -657,17 +648,17 @@ static unsigned int io_perform (struct IOR *ior) {
     if (ior->astadr != 0) {
 	(*(ior->astadr))(ior->astprm);
     } else {
-	// if there was no AST routine then we are running a synchronous
-	// call, which means that we are waiting on an event flag.
-	// So, trigger the netlib_ssl_efn...
+	sys$setef(netlib_ssl_efn);
     }
 
-    // remove ior from queue
+    /*
+    ** Clean up the IOR.  Check if we've got another and queue it, if we do.
+    */
+    queue_remove(ior, &ior);
     FREE_IOR(ior);
-
-    // test for another ior in queue
-    // if found
-	// dclast io_perform...
+    if (ctx->spec_iorque.head != &ctx->spec_iorque) {
+	status = sys$dclast(io_perform, ctx->spec_iorque.head, 0);
+    }
 
     return SS$_NORMAL;
 } /* io_perform */
@@ -694,16 +685,31 @@ static unsigned int io_read (struct IOR *ior) {
     }
 
     sys$dclast(io_perform, ior, 0);
+
     return SS$_NORMAL;
 } /* io_read */
 
 static unsigned int io_write (struct IOR *ior) {
 
-    int status;
+    int ret, status;
     struct CTX *ctx = ior->ctx;
 
     if (OK(ior->iosb.iosb_w_status)) {
-	ctx->spec_flags |= IOR_M_COMPLETE;
+	/*
+	** Read the output BIO and if we found anything, queue the I/O
+	** and requeue ourselves as the completion AST (in case the BIO
+	** held more than a descriptors-worth.
+	*/
+    	ret = BIO_read(ctx->spec_outbio, ctx->spec_data.dsc$a_pointer,
+		       BUF_MAX);
+	if (ret > 0) {
+	    ctx->spec_data.dsc$w_length = ret;
+	    status = netlib_write(&ctx->spec_socket, &ctx->spec_data,
+				  0, 0, &ior->iosb, io_write, ior);
+	    if (OK(status)) return SS$_NORMAL;
+	} else {
+	    ctx->spec_flags |= IOR_M_COMPLETE;
+	}
     }
 
     sys$dclast(io_perform, ior, 0);
