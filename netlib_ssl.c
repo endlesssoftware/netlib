@@ -6,7 +6,8 @@
 **
 **  MODULE DESCRIPTION:
 **
-**  	The problem 
+**  	This module contains the SSL implementation for NETLIB, including
+**  AST support for OpenSSL.
 **
 **  AUTHOR: 	    Tim Sneddon
 **
@@ -61,17 +62,30 @@
 **  Forward declarations
 */
 
+    unsigned int netlib_ssl_context (void **xssl, unsigned int *method,
+                                     struct dsc$descriptor *cert_d,
+				     int *cert_type,
+                                     struct dsc$descriptor *key_d,
+				     int *key_type, unsigned int *verify);
     unsigned int netlib_ssl_socket(struct CTX **xctx, void **xsocket,
                                    void **xssl);
-    unsigned int netlib_ssl_accept(struct CTX **xctx,
+    unsigned int netlib_ssl_accept(struct CTX **xctx, TIME *timeout,
 				   struct NETLIBIOSBDEF *iosb,
 			           void (*astadr)(), void *astprm);
     unsigned int netlib_ssl_connect(struct CTX **xctx, TIME *timeout,
+				    struct NETLIBIOSBDEF *iosb,
+			            void (*astadr)(), void *astprm);
+    unsigned int netlib_ssl_shutdown (struct CTX **xctx,
+                                      struct NETLIBIOSBDEF *iosb,
+                                      void (*astadr)(), void *astprm);
+    unsigned int netlib_ssl_read (struct CTX **xctx,
+				  struct dsc$descriptor *dsc, TIME *timeout,
+				  struct NETLIBIOSBDEF *iosb,
+				  void (*astadr)(), void *astprm);
+    unsigned int netlib_ssl_write (struct CTX **xctx,
+				   struct dsc$descriptor *dsc, TIME *timeout,
 				   struct NETLIBIOSBDEF *iosb,
-			           void (*astadr)(), void *astprm);
-    unsigned int netlib_ssl_shutdown(struct CTX **xctx,
-				     struct NETLIBIOSBDEF *iosb,
-			             void (*astadr)(), void *astprm);
+                                   void (*astadr)(), void *astprm);
     static unsigned int io_queue(struct IOR *IOR);
     static unsigned int io_perform(struct IOR *IOR);
     static unsigned int io_read(struct IOR *ior);
@@ -556,6 +570,7 @@ unsigned int netlib_ssl_write (struct CTX **xctx, struct dsc$descriptor *dsc,
 
     GET_IOR(ior, ctx, (argc > 3) ? iosb : 0, (argc > 4) ? astadr : 0,
 	    (argc > 5) ? astprm : 0);
+
     ior->spec_argc = 1;
     ior->spec_argv(0).address = ctx->spec_ssl;
     ior->spec_argv(1).address = bufptr;
@@ -579,8 +594,8 @@ static unsigned int io_queue (struct IOR *ior) {
     ** for this socket.
     */
     BLOCK_ASTS(aststat);
-    queue_insert(ior, ctx->iorque.tail);
-    if (ctx->iorque.head == ctx->iorque.tail) {
+    queue_insert(ior, ctx->spec_iorque.tail);
+    if (ctx->spec_iorque.head == ctx->spec_iorque.tail) {
 	/*
 	** The IOR we just inserted is the only one in
 	** the queue, so fire up the IO handler.
