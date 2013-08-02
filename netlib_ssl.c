@@ -496,8 +496,6 @@ unsigned int netlib_ssl_read (struct CTX **xctx, struct dsc$descriptor *dsc,
 
     struct CTX *ctx;
     struct IOR *ior;
-    void *bufptr;
-    unsigned short buflen;
     unsigned int status;
     int argc;
 
@@ -506,15 +504,21 @@ unsigned int netlib_ssl_read (struct CTX **xctx, struct dsc$descriptor *dsc,
 
     if (argc < 1) return SS$_INSFARG;
 
-    status = lib$analyze_sdesc(dsc, &buflen, &bufptr);
-    if (!OK(status)) return status;
+    if (dsc->dsc$b_dtype != DSC$K_DTYPE_T && dsc->dsc$b_dtype != 0)
+        return SS$_BADPARAM;
+    if (dsc->dsc$b_class == DSC$K_CLASS_D) {
+        if (dsc->dsc$w_length == 0) return SS$_BADPARAM;
+    } else {
+        if (dsc->dsc$b_class != DSC$K_CLASS_S && dsc->dsc$b_class != 0)
+        return SS$_BADPARAM;
+    }
 
     GET_IOR(ior, ctx, (argc > 3) ? iosb : 0, (argc > 4) ? astadr : 0,
 	    (argc > 5) ? astprm : 0);
     ior->spec_argc = 1;
     ior->spec_argv(0).address = ctx->spec_ssl;
-    ior->spec_argv(1).address = bufptr;
-    ior->spec_argv(2).longword = buflen;
+    ior->spec_argv(1).address = dsc->dsc$a_pointer;
+    ior->spec_argv(2).longword = dsc->dsc$w_length;
     ior->spec_call = SSL_read;
     status = io_queue(ior);
 
