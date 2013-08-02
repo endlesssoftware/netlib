@@ -19,6 +19,7 @@
 **  25-Jul-2013     Sneddon     Swap varargs.h for stdarg.h.
 **  29-Jul-2013	    Sneddon	Moved *BLOCK_ASTS in here.
 **  30-Jul-2013     Sneddon	GET_IOR now initializes the internal IOSB.
+**  02-Aug-2013	    Sneddon	Moved queue definitions into quedef.h
 */
 #include <stdio.h>
 #include <stddef.h>
@@ -44,18 +45,7 @@
 #define __NETLIB_BUILD__
 #endif
 #include "netlibdef.h"
-
-#if defined(__ALPHA) || defined(__ia64__)
-#pragma member_alignment save
-#pragma nomember_alignment
-#endif
-typedef struct { void *head, *tail; } QUEUE;
-typedef struct { unsigned int long1, long2; } TIME;
-typedef struct dsc$descriptor DESCRIP;
-typedef struct { unsigned short bufsiz, itmcod; void *bufadr, *retlen; } ITMLST;
-#if defined(__ALPHA) || defined(__ia64__)
-#pragma member_alignment restore
-#endif
+#include "quedef.h"
 
 /*
 ** Handy macros
@@ -88,14 +78,6 @@ typedef struct { unsigned short bufsiz, itmcod; void *bufadr, *retlen; } ITMLST;
     	    (x)->ior->iosbp=(_iosb); (x)->ior->astadr=(_astadr);\
     	    (x)->ior->astprm=(_astprm);}
 #define FREE_DNSREQ(x) {netlib___free_ior(((x)->ior));netlib___free_dnsreq(x);}
-
-#if defined(__ALPHA) || defined(__ia64__)
-#define queue_insert(item,pred) __PAL_INSQUEL((void *)(pred),(void *)(item))
-#define queue_remove(entry,addr) (__PAL_REMQUEL((void *)(entry),(void *)(addr)) >= 0)
-#else
-#define queue_insert(item,pred) _INSQUE(item,pred)
-#define queue_remove(entry,addr) (_REMQUE(entry,addr) != 2)
-#endif
 
 /*
 **  Generic context structure
