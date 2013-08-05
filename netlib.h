@@ -55,7 +55,7 @@
 #endif
 typedef struct { unsigned int long1, long2; } TIME;
 typedef struct dsc$descriptor DESCRIP;
-typedef struct { unsigned short bufsiz, itmcod; void *bufadr, *retlen; } ITMLS
+typedef struct { unsigned short bufsiz, itmcod; void *bufadr, *retlen; } ITMLST;
 #if defined(__ALPHA) || defined(__ia64__)
 #pragma member_alignment restore
 #endif
