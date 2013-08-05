@@ -10,6 +10,7 @@
 **  MODIFICATION HISTORY:
 **
 **  02-Aug-2013	    Sneddon 	Moved out of netlib.h
+**  05-Aug-2013	    Sneddon 	Moved INIT_QUEUE in here.
 */
 #ifdef __DECC
 #include <builtins.h>
@@ -33,6 +34,7 @@ typedef struct { unsigned short bufsiz, itmcod; void *bufadr, *retlen; } ITMLST;
 ** Handy macros
 */
 
+#define INIT_QUEUE(que) {que.head = que.tail = &que;}
 #if defined(__ALPHA) || defined(__ia64__)
 #define queue_insert(item,pred) __PAL_INSQUEL((void *)(pred),(void *)(item))
 #define queue_remove(entry,addr) (__PAL_REMQUEL((void *)(entry),(void *)(addr)) >= 0)

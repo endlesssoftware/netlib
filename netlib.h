@@ -20,6 +20,7 @@
 **  29-Jul-2013	    Sneddon	Moved *BLOCK_ASTS in here.
 **  30-Jul-2013     Sneddon	GET_IOR now initializes the internal IOSB.
 **  02-Aug-2013	    Sneddon	Moved queue definitions into quedef.h
+**  05-Aug-2013	    Sneddon	Moved INIT_QUEUE into quedef.h
 */
 #include <stdio.h>
 #include <stddef.h>
@@ -59,7 +60,6 @@
     	    str.dsc$b_class=DSC$K_CLASS_S; str.dsc$b_dtype=DSC$K_DTYPE_T;}
 #define ITMLST_INIT(itm,c,s,a,r) {itm.bufsiz=(s); itm.itmcod=(c);\
     	    itm.bufadr=(a); itm.retlen=(r);}
-#define INIT_QUEUE(que) {que.head = que.tail = &que;}
 #define SETARGCOUNT(x) va_count(x)
 #define VERIFY_CTX(x,c) {if ((x) == 0) return SS$_BADPARAM; c = *x;}
 #define GET_IOR(x, _ctx, _iosb, _astadr, _astprm) do {unsigned int status;\
