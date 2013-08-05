@@ -1,6 +1,6 @@
  !********************************************************************************************************************************
- ! Created:  5-Aug-2013 21:28:48 by OpenVMS SDL EV2-3      
- ! Source:  05-AUG-2013 21:28:38 MG_SRC:[NETLIB]NETLIBDEF.SDL;24 
+ ! Created:  5-Aug-2013 22:08:11 by OpenVMS SDL EV2-3      
+ ! Source:  05-AUG-2013 22:08:05 MG_SRC:[NETLIB]NETLIBDEF.SDL;26 
  !********************************************************************************************************************************
       ! *** PREDECLARED TYPES
      
@@ -288,7 +288,7 @@
     ! 
     !  NETLIB_SSL_WRITE
     ! 
-      EXTERNAL LONG FUNCTION  netlib_ssl_read &
+      EXTERNAL LONG FUNCTION  netlib_ssl_write &
                ( &
                    LONG  BY REF, &
                    STRING  BY DESC, &

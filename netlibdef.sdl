@@ -345,7 +345,7 @@ entry netlib_ssl_context returns longword unsigned;
     /*
     entry netlib_ssl_accept parameter (
 	longword unsigned named context in out typename context,
-	quadword unsigned named timeout in optional typename date_time,
+	quadword unsigned named timeout in default 0 typename date_time,
 	pointer(NETLIBIOSBDEF) named iosb out default 0
 	    typename io_status_block,
 	address(entry variable returns void) named astadr in default 0
@@ -358,7 +358,7 @@ entry netlib_ssl_context returns longword unsigned;
     /*
     entry netlib_ssl_connect parameter (
 	longword unsigned named context in out typename context,
-	quadword unsigned named timeout in optional typename date_time,
+	quadword unsigned named timeout in default 0 typename date_time,
 	pointer(NETLIBIOSBDEF) named iosb out default 0
 	    typename io_status_block,
 	address(entry variable returns void) named astadr in default 0
@@ -384,7 +384,7 @@ entry netlib_ssl_context returns longword unsigned;
     entry netlib_ssl_read parameter (
 	longword unsigned named context in out typename context,
 	character descriptor named buffer in typename char_string,
-	quadword unsigned named timeout in optional typename date_time,
+	quadword unsigned named timeout in default 0 typename date_time,
 	pointer(NETLIBIOSBDEF) named iosb out default 0
 	    typename io_status_block,
 	address(entry variable returns void) named astadr in default 0
@@ -395,10 +395,10 @@ entry netlib_ssl_context returns longword unsigned;
     /*
     /* NETLIB_SSL_WRITE
     /*
-    entry netlib_ssl_read parameter (
+    entry netlib_ssl_write parameter (
 	longword unsigned named context in out typename context,
 	character descriptor named buffer in typename char_string,
-	quadword unsigned named timeout in optional typename date_time,
+	quadword unsigned named timeout in default 0 typename date_time,
 	pointer(NETLIBIOSBDEF) named iosb out default 0
 	    typename io_status_block,
 	address(entry variable returns void) named astadr in default 0

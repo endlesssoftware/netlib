@@ -1,0 +1,266 @@
+/********************************************************************************************************************************/
+/* Created:  5-Aug-2013 22:08:31 by OpenVMS SDL EV2-3      */
+/* Source:  05-AUG-2013 22:08:05 MG_SRC:[NETLIB]NETLIBDEF.SDL;26 */
+/********************************************************************************************************************************/
+ 
+/*** MODULE NETLIBDEF ***/
+%replace NETLIB_K_TYPE_STREAM by 1;
+%replace NETLIB_K_TYPE_DGRAM by 2;
+%replace NETLIB_K_OPTION_REUSEADDR by 4;
+%replace NETLIB_K_OPTION_KEEPALIVE by 8;
+%replace NETLIB_K_OPTION_BROADCAST by 32;
+%replace NETLIB_K_OPTION_SNDBUF by 4097;
+%replace NETLIB_K_OPTION_RCVBUF by 4098;
+%replace NETLIB_K_OPTION_SNDLOWAT by 4099;
+%replace NETLIB_K_OPTION_RCVLOWAT by 4100;
+%replace NETLIB_K_LEVEL_SOCKET by 65535;
+%replace NETLIB_K_AF_INET by 2;
+%replace NETLIB_K_LOOKUP_DNS by 1;
+%replace NETLIB_K_LOOKUP_HOST_TABLE by 2;
+%replace NETLIB_K_SHUTDOWN_RECEIVER by 0;
+%replace NETLIB_K_SHUTDOWN_SENDER by 1;
+%replace NETLIB_K_SHUTDOWN_BOTH by 2;
+%replace NETLIB_M_ALLOW_LF by 1;
+%replace NETLIB_M_FLUSH by 2;
+%replace NETLIB_M_ALLOW_CR by 4;
+%replace NETLIB_M_DOMAIN_SEARCH by 1;
+%replace NETLIB_M_NO_RECURSION by 2;
+%replace NETLIB_K_DNS_TYPE_A by 1;
+%replace NETLIB_K_DNS_TYPE_NS by 2;
+%replace NETLIB_K_DNS_TYPE_MD by 3;
+%replace NETLIB_K_DNS_TYPE_MF by 4;
+%replace NETLIB_K_DNS_TYPE_CNAME by 5;
+%replace NETLIB_K_DNS_TYPE_SOA by 6;
+%replace NETLIB_K_DNS_TYPE_MB by 7;
+%replace NETLIB_K_DNS_TYPE_MG by 8;
+%replace NETLIB_K_DNS_TYPE_MR by 9;
+%replace NETLIB_K_DNS_TYPE_NULL by 10;
+%replace NETLIB_K_DNS_TYPE_WKS by 11;
+%replace NETLIB_K_DNS_TYPE_PTR by 12;
+%replace NETLIB_K_DNS_TYPE_HINFO by 13;
+%replace NETLIB_K_DNS_TYPE_MINFO by 14;
+%replace NETLIB_K_DNS_TYPE_MX by 15;
+%replace NETLIB_K_DNS_TYPE_TXT by 16;
+%replace NETLIB_K_DNS_TYPE_RP by 17;
+%replace NETLIB_K_DNS_TYPE_AFSDB by 18;
+%replace NETLIB_K_DNS_TYPE_X25 by 19;
+%replace NETLIB_K_DNS_TYPE_ISDN by 20;
+%replace NETLIB_K_DNS_TYPE_RT by 21;
+%replace NETLIB_K_DNS_TYPE_NSAP by 22;
+%replace NETLIB_K_DNS_TYPE_NSAP_PTR by 23;
+%replace NETLIB_K_DNS_TYPE_SIG by 24;
+%replace NETLIB_K_DNS_TYPE_KEY by 25;
+%replace NETLIB_K_DNS_TYPE_PX by 26;
+%replace NETLIB_K_DNS_TYPE_GPOS by 27;
+%replace NETLIB_K_DNS_TYPE_AAAA by 28;
+%replace NETLIB_K_DNS_TYPE_LOC by 29;
+%replace NETLIB_K_DNS_TYPE_UINFO by 100;
+%replace NETLIB_K_DNS_TYPE_UID by 101;
+%replace NETLIB_K_DNS_TYPE_GID by 102;
+%replace NETLIB_K_DNS_TYPE_UNSPEC by 103;
+%replace NETLIB_K_DNS_TYPE_AXFR by 252;
+%replace NETLIB_K_DNS_TYPE_MAILB by 253;
+%replace NETLIB_K_DNS_TYPE_MAILA by 254;
+%replace NETLIB_K_DNS_QTYPE_ALL by 255;
+%replace NETLIB_K_DNS_CLASS_IN by 1;
+%replace NETLIB_K_DNS_CLASS_CS by 2;
+%replace NETLIB_K_DNS_CLASS_CH by 3;
+%replace NETLIB_K_DNS_CLASS_HS by 4;
+%replace NETLIB_K_DNS_QCLASS_ALL by 255;
+%replace NETLIB_K_DNS_OP_STDQ by 0;
+%replace NETLIB_K_DNS_OP_INVQ by 1;
+%replace NETLIB_K_DNS_OP_STATUS by 2;
+%replace NETLIB_K_DNS_RC_SUCCESS by 0;
+%replace NETLIB_K_DNS_RC_FMTERR by 1;
+%replace NETLIB_K_DNS_RC_SRVFAIL by 2;
+%replace NETLIB_K_DNS_RC_NAMERR by 3;
+%replace NETLIB_K_DNS_RC_NOTIMP by 4;
+%replace NETLIB_K_DNS_RC_REFUSE by 5;
+%replace dns_m_recursion_desired by '10000000000000000000000000000000'b;
+%replace dns_m_truncated by '10000000000000000000000000000000'b;
+%replace dns_m_authoritative by '10000000000000000000000000000000'b;
+%replace dns_m_opcode by '11110000000000000000000000000000'b;
+%replace dns_m_reply by '10000000000000000000000000000000'b;
+%replace dns_m_reply_code by '11110000000000000000000000000000'b;
+%replace dns_m_xx_unused_xx by '11100000000000000000000000000000'b;
+%replace dns_m_recursion_available by '10000000000000000000000000000000'b;
+ 
+%replace dns_S_NETLIB_DNS_HEADER by 12;
+dcl 1 NETLIB_DNS_HEADER  based,
+     2 dns_w_queryid fixed binary(15),
+     2 dns_r_flags_overlay union,
+      3 dns_w_flags fixed binary(15),
+      3 dns_x_flags union,
+       4 dns_v_recursion_desired bit(1),
+       4 dns_v_truncated bit(1),
+       4 dns_v_authoritative bit(1),
+       4 dns_v_opcode bit(4),
+       4 dns_v_reply bit(1),
+       4 dns_v_reply_code bit(4),
+       4 dns_v_xx_unused_xx bit(3),
+       4 dns_v_recursion_available bit(1),
+     2 dns_w_qdcount fixed binary(15),
+     2 dns_w_ancount fixed binary(15),
+     2 dns_w_nscount fixed binary(15),
+     2 dns_w_arcount fixed binary(15);
+%replace SOCKADDR_S_DATA by 14;
+ 
+%replace sockaddr_S_SOCKADDRDEF by 16;
+dcl 1 SOCKADDRDEF  based,
+     2 sockaddr_w_family fixed binary(15),
+     2 sockaddr_x_data (1:14) fixed binary(7);
+ 
+%replace inaddr_S_INADDRDEF by 4;
+dcl 1 INADDRDEF  based,
+     2 inaddr_l_addr fixed binary(31);
+%replace SIN_S_MBZ by 8;
+ 
+%replace sin_S_SINDEF by 16;
+dcl 1 SINDEF  based,
+     2 sin_w_family fixed binary(15),
+     2 sin_w_port fixed binary(15),
+     2 sin_x_addr like INADDRDEF,
+     2 sin_x_mbz (1:8) fixed binary(7);
+ 
+%replace iosb_S_NETLIBIOSBDEF by 8;
+dcl 1 NETLIBIOSBDEF  based,
+     2 iosb_w_status fixed binary(15),
+     2 iosb_w_count fixed binary(15),
+     2 iosb_l_unused fixed binary(31);
+%replace NETLIB_S_MXRR_NAME by 128;
+ 
+%replace mxrr_S_MXRRDEF by 136;
+dcl 1 MXRRDEF  based,
+     2 mxrr_l_preference fixed binary(31),
+     2 mxrr_l_length fixed binary(31),
+     2 mxrr_t_name character(128);
+%replace NETLIB_K_METHOD_ANY by 0;
+%replace NETLIB_K_METHOD_SSL2 by 1;
+%replace NETLIB_K_METHOD_SSL3 by 2;
+%replace NETLIB_K_METHOD_TLS1 by 3;
+%replace NETLIB_K_FILETYPE_PEM by 1;
+%replace NETLIB_K_FILETYPE_ASN1 by 2;
+dcl netlib_socket entry 
+	returns (fixed binary(31));
+dcl netlib_server_setup entry 
+	returns (fixed binary(31));
+dcl netlib_bind entry 
+	returns (fixed binary(31));
+dcl netlib_getsockname entry 
+	returns (fixed binary(31));
+dcl netlib_getpeername entry 
+	returns (fixed binary(31));
+/*                                                                          */
+dcl netlib_connect entry 
+	returns (fixed binary(31));
+dcl netlib_write entry 
+	returns (fixed binary(31));
+dcl netlib_writeline entry 
+	returns (fixed binary(31));
+dcl netlib_read entry 
+	returns (fixed binary(31));
+dcl netlib_readline entry 
+	returns (fixed binary(31));
+dcl netlib_shutdown entry 
+	returns (fixed binary(31));
+dcl netlib_close entry 
+	returns (fixed binary(31));
+dcl netlib_listen entry 
+	returns (fixed binary(31));
+dcl netlib_accept entry 
+	returns (fixed binary(31));
+dcl netlib_get_hostname entry 
+	returns (fixed binary(31));
+dcl netlib_setsockopt entry 
+	returns (fixed binary(31));
+dcl netlib_getsockopt entry 
+	returns (fixed binary(31));
+dcl netlib_name_to_address entry 
+	returns (fixed binary(31));
+dcl netlib_address_to_name entry 
+	returns (fixed binary(31));
+dcl netlib_dns_skipname entry 
+	returns (fixed binary(31));
+dcl netlib_dns_expandname entry 
+	returns (fixed binary(31));
+dcl netlib_dns_query entry 
+	returns (fixed binary(31));
+dcl netlib_strtoaddr entry 
+	returns (fixed binary(31));
+dcl netlib_addrtostr entry 
+	returns (fixed binary(31));
+dcl netlib_connect_by_name entry 
+	returns (fixed binary(31));
+dcl netlib_dns_mx_lookup entry 
+	returns (fixed binary(31));
+dcl netlib_hton_long entry 
+	returns (fixed binary(31));
+dcl netlib_ntoh_long entry 
+	returns (fixed binary(31));
+dcl netlib_hton_word entry 
+	returns (fixed binary(15));
+dcl netlib_ntoh_word entry 
+	returns (fixed binary(15));
+dcl netlib_version entry 
+	returns (fixed binary(31));
+dcl netlib_ssl_context entry 
+	returns (fixed binary(31));
+/*                                                                          */
+/* NETLIB_SSL_SOCKET                                                        */
+/*                                                                          */
+dcl netlib_ssl_socket entry (
+	fixed binary(31) reference,
+	fixed binary(31) reference,
+	fixed binary(31) reference)
+	returns (fixed binary(31));
+/*                                                                          */
+/* NETLIB_SSL_ACCEPT                                                        */
+/*                                                                          */
+dcl netlib_ssl_accept entry (
+	fixed binary(31) reference,
+	any optional,
+	pointer reference optional,
+	entry value optional,
+	any value optional)
+	returns (fixed binary(31));
+/*                                                                          */
+/* NETLIB_SSL_CONNECT                                                       */
+/*                                                                          */
+dcl netlib_ssl_connect entry (
+	fixed binary(31) reference,
+	any optional,
+	pointer reference optional,
+	entry value optional,
+	any value optional)
+	returns (fixed binary(31));
+/*                                                                          */
+/* NETLIB_SSL_SHUTDOWN                                                      */
+/*                                                                          */
+dcl netlib_ssl_shutdown entry (
+	fixed binary(31) reference,
+	pointer reference optional,
+	entry value optional,
+	any value optional)
+	returns (fixed binary(31));
+/*                                                                          */
+/* NETLIB_SSL_READ                                                          */
+/*                                                                          */
+dcl netlib_ssl_read entry (
+	fixed binary(31) reference,
+	character(*),
+	any optional,
+	pointer reference optional,
+	entry value optional,
+	any value optional)
+	returns (fixed binary(31));
+/*                                                                          */
+/* NETLIB_SSL_WRITE                                                         */
+/*                                                                          */
+dcl netlib_ssl_write entry (
+	fixed binary(31) reference,
+	character(*),
+	any optional,
+	pointer reference optional,
+	entry value optional,
+	any value optional)
+	returns (fixed binary(31));
