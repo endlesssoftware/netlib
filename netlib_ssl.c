@@ -87,6 +87,7 @@
 				   struct NETLIBIOSBDEF *iosb,
                                    void (*astadr)(), void *astprm);
     static unsigned int io_queue(struct IOR *IOR);
+    static unsigned int io_start(struct IOR *IOR);
     static unsigned int io_perform(struct IOR *IOR);
     static unsigned int io_read(struct IOR *ior);
     static unsigned int io_write(struct IOR *ior);
@@ -101,6 +102,11 @@
     int netlib___get_domain(char *buf, unsigned short bufsize,
 			    unsigned short *relenp) { return 0; }
 
+/*
+**  External functions
+*/
+
+    extern unsigned int netlib_read(), netlib_write();
 
 /*
 **  OWN storage
@@ -134,6 +140,7 @@ unsigned int netlib_ssl_context (void **xssl, unsigned int *method,
     char *cert = 0, *key = 0, *ptr;
     unsigned short len;
 
+printf("netlib_ssl_context\n");
     SETARGCOUNT(argc);
 SSL_library_init();
 SSL_load_error_strings();
@@ -251,6 +258,7 @@ unsigned int netlib_ssl_socket (struct CTX **xctx, void **xsocket,
     struct CTX *ctx;
     unsigned int aststat, status;
 
+printf("netlib_ssl_socket\n");
     SETARGCOUNT(argc);
     if (argc < 3) return SS$_INSFARG;
     if (xsocket == 0 || xssl == 0) return SS$_BADPARAM;
@@ -393,6 +401,7 @@ unsigned int netlib_ssl_connect (struct CTX **xctx, TIME *timeout,
     unsigned int status;
     int argc;
 
+printf("netlib_ssl_connect\n");
     VERIFY_CTX(xctx, ctx);
     SETARGCOUNT(argc);
 
@@ -405,8 +414,11 @@ unsigned int netlib_ssl_connect (struct CTX **xctx, TIME *timeout,
     ior->spec_call = SSL_connect;
     status = io_queue(ior);
 
-    // at this point if we were NOT AST, then we would wait on the
-    // netlib_ssl_efn
+printf("  argc=%d,astadr=%p\n", argc,astadr);
+    if ((argc < 4) || (astadr == 0)) {
+printf("  waiting!\n");
+	sys$waitfr(netlib_ssl_efn);
+    }
 
     return status;
 
@@ -447,6 +459,7 @@ unsigned int netlib_ssl_shutdown (struct CTX **xctx,
     unsigned int status;
     int argc;
 
+printf("netlib_ssl_shutdown\n");
     VERIFY_CTX(xctx, ctx);
     SETARGCOUNT(argc);
 
@@ -459,8 +472,9 @@ unsigned int netlib_ssl_shutdown (struct CTX **xctx,
     ior->spec_call = SSL_shutdown;
     status = io_queue(ior);
 
-    // at this point if we were NOT AST, then we would wait on the
-    // netlib_ssl_efn
+    if ((argc < 3) || (astadr == 0)) {
+	sys$waitfr(netlib_ssl_efn);
+    }
 
     return status;
 } /* netlib_ssl_shutdown */
@@ -499,6 +513,7 @@ unsigned int netlib_ssl_read (struct CTX **xctx, struct dsc$descriptor *dsc,
     unsigned int status;
     int argc;
 
+printf("netlib_ssl_read\n");
     VERIFY_CTX(xctx, ctx);
     SETARGCOUNT(argc);
 
@@ -522,8 +537,9 @@ unsigned int netlib_ssl_read (struct CTX **xctx, struct dsc$descriptor *dsc,
     ior->spec_call = SSL_read;
     status = io_queue(ior);
 
-    // at this point if we were NOT AST, then we would wait on the
-    // netlib_ssl_efn
+    if ((argc < 5) || (astadr == 0)) {
+	sys$waitfr(netlib_ssl_efn);
+    }
 
     return status;
 } /* netlib_ssl_read */
@@ -564,6 +580,7 @@ unsigned int netlib_ssl_write (struct CTX **xctx, struct dsc$descriptor *dsc,
     unsigned int status;
     int argc;
 
+printf("netlib_ssl_write\n");
     VERIFY_CTX(xctx, ctx);
     SETARGCOUNT(argc);
 
@@ -582,8 +599,9 @@ unsigned int netlib_ssl_write (struct CTX **xctx, struct dsc$descriptor *dsc,
     ior->spec_call = SSL_write;
     status = io_queue(ior);
 
-    // at this point if we were NOT AST, then we would wait on the
-    // netlib_ssl_efn
+    if ((argc < 5) || (astadr == 0)) {
+	sys$waitfr(netlib_ssl_efn);
+    }
 
     return status;
 } /* netlib_ssl_write */
@@ -593,42 +611,60 @@ static unsigned int io_queue (struct IOR *ior) {
     int aststat, status = SS$_NORMAL;
     struct CTX *ctx = ior->ctx;
 
+printf("io_queue [%p]\n", ior->spec_call);
+
     /*
     ** Block ASTs and load the IOR into the IOR queue
     ** for this socket.
     */
     BLOCK_ASTS(aststat);
     queue_insert(ior, ctx->spec_iorque.tail);
-    if (ctx->spec_iorque.head == ctx->spec_iorque.tail) {
+printf("  iorque.head=%p,iorque.tail=%p\n",ctx->spec_iorque.head,ctx->spec_iorque.head);
+    if (queue_single(ctx->spec_iorque)) {
 	/*
 	** The IOR we just inserted is the only one in
 	** the queue, so fire up the IO handler.
 	*/
-	status = sys$dclast(io_perform, ior, 0);
+	status = sys$dclast(io_start, ior, 0);
     }
     UNBLOCK_ASTS(aststat);
 
     return status;
 }
 
+static unsigned int io_start (struct IOR *ior) {
+
+    struct CTX *ctx = ior->ctx;
+
+    if (ior->astadr == 0) sys$clref(netlib_ssl_efn);
+    ior->iosb.iosb_w_status = SS$_NORMAL;
+
+    sys$dclast(io_perform, ior, 0);
+
+    return SS$_NORMAL;
+} /* io_start */
+
 static unsigned int io_perform (struct IOR *ior) {
 
     int ret, status;
     struct CTX *ctx = ior->ctx;
 
+printf("io_perform [%p]; status=%d\n", ior->spec_call,ior->iosb.iosb_w_status);
     if (OK(ior->iosb.iosb_w_status)) {
 	/*
 	** Execute the SSL call and retrieve the actual error.
 	*/
     	ret = lib$callg(ior->arg, ior->spec_call);
     	status = SSL_get_error(ctx->spec_ssl, ret);
+printf("  SSL ret=%d,status=%d\n",ret,status);
 	switch (status) {
 	default:
 	    // something bad happened in here...
 	    break;
 
 	case SSL_ERROR_NONE:
-	    status = SS$_NORMAL;
+	    status = ior->iosb.iosb_w_status = SS$_NORMAL;
+	    ior->iosb.iosb_w_count = ret;
 	    break;
 
 	case SSL_ERROR_WANT_READ:
@@ -639,6 +675,7 @@ static unsigned int io_perform (struct IOR *ior) {
 	    */
 	    status = netlib_read(&ctx->spec_socket, &ctx->spec_data, 0, 0,
 			     	 0, 0, &ior->iosb, io_read, ior);
+printf("netlib_read=%d\n",status);
 	    if (OK(status)) return SS$_NORMAL;
 	    break;
 
@@ -665,8 +702,10 @@ static unsigned int io_perform (struct IOR *ior) {
     */
     if (ior->iosbp != 0) netlib___cvt_iosb(ior->iosbp, &ior->iosb);
     if (ior->astadr != 0) {
+	printf("  call AST routine\n");
 	(*(ior->astadr))(ior->astprm);
     } else {
+	printf("  set ef %d\n", netlib_ssl_efn);
 	sys$setef(netlib_ssl_efn);
     }
 
@@ -675,8 +714,8 @@ static unsigned int io_perform (struct IOR *ior) {
     */
     queue_remove(ior, &ior);
     FREE_IOR(ior);
-    if (ctx->spec_iorque.head != &ctx->spec_iorque) {
-	status = sys$dclast(io_perform, ctx->spec_iorque.head, 0);
+    if (!queue_empty(ctx->spec_iorque)) {
+	status = sys$dclast(io_start, ctx->spec_iorque.head, 0);
     }
 
     return SS$_NORMAL;
@@ -688,11 +727,12 @@ static unsigned int io_read (struct IOR *ior) {
     int size, status;
     struct CTX *ctx = ior->ctx;
 
+printf("io_read\n");
     if (OK(ior->iosb.iosb_w_status)) {
 	status = BIO_write(ctx->spec_inbio, ctx->spec_data.dsc$a_pointer,
 			   ior->iosb.iosb_w_count);
 	if (status > 0) {
-		status = SS$_NORMAL;
+	    status = SS$_NORMAL;
 	} else {
 	    /*
 	    ** According to the SSL documentation the only thing that
@@ -701,8 +741,9 @@ static unsigned int io_read (struct IOR *ior) {
 	    status = SS$_INSFMEM;
         }
 	ior->iosb.iosb_w_status = status;
+printf("  status=%d\n", status);
     }
-
+printf("  iosb=%d\n", ior->iosb.iosb_w_status);
     sys$dclast(io_perform, ior, 0);
 
     return SS$_NORMAL;
@@ -713,6 +754,7 @@ static unsigned int io_write (struct IOR *ior) {
     int ret, status;
     struct CTX *ctx = ior->ctx;
 
+printf("io_write\n");
     if (OK(ior->iosb.iosb_w_status)) {
 	/*
 	** Read the output BIO and if we found anything, queue the I/O
