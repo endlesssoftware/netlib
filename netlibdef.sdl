@@ -47,6 +47,7 @@
 {				BASIC (thanks to David Sneddon) versions.
 {  12-FEB-2013	    Sneddon	Add SSL constants.
 {  04-APR-2013	    Sneddon	More corrections to replace old C header.
+{  05-AUG-2013	    Sneddon	Add parameter lists to entry definitions.
 {--
 module NETLIBDEF;
 iflanguage CC;
@@ -282,6 +283,13 @@ literal;
     unsigned short netlib_hton_word(unsigned short *value);
     unsigned short netlib_ntoh_word(unsigned short *value);
     unsigned int   netlib_version(void *dsc, ...);
+
+    unsigned int netlib_ssl_socket(void **sslsock, void **socket, void **ssl);
+    unsigned int netlib_ssl_accept(void **sslsock, ...);
+    unsigned int netlib_ssl_connect(void **sslsock, ...);
+    unsigned int netlib_ssl_shutdown(void **sslsock, ...);
+    unsigned int netlib_ssl_read(void **sslsock, void *bufdsc, ...);
+    unsigned int netlib_ssl_write(void **sslsock, void *bufdsc, ...);
 #endif /* not __NETLIB_BUILD__ */
 end_literal;
 end_iflanguage CC;
@@ -322,12 +330,81 @@ entry netlib_ntoh_word returns word unsigned;
 entry netlib_version returns longword unsigned;
 
 entry netlib_ssl_context returns longword unsigned;
-entry netlib_ssl_accept returns longword unsigned;
-entry netlib_ssl_connect returns longword unsigned;
-entry netlib_ssl_shutdown returns longword unsigned;
-entry netlib_ssl_socket returns longword unsigned;
-entry netlib_ssl_read returns longword unsigned;
-entry netlib_ssl_write returns longword unsigned;
+
+    /*
+    /* NETLIB_SSL_SOCKET
+    /*
+    entry netlib_ssl_socket parameter (
+	longword unsigned named context out typename context,
+	longword unsigned named socket in typename context,
+	longword unsigned named ssl_ctx in typename context
+    ) returns longword typename cond_value;
+
+    /*
+    /* NETLIB_SSL_ACCEPT
+    /*
+    entry netlib_ssl_accept parameter (
+	longword unsigned named context in out typename context,
+	quadword unsigned named timeout in optional typename date_time,
+	pointer(NETLIBIOSBDEF) named iosb out default 0
+	    typename io_status_block,
+	address(entry variable returns void) named astadr in default 0
+	    typename ast_procedure,
+	longword value named astprm in default 0 typename user_arg
+    ) returns longword typename cond_value;
+
+    /*
+    /* NETLIB_SSL_CONNECT
+    /*
+    entry netlib_ssl_connect parameter (
+	longword unsigned named context in out typename context,
+	quadword unsigned named timeout in optional typename date_time,
+	pointer(NETLIBIOSBDEF) named iosb out default 0
+	    typename io_status_block,
+	address(entry variable returns void) named astadr in default 0
+	    typename ast_procedure,
+	longword value named astprm in default 0 typename user_arg
+    ) returns longword typename cond_value;
+
+    /*
+    /* NETLIB_SSL_SHUTDOWN
+    /*
+    entry netlib_ssl_shutdown parameter (
+	longword unsigned named context in out typename context,
+	pointer(NETLIBIOSBDEF) named iosb out default 0
+	    typename io_status_block,
+	address(entry variable returns void) named astadr in default 0
+	    typename ast_procedure,
+	longword value named astprm in default 0 typename user_arg
+    ) returns longword typename cond_value;
+
+    /*
+    /* NETLIB_SSL_READ
+    /*
+    entry netlib_ssl_read parameter (
+	longword unsigned named context in out typename context,
+	character descriptor named buffer in typename char_string,
+	quadword unsigned named timeout in optional typename date_time,
+	pointer(NETLIBIOSBDEF) named iosb out default 0
+	    typename io_status_block,
+	address(entry variable returns void) named astadr in default 0
+	    typename ast_procedure,
+	longword value named astprm in default 0 typename user_arg
+    ) returns longword typename cond_value;
+
+    /*
+    /* NETLIB_SSL_WRITE
+    /*
+    entry netlib_ssl_read parameter (
+	longword unsigned named context in out typename context,
+	character descriptor named buffer in typename char_string,
+	quadword unsigned named timeout in optional typename date_time,
+	pointer(NETLIBIOSBDEF) named iosb out default 0
+	    typename io_status_block,
+	address(entry variable returns void) named astadr in default 0
+	    typename ast_procedure,
+	longword value named astprm in default 0 typename user_arg
+    ) returns longword typename cond_value;
 
 end_iflanguage;
 

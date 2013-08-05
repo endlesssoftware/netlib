@@ -1,6 +1,6 @@
 /********************************************************************************************************************************/
-/* Created:  1-Aug-2013 15:54:30 by OpenVMS SDL EV2-3      */
-/* Source:  31-JUL-2013 23:28:35 MG_SRC:[NETLIB]NETLIBDEF.SDL;22 */
+/* Created:  5-Aug-2013 21:28:55 by OpenVMS SDL EV2-3      */
+/* Source:  05-AUG-2013 21:28:38 MG_SRC:[NETLIB]NETLIBDEF.SDL;24 */
 /********************************************************************************************************************************/
 /*** MODULE NETLIBDEF ***/
 #ifndef __NETLIBDEF_LOADED
@@ -251,6 +251,12 @@ struct mxrrdef {
     unsigned short netlib_hton_word(unsigned short *value);
     unsigned short netlib_ntoh_word(unsigned short *value);
     unsigned int   netlib_version(void *dsc, ...);
+    unsigned int netlib_ssl_socket(void **sslsock, void **socket, void **ssl);
+    unsigned int netlib_ssl_accept(void **sslsock, ...);
+    unsigned int netlib_ssl_connect(void **sslsock, ...);
+    unsigned int netlib_ssl_shutdown(void **sslsock, ...);
+    unsigned int netlib_ssl_read(void **sslsock, void *bufdsc, ...);
+    unsigned int netlib_ssl_write(void **sslsock, void *bufdsc, ...);
 #endif /* not __NETLIB_BUILD__ */
 	
 	

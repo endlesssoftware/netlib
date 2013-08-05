@@ -1,6 +1,6 @@
  !********************************************************************************************************************************
- ! Created: 31-Jul-2013 16:14:41 by OpenVMS SDL EV2-3      
- ! Source:  31-JUL-2013 16:04:08 MG_SRC:[NETLIB]NETLIBDEF.SDL;21 
+ ! Created:  5-Aug-2013 21:28:48 by OpenVMS SDL EV2-3      
+ ! Source:  05-AUG-2013 21:28:38 MG_SRC:[NETLIB]NETLIBDEF.SDL;24 
  !********************************************************************************************************************************
       ! *** PREDECLARED TYPES
      
@@ -232,7 +232,68 @@
       EXTERNAL WORD FUNCTION  netlib_ntoh_word
       EXTERNAL LONG FUNCTION  netlib_version
       EXTERNAL LONG FUNCTION  netlib_ssl_context
-      EXTERNAL LONG FUNCTION  netlib_ssl_connect
-      EXTERNAL LONG FUNCTION  netlib_ssl_shutdown
-      EXTERNAL LONG FUNCTION  netlib_ssl_socket
-      EXTERNAL LONG FUNCTION  netlib_ssl_write
+    ! 
+    !  NETLIB_SSL_SOCKET
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_ssl_socket &
+               ( &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                   LONG  BY REF &
+               )
+    ! 
+    !  NETLIB_SSL_ACCEPT
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_ssl_accept &
+               ( &
+                   LONG  BY REF, &
+                   BASIC$QUADWORD  BY REF, &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                   LONG  BY VALUE &
+               )
+    ! 
+    !  NETLIB_SSL_CONNECT
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_ssl_connect &
+               ( &
+                   LONG  BY REF, &
+                   BASIC$QUADWORD  BY REF, &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                   LONG  BY VALUE &
+               )
+    ! 
+    !  NETLIB_SSL_SHUTDOWN
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_ssl_shutdown &
+               ( &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                   LONG  BY VALUE &
+               )
+    ! 
+    !  NETLIB_SSL_READ
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_ssl_read &
+               ( &
+                   LONG  BY REF, &
+                   STRING  BY DESC, &
+                   BASIC$QUADWORD  BY REF, &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                   LONG  BY VALUE &
+               )
+    ! 
+    !  NETLIB_SSL_WRITE
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_ssl_read &
+               ( &
+                   LONG  BY REF, &
+                   STRING  BY DESC, &
+                   BASIC$QUADWORD  BY REF, &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                   LONG  BY VALUE &
+               )
