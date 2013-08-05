@@ -46,11 +46,11 @@
 **  06-Feb-2013     Sneddon     Initial coding.
 **  31-Jul-2013     Sneddon   	Changes to implement IOR queue.
 */
-#include "netlibdef.h"
-#include "quedef.h"
 #ifndef __NETLIB_BUILD__
 #define __NETLIB_BUILD__
 #endif
+#include "netlibdef.h"
+#include "quedef.h"
 #include <descrip.h>
 #include <errno.h>
 #include <rmsdef.h>
