@@ -20,7 +20,8 @@
 **  29-Jul-2013	    Sneddon	Moved *BLOCK_ASTS in here.
 **  30-Jul-2013     Sneddon	GET_IOR now initializes the internal IOSB.
 **  02-Aug-2013	    Sneddon	Moved queue definitions into quedef.h
-**  05-Aug-2013	    Sneddon	Moved INIT_QUEUE into quedef.h
+**  05-Aug-2013	    Sneddon	Moved INIT_QUEUE into quedef.h  Restore some
+**				typdefs that accidentally moved to quedef.h.
 */
 #include <stdio.h>
 #include <stddef.h>
@@ -47,6 +48,17 @@
 #endif
 #include "netlibdef.h"
 #include "quedef.h"
+
+#if defined(__ALPHA) || defined(__ia64__)
+#pragma member_alignment save
+#pragma nomember_alignment
+#endif
+typedef struct { unsigned int long1, long2; } TIME;
+typedef struct dsc$descriptor DESCRIP;
+typedef struct { unsigned short bufsiz, itmcod; void *bufadr, *retlen; } ITMLS
+#if defined(__ALPHA) || defined(__ia64__)
+#pragma member_alignment restore
+#endif
 
 /*
 ** Handy macros
