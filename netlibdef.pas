@@ -1,6 +1,6 @@
 (********************************************************************************************************************************)
-(* Created:  5-Aug-2013 22:08:24 by OpenVMS SDL EV2-3      *)
-(* Source:  05-AUG-2013 22:08:05 MG_SRC:[NETLIB]NETLIBDEF.SDL;26 *)
+(* Created:  6-Aug-2013 10:08:35 by OpenVMS SDL EV2-3      *)
+(* Source:  06-AUG-2013 10:07:30 MG_SRC:[NETLIB]NETLIBDEF.SDL;28 *)
 (********************************************************************************************************************************)
  
 MODULE NETLIBDEF ;
@@ -300,7 +300,7 @@ CONST	NETLIB_K_METHOD_ANY = 0;
 	timeout : $UQUAD := %IMMED 0;
 	VAR iosb : [VOLATILE] NETLIBDEF$$TYP1 := %IMMED 0;
 	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
-	%IMMED astprm : INTEGER := %IMMED 0) : INTEGER; EXTERNAL;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : INTEGER; EXTERNAL;
  
 (*                                                                          *)
 (* NETLIB_SSL_CONNECT                                                       *)
@@ -311,7 +311,7 @@ CONST	NETLIB_K_METHOD_ANY = 0;
 	timeout : $UQUAD := %IMMED 0;
 	VAR iosb : [VOLATILE] NETLIBDEF$$TYP2 := %IMMED 0;
 	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
-	%IMMED astprm : INTEGER := %IMMED 0) : INTEGER; EXTERNAL;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : INTEGER; EXTERNAL;
  
 (*                                                                          *)
 (* NETLIB_SSL_SHUTDOWN                                                      *)
@@ -321,7 +321,7 @@ CONST	NETLIB_K_METHOD_ANY = 0;
 	VAR context : [VOLATILE] UNSIGNED;
 	VAR iosb : [VOLATILE] NETLIBDEF$$TYP3 := %IMMED 0;
 	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
-	%IMMED astprm : INTEGER := %IMMED 0) : INTEGER; EXTERNAL;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : INTEGER; EXTERNAL;
  
 (*                                                                          *)
 (* NETLIB_SSL_READ                                                          *)
