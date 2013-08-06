@@ -360,8 +360,10 @@ unsigned int netlib_ssl_accept (struct CTX **xctx, TIME *timeout,
     ior->spec_call = SSL_accept;
     status = io_queue(ior);
 
-    // at this point if we were NOT AST, then we would wait on the
-    // netlib_ssl_efn
+    if (ior->astadr == 0) {
+printf("  waiting!\n");
+	sys$waitfr(netlib_ssl_efn);
+    }
 
     return status;
 
@@ -414,8 +416,7 @@ printf("netlib_ssl_connect\n");
     ior->spec_call = SSL_connect;
     status = io_queue(ior);
 
-printf("  argc=%d,astadr=%p\n", argc,astadr);
-    if ((argc < 4) || (astadr == 0)) {
+    if (ior->astadr == 0) {
 printf("  waiting!\n");
 	sys$waitfr(netlib_ssl_efn);
     }
@@ -472,7 +473,8 @@ printf("netlib_ssl_shutdown\n");
     ior->spec_call = SSL_shutdown;
     status = io_queue(ior);
 
-    if ((argc < 3) || (astadr == 0)) {
+    if (ior->astadr == 0) {
+printf("  waiting!\n");
 	sys$waitfr(netlib_ssl_efn);
     }
 
@@ -537,7 +539,8 @@ printf("netlib_ssl_read\n");
     ior->spec_call = SSL_read;
     status = io_queue(ior);
 
-    if ((argc < 5) || (astadr == 0)) {
+    if (ior->astadr == 0) {
+printf("  waiting!\n");
 	sys$waitfr(netlib_ssl_efn);
     }
 
@@ -599,7 +602,8 @@ printf("netlib_ssl_write\n");
     ior->spec_call = SSL_write;
     status = io_queue(ior);
 
-    if ((argc < 5) || (astadr == 0)) {
+    if (ior->astadr == 0) {
+printf("  waiting!\n");
 	sys$waitfr(netlib_ssl_efn);
     }
 
@@ -703,7 +707,7 @@ printf("netlib_read=%d\n",status);
     if (ior->iosbp != 0) netlib___cvt_iosb(ior->iosbp, &ior->iosb);
     if (ior->astadr != 0) {
 	printf("  call AST routine\n");
-	(*(ior->astadr))(ior->astprm);
+	((ior->astadr))(ior->astprm);
     } else {
 	printf("  set ef %d\n", netlib_ssl_efn);
 	sys$setef(netlib_ssl_efn);
