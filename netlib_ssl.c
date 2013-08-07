@@ -96,11 +96,14 @@
     int netlib___cvt_status(int err, ...);
 
     /*
-    ** These functions are needed by the DNS module
+    ** These functions are needed by the DNS module, though unused by
+    ** by this module and are simply here to satisfy the linker.
     */
     int netlib___get_nameservers(QUEUE *nsq) { return 0; }
     int netlib___get_domain(char *buf, unsigned short bufsize,
 			    unsigned short *relenp) { return 0; }
+    void netlib___free_dns_context(void *ctx) { }
+    
 
 /*
 **  External functions
