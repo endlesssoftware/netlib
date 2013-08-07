@@ -345,6 +345,7 @@ unsigned int netlib_ssl_accept (struct CTX **xctx, TIME *timeout,
 
     struct CTX *ctx;
     struct IOR *ior;
+    struct NETLIBIOSBDEF *myiosb;
     unsigned int status;
     int argc;
 
@@ -355,12 +356,20 @@ unsigned int netlib_ssl_accept (struct CTX **xctx, TIME *timeout,
 
     GET_IOR(ior, ctx, (argc > 2) ? iosb : 0, (argc > 3) ? astadr : 0,
 	    (argc > 4) ? astprm : 0);
+    if ((ior->astadr == 0) && (ior->iosbp == 0)) {
+	ior->iosbp = myiosb = __ALLOCA(sizeof(struct NETLIBIOSBDEF));
+    } else {
+	myiosb = ior->iosbp;
+    }
     ior->spec_argc = 1;
     ior->spec_argv(0).address = ctx->spec_ssl;
     ior->spec_call = SSL_accept;
     status = io_queue(ior);
     if (OK(status)) {
-    	if (ior->astadr == 0) sys$waitfr(netlib_ssl_efn);
+    	if (ior->astadr == 0) {
+	    sys$waitfr(netlib_ssl_efn);
+	    status = myiosb->iosb_w_status;
+	}
     } else {
     	FREE_IOR(ior);
     }
@@ -400,6 +409,7 @@ unsigned int netlib_ssl_connect (struct CTX **xctx, TIME *timeout,
 
     struct CTX *ctx;
     struct IOR *ior;
+    struct NETLIBIOSBDEF *myiosb;
     unsigned int status;
     int argc;
 
@@ -411,12 +421,20 @@ printf("netlib_ssl_connect\n");
 
     GET_IOR(ior, ctx, (argc > 2) ? iosb : 0, (argc > 3) ? astadr : 0,
 	    (argc > 4) ? astprm : 0);
+    if ((ior->astadr == 0) && (ior->iosbp == 0)) {
+	ior->iosbp = myiosb = __ALLOCA(sizeof(struct NETLIBIOSBDEF));
+    } else {
+	myiosb = ior->iosbp;
+    }
     ior->spec_argc = 1;
     ior->spec_argv(0).address = ctx->spec_ssl;
     ior->spec_call = SSL_connect;
     status = io_queue(ior);
     if (OK(status)) {
-    	if (ior->astadr == 0) sys$waitfr(netlib_ssl_efn);
+    	if (ior->astadr == 0) {
+	    sys$waitfr(netlib_ssl_efn);
+	    status = myiosb->iosb_w_status;
+	}
     } else {
     	FREE_IOR(ior);
     }
@@ -457,6 +475,7 @@ unsigned int netlib_ssl_shutdown (struct CTX **xctx,
 
     struct CTX *ctx;
     struct IOR *ior;
+    struct NETLIBIOSBDEF *myiosb;
     unsigned int status;
     int argc;
 
@@ -468,12 +487,20 @@ printf("netlib_ssl_shutdown\n");
 
     GET_IOR(ior, ctx, (argc > 1) ? iosb : 0, (argc > 2) ? astadr : 0,
 	    (argc > 3) ? astprm : 0);
+    if ((ior->astadr == 0) && (ior->iosbp == 0)) {
+	ior->iosbp = myiosb = __ALLOCA(sizeof(struct NETLIBIOSBDEF));
+    } else {
+	myiosb = ior->iosbp;
+    }
     ior->spec_argc = 1;
     ior->spec_argv(0).address = ctx->spec_ssl;
     ior->spec_call = SSL_shutdown;
     status = io_queue(ior);
     if (OK(status)) {
-    	if (ior->astadr == 0) sys$waitfr(netlib_ssl_efn);
+    	if (ior->astadr == 0) {
+	    sys$waitfr(netlib_ssl_efn);
+	    status = myiosb->iosb_w_status;
+	}
     } else {
     	FREE_IOR(ior);
     }
@@ -512,6 +539,7 @@ unsigned int netlib_ssl_read (struct CTX **xctx, struct dsc$descriptor *dsc,
 
     struct CTX *ctx;
     struct IOR *ior;
+    struct NETLIBIOSBDEF *myiosb;
     unsigned int status;
     int argc;
 
@@ -532,6 +560,11 @@ printf("netlib_ssl_read\n");
 
     GET_IOR(ior, ctx, (argc > 3) ? iosb : 0, (argc > 4) ? astadr : 0,
 	    (argc > 5) ? astprm : 0);
+    if ((ior->astadr == 0) && (ior->iosbp == 0)) {
+	ior->iosbp = myiosb = __ALLOCA(sizeof(struct NETLIBIOSBDEF));
+    } else {
+	myiosb = ior->iosbp;
+    }
     ior->spec_argc = 1;
     ior->spec_argv(0).address = ctx->spec_ssl;
     ior->spec_argv(1).address = dsc->dsc$a_pointer;
@@ -539,7 +572,10 @@ printf("netlib_ssl_read\n");
     ior->spec_call = SSL_read;
     status = io_queue(ior);
     if (OK(status)) {
-    	if (ior->astadr == 0) sys$waitfr(netlib_ssl_efn);
+    	if (ior->astadr == 0) {
+	    sys$waitfr(netlib_ssl_efn);
+	    status = myiosb->iosb_w_status;
+	}
     } else {
     	FREE_IOR(ior);
     }
@@ -578,6 +614,7 @@ unsigned int netlib_ssl_write (struct CTX **xctx, struct dsc$descriptor *dsc,
 
     struct CTX *ctx;
     struct IOR *ior;
+    struct NETLIBIOSBDEF *myiosb;
     void *bufptr;
     unsigned short buflen;
     unsigned int status;
@@ -594,7 +631,11 @@ printf("netlib_ssl_write\n");
 
     GET_IOR(ior, ctx, (argc > 3) ? iosb : 0, (argc > 4) ? astadr : 0,
 	    (argc > 5) ? astprm : 0);
-
+    if ((ior->astadr == 0) && (ior->iosbp == 0)) {
+	ior->iosbp = myiosb = __ALLOCA(sizeof(struct NETLIBIOSBDEF));
+    } else {
+	myiosb = ior->iosbp;
+    }
     ior->spec_argc = 1;
     ior->spec_argv(0).address = ctx->spec_ssl;
     ior->spec_argv(1).address = bufptr;
@@ -602,7 +643,10 @@ printf("netlib_ssl_write\n");
     ior->spec_call = SSL_write;
     status = io_queue(ior);
     if (OK(status)) {
-    	if (ior->astadr == 0) sys$waitfr(netlib_ssl_efn);
+    	if (ior->astadr == 0) {
+	    sys$waitfr(netlib_ssl_efn);
+	    status = myiosb->iosb_w_status;
+	}
     } else {
     	FREE_IOR(ior);
     }
