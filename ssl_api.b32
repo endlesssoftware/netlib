@@ -1,5 +1,5 @@
 %TITLE 'SSL_API'
-MODULE SSL_API (IDENT='V1.1-2', ADDRESSING_MODE (EXTERNAL=GENERAL)) =
+MODULE SSL_API (IDENT='V1.1-3', ADDRESSING_MODE (EXTERNAL=GENERAL)) =
 BEGIN
 !++
 ! FACILITY:         NETLIB
@@ -64,6 +64,8 @@ BEGIN
 !   26-JUL-2013 V1.1-2  Sneddon     Add BIO_get_retry_reason, BIO_ctrl,
 !				    BIO_get_retry_BIO, BIO_push, BIO_pop,
 !				    BIO_f_buffer.
+!   07-Aug-2013 V1.1-3  Sneddon     Add SSL_read, SSL_write, BIO_read and
+!				    BIO_write.  Remove BIO_f_buffer.
 !--
 
     LIBRARY 'SYS$LIBRARY:LIB';
@@ -115,7 +117,6 @@ BEGIN
     SSL_ROUTINE(SSL_load_error_strings, SSL$LIBSSL_SHR32);
     SSL_ROUTINE(BIO_free, SSL$LIBCRYPTO_SHR32);
     SSL_ROUTINE(BIO_new, SSL$LIBCRYPTO_SHR32);
-    SSL_ROUTINE(BIO_f_buffer, SSL$LIBCRYPTO_SHR32);
     SSL_ROUTINE(BIO_s_mem, SSL$LIBCRYPTO_SHR32);
     SSL_ROUTINE(BIO_ctrl, SSL$LIBCRYPTO_SHR32);
     SSL_ROUTINE(BIO_push, SSL$LIBCRYPTO_SHR32);
