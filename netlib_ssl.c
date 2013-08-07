@@ -359,10 +359,10 @@ unsigned int netlib_ssl_accept (struct CTX **xctx, TIME *timeout,
     ior->spec_argv(0).address = ctx->spec_ssl;
     ior->spec_call = SSL_accept;
     status = io_queue(ior);
-
-    if (ior->astadr == 0) {
-printf("  waiting!\n");
-	sys$waitfr(netlib_ssl_efn);
+    if (OK(status)) {
+    	if (ior->astadr == 0) sys$waitfr(netlib_ssl_efn);
+    } else {
+    	FREE_IOR(ior);
     }
 
     return status;
@@ -415,10 +415,10 @@ printf("netlib_ssl_connect\n");
     ior->spec_argv(0).address = ctx->spec_ssl;
     ior->spec_call = SSL_connect;
     status = io_queue(ior);
-
-    if (ior->astadr == 0) {
-printf("  waiting!\n");
-	sys$waitfr(netlib_ssl_efn);
+    if (OK(status)) {
+    	if (ior->astadr == 0) sys$waitfr(netlib_ssl_efn);
+    } else {
+    	FREE_IOR(ior);
     }
 
     return status;
@@ -472,10 +472,10 @@ printf("netlib_ssl_shutdown\n");
     ior->spec_argv(0).address = ctx->spec_ssl;
     ior->spec_call = SSL_shutdown;
     status = io_queue(ior);
-
-    if (ior->astadr == 0) {
-printf("  waiting!\n");
-	sys$waitfr(netlib_ssl_efn);
+    if (OK(status)) {
+    	if (ior->astadr == 0) sys$waitfr(netlib_ssl_efn);
+    } else {
+    	FREE_IOR(ior);
     }
 
     return status;
@@ -538,10 +538,10 @@ printf("netlib_ssl_read\n");
     ior->spec_argv(2).longword = dsc->dsc$w_length;
     ior->spec_call = SSL_read;
     status = io_queue(ior);
-
-    if (ior->astadr == 0) {
-printf("  waiting!\n");
-	sys$waitfr(netlib_ssl_efn);
+    if (OK(status)) {
+    	if (ior->astadr == 0) sys$waitfr(netlib_ssl_efn);
+    } else {
+    	FREE_IOR(ior);
     }
 
     return status;
@@ -601,10 +601,10 @@ printf("netlib_ssl_write\n");
     ior->spec_argv(2).longword = buflen;
     ior->spec_call = SSL_write;
     status = io_queue(ior);
-
-    if (ior->astadr == 0) {
-printf("  waiting!\n");
-	sys$waitfr(netlib_ssl_efn);
+    if (OK(status)) {
+    	if (ior->astadr == 0) sys$waitfr(netlib_ssl_efn);
+    } else {
+    	FREE_IOR(ior);
     }
 
     return status;
