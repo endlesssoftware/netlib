@@ -348,7 +348,7 @@ entry netlib_ssl_context returns longword unsigned;
 	quadword unsigned named timeout in default 0 typename date_time,
 	pointer(NETLIBIOSBDEF) named iosb out default 0
 	    typename io_status_block,
-	address(entry) named astadr default 0 typename ast_procedure,
+	address(entry) value named astadr default 0 typename ast_procedure,
 	longword unsigned value named astprm default 0 typename user_arg
     ) returns longword typename cond_value;
 
@@ -360,7 +360,7 @@ entry netlib_ssl_context returns longword unsigned;
 	quadword unsigned named timeout in default 0 typename date_time,
 	pointer(NETLIBIOSBDEF) named iosb out default 0
 	    typename io_status_block,
-	address(entry) named astadr default 0 typename ast_procedure,
+	address(entry) value named astadr default 0 typename ast_procedure,
 	longword unsigned value named astprm default 0 typename user_arg
     ) returns longword typename cond_value;
 
@@ -371,7 +371,7 @@ entry netlib_ssl_context returns longword unsigned;
 	longword unsigned named context in out typename context,
 	pointer(NETLIBIOSBDEF) named iosb out default 0
 	    typename io_status_block,
-	address(entry) named astadr default 0 typename ast_procedure,
+	address(entry) value named astadr default 0 typename ast_procedure,
 	longword unsigned value named astprm default 0 typename user_arg
     ) returns longword typename cond_value;
 
@@ -384,8 +384,7 @@ entry netlib_ssl_context returns longword unsigned;
 	quadword unsigned named timeout in default 0 typename date_time,
 	pointer(NETLIBIOSBDEF) named iosb out default 0
 	    typename io_status_block,
-	address(entry) named astadr in default 0
-	    typename ast_procedure,
+	address(entry) value named astadr in default 0 typename ast_procedure,
 	longword value named astprm in default 0 typename user_arg
     ) returns longword typename cond_value;
 
@@ -398,8 +397,7 @@ entry netlib_ssl_context returns longword unsigned;
 	quadword unsigned named timeout in default 0 typename date_time,
 	pointer(NETLIBIOSBDEF) named iosb out default 0
 	    typename io_status_block,
-	address(entry variable returns void) named astadr in default 0
-	    typename ast_procedure,
+	address(entry) value named astadr in default 0 typename ast_procedure,
 	longword value named astprm in default 0 typename user_arg
     ) returns longword typename cond_value;
 
