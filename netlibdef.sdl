@@ -334,10 +334,9 @@ iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
 	longword unsigned named socket in out typename context,
 	SINDEF named sa in typename structure,
 	longword unsigned named salen in,
-	pointer(NETLIBIOSBDEF) named iosb out optional
-	    typename io_status_block,
-	address(entry) value named astadr optional typename ast_procedure,
-	longword unsigned value named astprm optional typename user_arg
+	NETLIBIOSBDEF named iosb out optional typename io_status_block,
+	address(entry) value named astadr in optional typename ast_procedure,
+	longword unsigned value named astprm in optional typename user_arg
     ) returns longword unsigned typename cond_value;
 
     /*
@@ -348,10 +347,9 @@ iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
 	SINDEF named sa out typename structure,
 	longword unsigned named sasize in,
 	longword unsigned named salen out,
-	pointer(NETLIBIOSBDEF) named iosb out optional
-	    typename io_status_block,
-	address(entry) value named astadr optional typename ast_procedure,
-	longword unsigned value named astprm optional typename user_arg
+	NETLIBIOSBDEF named iosb out optional typename io_status_block,
+	address(entry) value named astadr in optional typename ast_procedure,
+	longword unsigned value named astprm in optional typename user_arg
     ) returns longword unsigned typename cond_value;
 
     /*
@@ -362,10 +360,9 @@ iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
 	SINDEF named sa out typename structure,
 	longword unsigned named sasize in,
 	longword unsigned named salen out,
-	pointer(NETLIBIOSBDEF) named iosb out optional
-	    typename io_status_block,
-	address(entry) value named astadr optional typename ast_procedure,
-	longword unsigned value named astprm optional typename user_arg
+	NETLIBIOSBDEF named iosb out optional typename io_status_block,
+	address(entry) value named astadr in optional typename ast_procedure,
+	longword unsigned value named astprm in optional typename user_arg
     ) returns longword unsigned typename cond_value;
 
     /*
@@ -384,10 +381,9 @@ iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
 	longword unsigned named socket in typename context,
 	SINDEF named sa in typename structure,
 	longword unsigned named salen in,
-	pointer(NETLIBIOSBDEF) named iosb out optional
-	    typename io_status_block,
-	address(entry) value named astadr optional typename ast_procedure,
-	longword unsigned value named astprm optional typename user_arg
+	NETLIBIOSBDEF named iosb out optional typename io_status_block,
+	address(entry) value named astadr in optional typename ast_procedure,
+	longword unsigned value named astprm in optional typename user_arg
     ) returns longword unsigned typename cond_value;
 
 entry netlib_write returns longword unsigned;
@@ -413,7 +409,34 @@ entry netlib_get_hostname returns longword unsigned;
 entry netlib_setsockopt returns longword unsigned;
 entry netlib_getsockopt returns longword unsigned;
 entry netlib_name_to_address returns longword unsigned;
-entry netlib_address_to_name returns longword unsigned;
+
+    /*
+    /* NETLIB_ADDRESS_TO_NAME
+    /*
+    /*	Get the hostname of an IP address
+    /*
+    /*  socket	= socket to get info about
+    /*  which	= optional, type of DNS lookup
+    /*  address	= INADDRDEF to be looked up
+    /*  addrsize= length of address
+    /*  hostname= descriptor to receive hostname
+    /*  retlen	= hostname length
+    /*	iosb	= optional, I/O status block
+    /*	astadr	= optional, I/O completion AST
+    /*	astprm	= optional, AST parameter
+    /*
+    entry netlib_address_to_name parameter (
+	longword unsigned named socket in typename context,
+	longword unsigned named which in default 0,
+	INADDRDEF named address in typename structure,
+	longword unsigned named addrsize in,
+	character descriptor named hostname out typename char_string,
+	word unsigned named retlen out,
+	NETLIBIOSBDEF named iosb out optional typename io_status_block,
+	address(entry) value named astadr in optional typename ast_procedure,
+	longword unsigned value named astprm in optional typename user_arg
+    ) returns longword unsigned typename cond_value;
+
 entry netlib_dns_skipname returns longword;
 entry netlib_dns_expandname returns longword unsigned;
 entry netlib_dns_query returns longword unsigned;
@@ -450,10 +473,9 @@ entry netlib_strtoaddr returns longword unsigned;
 	longword unsigned named socket in typename longword_unsigned,
 	character descriptor named hostname in typename char_string,
 	word unsigned named port in,
-	pointer(NETLIBIOSBDEF) named iosb out optional
-	    typename io_status_block,
-	address(entry) value named astadr optional typename ast_procedure,
-	longword unsigned value named astprm optional typename user_arg
+	NETLIBIOSBDEF named iosb out optional typename io_status_block,
+	address(entry) value named astadr in optional typename ast_procedure,
+	longword unsigned value named astprm in optional typename user_arg
     ) returns longword unsigned typename cond_value;
 
 entry netlib_dns_mx_lookup returns longword unsigned;
@@ -486,10 +508,9 @@ entry netlib_ssl_context returns longword unsigned;
     entry netlib_ssl_accept parameter (
 	longword unsigned named context in out typename context,
 	quadword unsigned named timeout in default 0 typename date_time,
-	pointer(NETLIBIOSBDEF) named iosb out optional
-	    typename io_status_block,
-	address(entry) value named astadr optional typename ast_procedure,
-	longword unsigned value named astprm optional typename user_arg
+	NETLIBIOSBDEF named iosb out optional typename io_status_block,
+	address(entry) value named astadr in optional typename ast_procedure,
+	longword unsigned value named astprm in optional typename user_arg
     ) returns longword unsigned typename cond_value;
 
     /*
@@ -498,10 +519,9 @@ entry netlib_ssl_context returns longword unsigned;
     entry netlib_ssl_connect parameter (
 	longword unsigned named context in out typename context,
 	quadword unsigned named timeout in default 0 typename date_time,
-	pointer(NETLIBIOSBDEF) named iosb out optional
-	    typename io_status_block,
-	address(entry) value named astadr optional typename ast_procedure,
-	longword unsigned value named astprm optional typename user_arg
+	NETLIBIOSBDEF named iosb out optional typename io_status_block,
+	address(entry) value named astadr in optional typename ast_procedure,
+	longword unsigned value named astprm in optional typename user_arg
     ) returns longword unsigned typename cond_value;
 
     /*
@@ -509,10 +529,9 @@ entry netlib_ssl_context returns longword unsigned;
     /*
     entry netlib_ssl_shutdown parameter (
 	longword unsigned named context in out typename context,
-	pointer(NETLIBIOSBDEF) named iosb out optional
-	    typename io_status_block,
-	address(entry) value named astadr optional typename ast_procedure,
-	longword unsigned value named astprm optional typename user_arg
+	NETLIBIOSBDEF named iosb out optional typename io_status_block,
+	address(entry) value named astadr in optional typename ast_procedure,
+	longword unsigned value named astprm in optional typename user_arg
     ) returns longword unsigned typename cond_value;
 
     /*
@@ -522,10 +541,9 @@ entry netlib_ssl_context returns longword unsigned;
 	longword unsigned named context in out typename context,
 	character descriptor named buffer in typename char_string,
 	quadword unsigned named timeout in default 0 typename date_time,
-	pointer(NETLIBIOSBDEF) named iosb out optional
-	    typename io_status_block,
-	address(entry) value named astadr optional typename ast_procedure,
-	longword unsigned value named astprm optional typename user_arg
+	NETLIBIOSBDEF named iosb out optional typename io_status_block,
+	address(entry) value named astadr in optional typename ast_procedure,
+	longword unsigned value named astprm in optional typename user_arg
     ) returns longword unsigned typename cond_value;
 
     /*
@@ -535,10 +553,9 @@ entry netlib_ssl_context returns longword unsigned;
 	longword unsigned named context in out typename context,
 	character descriptor named buffer in typename char_string,
 	quadword unsigned named timeout in default 0 typename date_time,
-	pointer(NETLIBIOSBDEF) named iosb out optional
-	    typename io_status_block,
-	address(entry) value named astadr optional typename ast_procedure,
-	longword unsigned value named astprm optional typename user_arg
+	NETLIBIOSBDEF named iosb out optional typename io_status_block,
+	address(entry) value named astadr in optional typename ast_procedure,
+	longword unsigned value named astprm in optional typename user_arg
     ) returns longword unsigned typename cond_value;
 
 end_iflanguage;
