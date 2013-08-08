@@ -48,6 +48,7 @@
 {  12-FEB-2013	    Sneddon	Add SSL constants.
 {  04-APR-2013	    Sneddon	More corrections to replace old C header.
 {  05-AUG-2013	    Sneddon	Add parameter lists to entry definitions.
+{  08-AUG-2013	    Sneddon	Add full parameter definitions for routines.
 {--
 module NETLIBDEF;
 iflanguage CC;
@@ -342,9 +343,19 @@ iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
     /*
     /* NETLIB_GETSOCKNAME
     /*
+    /*	Return local information for socket
+    /*
+    /*	socket	= socket to query
+    /*	sa	= SOCKADDRDEF structure
+    /*	sasize	= size of sa
+    /*  salen	= returned length of sa
+    /*	iosb	= optional, I/O status block
+    /*	astadr	= optional, I/O completion AST
+    /*	astprm	= optional, AST parameter
+    /*
     entry netlib_getsockname parameter (
 	longword unsigned named socket in typename context,
-	SINDEF named sa out typename structure,
+	SOCKADDRDEF named sa out typename structure,
 	longword unsigned named sasize in,
 	longword unsigned named salen out,
 	NETLIBIOSBDEF named iosb out optional typename io_status_block,
@@ -355,9 +366,19 @@ iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
     /*
     /* NETLIB_GETPEERNAME
     /*
+    /*	Return remote information for socket
+    /*
+    /*	socket	= socket to query
+    /*	sa	= SOCKADDRDEF structure
+    /*	sasize	= size of sa
+    /*  salen	= returned length of sa
+    /*	iosb	= optional, I/O status block
+    /*	astadr	= optional, I/O completion AST
+    /*	astprm	= optional, AST parameter
+    /*
     entry netlib_getpeername parameter (
 	longword unsigned named socket in typename context,
-	SINDEF named sa out typename structure,
+	SOCKADDRDEF named sa out typename structure,
 	longword unsigned named sasize in,
 	longword unsigned named salen out,
 	NETLIBIOSBDEF named iosb out optional typename io_status_block,
@@ -404,10 +425,62 @@ entry netlib_shutdown returns longword unsigned;
     ) returns longword unsigned typename cond_value;
 
 entry netlib_listen returns longword unsigned;
-entry netlib_accept returns longword unsigned;
+
+    /*
+    /* NETLIB_ACCEPT
+    /*
+    /*	Wait for incoming connections
+    /*
+    /*	socket	= socket to connect
+    /*	newsocket = new incoming socket
+    /*	ra	= socket address describing remote end
+    /*	rasize	= length of ra
+    /*	ralen	= returned length of ra
+    /*	iosb	= optional, I/O status block
+    /*	astadr	= optional, I/O completion AST
+    /*	astprm	= optional, AST parameter
+    /*
+    entry netlib_accept parameter (
+	longword unsigned named socket in typename context,
+	longword unsigned named newsocket out typename context,
+	SOCKADDRDEF named ra out typename structure,
+	longword unsigned named rasize in,
+	longword unsigned named ralen out,
+	NETLIBIOSBDEF named iosb out optional typename io_status_block,
+	address(entry) value named astadr in optional typename ast_procedure,
+	longword unsigned value named astprm in optional typename user_arg
+    ) returns longword unsigned typename cond_value;
+
 entry netlib_get_hostname returns longword unsigned;
 entry netlib_setsockopt returns longword unsigned;
-entry netlib_getsockopt returns longword unsigned;
+
+    /*
+    /* NETLIB_GETSOCKOPT
+    /*
+    /*	Get socket option
+    /*
+    /*	socket	= socket to query
+    /*  level	= level of option
+    /*  option	= option
+    /*  value	= address of result storage
+    /*  valsize	= size of value
+    /*  vallen	= returned length of value
+    /*	iosb	= optional, I/O status block
+    /*	astadr	= optional, I/O completion AST
+    /*	astprm	= optional, AST parameter
+    /*
+    entry netlib_getsockopt parameter (
+	longword unsigned named socket in typename context,
+	longword unsigned named level in,
+	longword unsigned named option in,
+	longword unsigned value named "value" typename varying_arg,
+	longword unsigned named valsize in,
+	longword unsigned named vallen out,
+	NETLIBIOSBDEF named iosb out optional typename io_status_block,
+	address(entry) value named astadr in optional typename ast_procedure,
+	longword unsigned value named astprm in optional typename user_arg
+    ) returns longword unsigned typename cond_value;
+
 entry netlib_name_to_address returns longword unsigned;
 
     /*
@@ -437,7 +510,7 @@ entry netlib_name_to_address returns longword unsigned;
 	longword unsigned value named astprm in optional typename user_arg
     ) returns longword unsigned typename cond_value;
 
-entry netlib_dns_skipname returns longword;
+entry netlib_dns_skipname returns longword unsigned;
 entry netlib_dns_expandname returns longword unsigned;
 entry netlib_dns_query returns longword unsigned;
 entry netlib_strtoaddr returns longword unsigned;
@@ -447,15 +520,15 @@ entry netlib_strtoaddr returns longword unsigned;
     /*	
     /*	Convert binary IP to string
     /*	
-    /*	address	=
-    /*	string	=
-    /*	retlen	= optional,
+    /*	address	= INADDRDEF structure
+    /*	string	= string to receive address
+    /*	retlen	= optional, return length of string
     /*	
     entry netlib_addrtostr parameter (
 	INADDRDEF named address in typename structure,
 	character descriptor named "string" out typename char_string,
 	word unsigned named retlen out
-    ) returns longword unsigned;
+    ) returns longword unsigned typename cond_value;
 
     /*
     /* NETLIB_CONNECT_BY_NAME
