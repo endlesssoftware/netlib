@@ -296,19 +296,117 @@ end_iflanguage CC;
 
 iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
 
-entry netlib_socket returns longword unsigned;
-entry netlib_server_setup returns longword unsigned;
-entry netlib_bind returns longword unsigned;
-entry netlib_getsockname returns longword unsigned;
-entry netlib_getpeername returns longword unsigned;
 /*
-entry netlib_connect returns longword unsigned;
+/* Socket Routines...
+/*
+
+    /*
+    /* NETLIB_SOCKET
+    /*
+    entry netlib_socket parameter (
+	longword unsigned named socket out typename context,
+	longword unsigned named type in,
+	longword unsigned named family in
+    ) returns longword unsigned typename cond_value;
+
+    /*
+    /* NETLIB_SERVER_SETUP
+    /*
+    entry netlib_server_setup parameter (
+	longword unsigned named socket out typename context,
+	SINDEF named sa in typename structure,
+	longword unsigned named salen in
+    ) returns longword unsigned typename cond_value;
+
+    /*
+    /* NETLIB_BIND
+    /*
+    /*	Set address and/or port for socket.
+    /*
+    /*	socket	= socket to bind
+    /*	sa	= socket address (IP address, port, etc.)
+    /*	salen	= length of sa
+    /*	iosb	= optional, I/O status block
+    /*	astadr	= optional, I/O completion AST
+    /*	astprm	= optional, AST parameter
+    /*
+    entry netlib_bind parameter (
+	longword unsigned named socket in out typename context,
+	SINDEF named sa in typename structure,
+	longword unsigned named salen in,
+	pointer(NETLIBIOSBDEF) named iosb out optional
+	    typename io_status_block,
+	address(entry) value named astadr optional typename ast_procedure,
+	longword unsigned value named astprm optional typename user_arg
+    ) returns longword unsigned typename cond_value;
+
+    /*
+    /* NETLIB_GETSOCKNAME
+    /*
+    entry netlib_getsockname parameter (
+	longword unsigned named socket in typename context,
+	SINDEF named sa out typename structure,
+	longword unsigned named sasize in,
+	longword unsigned named salen out,
+	pointer(NETLIBIOSBDEF) named iosb out optional
+	    typename io_status_block,
+	address(entry) value named astadr optional typename ast_procedure,
+	longword unsigned value named astprm optional typename user_arg
+    ) returns longword unsigned typename cond_value;
+
+    /*
+    /* NETLIB_GETPEERNAME
+    /*
+    entry netlib_getpeername parameter (
+	longword unsigned named socket in typename context,
+	SINDEF named sa out typename structure,
+	longword unsigned named sasize in,
+	longword unsigned named salen out,
+	pointer(NETLIBIOSBDEF) named iosb out optional
+	    typename io_status_block,
+	address(entry) value named astadr optional typename ast_procedure,
+	longword unsigned value named astprm optional typename user_arg
+    ) returns longword unsigned typename cond_value;
+
+    /*
+    /* NETLIB_CONNECT
+    /*
+    /*	Establish a connection to a remote system.
+    /*
+    /*	socket	= socket to connect
+    /*	sa	= socket address describing where to connect
+    /*	salen	= length of sa
+    /*	iosb	= optional, I/O status block
+    /*	astadr	= optional, I/O completion AST
+    /*	astprm	= optional, AST parameter
+    /*
+    entry netlib_connect parameter (
+	longword unsigned named socket in typename context,
+	SINDEF named sa in typename structure,
+	longword unsigned named salen in,
+	pointer(NETLIBIOSBDEF) named iosb out optional
+	    typename io_status_block,
+	address(entry) value named astadr optional typename ast_procedure,
+	longword unsigned value named astprm optional typename user_arg
+    ) returns longword unsigned typename cond_value;
+
 entry netlib_write returns longword unsigned;
 entry netlib_writeline returns longword unsigned;
 entry netlib_read returns longword unsigned;
 entry netlib_readline returns longword unsigned;
 entry netlib_shutdown returns longword unsigned;
-entry netlib_close returns longword unsigned;
+
+    /*
+    /* NETLIB_CLOSE
+    /*
+    /*	Close a socket
+    /*
+    /*	socket	= socket to close
+    /*
+    entry netlib_close parameter (
+	longword unsigned named socket in typename context
+    ) returns longword unsigned typename cond_value;
+
 entry netlib_listen returns longword unsigned;
 entry netlib_accept returns longword unsigned;
 entry netlib_get_hostname returns longword unsigned;
@@ -320,14 +418,56 @@ entry netlib_dns_skipname returns longword;
 entry netlib_dns_expandname returns longword unsigned;
 entry netlib_dns_query returns longword unsigned;
 entry netlib_strtoaddr returns longword unsigned;
-entry netlib_addrtostr returns longword unsigned;
-entry netlib_connect_by_name returns longword unsigned;
+
+    /*	
+    /*	NETLIB_ADDRTOSTR
+    /*	
+    /*	Convert binary IP to string
+    /*	
+    /*	address	=
+    /*	string	=
+    /*	retlen	= optional,
+    /*	
+    entry netlib_addrtostr parameter (
+	INADDRDEF named address in typename structure,
+	character descriptor named "string" out typename char_string,
+	word unsigned named retlen out
+    ) returns longword unsigned;
+
+    /*
+    /* NETLIB_CONNECT_BY_NAME
+    /*
+    /*	Connect to remote host by name.
+    /*
+    /*	socket	= stream socket allocated by NETLIB_SOCKET
+    /*	hostname= string containing the hostname
+    /*	port	= port number in host order
+    /*	iosb	= optional, I/O status block
+    /*	astadr	= optional, I/O completion AST
+    /*	astprm	= optional, AST parameter
+    /*
+    entry netlib_connect_by_name parameter (
+	longword unsigned named socket in typename longword_unsigned,
+	character descriptor named hostname in typename char_string,
+	word unsigned named port in,
+	pointer(NETLIBIOSBDEF) named iosb out optional
+	    typename io_status_block,
+	address(entry) value named astadr optional typename ast_procedure,
+	longword unsigned value named astprm optional typename user_arg
+    ) returns longword unsigned typename cond_value;
+
 entry netlib_dns_mx_lookup returns longword unsigned;
 entry netlib_hton_long returns longword unsigned;
 entry netlib_ntoh_long returns longword unsigned;
 entry netlib_hton_word returns word unsigned;
 entry netlib_ntoh_word returns word unsigned;
 entry netlib_version returns longword unsigned;
+
+
+/*
+/* SSL Routines
+/*
+
 
 entry netlib_ssl_context returns longword unsigned;
 
@@ -338,7 +478,7 @@ entry netlib_ssl_context returns longword unsigned;
 	longword unsigned named context out typename context,
 	longword unsigned named socket in typename context,
 	longword unsigned named ssl_ctx in typename context
-    ) returns longword typename cond_value;
+    ) returns longword unsigned typename cond_value;
 
     /*
     /* NETLIB_SSL_ACCEPT
@@ -346,11 +486,11 @@ entry netlib_ssl_context returns longword unsigned;
     entry netlib_ssl_accept parameter (
 	longword unsigned named context in out typename context,
 	quadword unsigned named timeout in default 0 typename date_time,
-	pointer(NETLIBIOSBDEF) named iosb out default 0
+	pointer(NETLIBIOSBDEF) named iosb out optional
 	    typename io_status_block,
-	address(entry) value named astadr default 0 typename ast_procedure,
-	longword unsigned value named astprm default 0 typename user_arg
-    ) returns longword typename cond_value;
+	address(entry) value named astadr optional typename ast_procedure,
+	longword unsigned value named astprm optional typename user_arg
+    ) returns longword unsigned typename cond_value;
 
     /*
     /* NETLIB_SSL_CONNECT
@@ -358,22 +498,22 @@ entry netlib_ssl_context returns longword unsigned;
     entry netlib_ssl_connect parameter (
 	longword unsigned named context in out typename context,
 	quadword unsigned named timeout in default 0 typename date_time,
-	pointer(NETLIBIOSBDEF) named iosb out default 0
+	pointer(NETLIBIOSBDEF) named iosb out optional
 	    typename io_status_block,
-	address(entry) value named astadr default 0 typename ast_procedure,
-	longword unsigned value named astprm default 0 typename user_arg
-    ) returns longword typename cond_value;
+	address(entry) value named astadr optional typename ast_procedure,
+	longword unsigned value named astprm optional typename user_arg
+    ) returns longword unsigned typename cond_value;
 
     /*
     /* NETLIB_SSL_SHUTDOWN
     /*
     entry netlib_ssl_shutdown parameter (
 	longword unsigned named context in out typename context,
-	pointer(NETLIBIOSBDEF) named iosb out default 0
+	pointer(NETLIBIOSBDEF) named iosb out optional
 	    typename io_status_block,
-	address(entry) value named astadr default 0 typename ast_procedure,
-	longword unsigned value named astprm default 0 typename user_arg
-    ) returns longword typename cond_value;
+	address(entry) value named astadr optional typename ast_procedure,
+	longword unsigned value named astprm optional typename user_arg
+    ) returns longword unsigned typename cond_value;
 
     /*
     /* NETLIB_SSL_READ
@@ -382,11 +522,11 @@ entry netlib_ssl_context returns longword unsigned;
 	longword unsigned named context in out typename context,
 	character descriptor named buffer in typename char_string,
 	quadword unsigned named timeout in default 0 typename date_time,
-	pointer(NETLIBIOSBDEF) named iosb out default 0
+	pointer(NETLIBIOSBDEF) named iosb out optional
 	    typename io_status_block,
-	address(entry) value named astadr in default 0 typename ast_procedure,
-	longword value named astprm in default 0 typename user_arg
-    ) returns longword typename cond_value;
+	address(entry) value named astadr optional typename ast_procedure,
+	longword unsigned value named astprm optional typename user_arg
+    ) returns longword unsigned typename cond_value;
 
     /*
     /* NETLIB_SSL_WRITE
@@ -395,11 +535,11 @@ entry netlib_ssl_context returns longword unsigned;
 	longword unsigned named context in out typename context,
 	character descriptor named buffer in typename char_string,
 	quadword unsigned named timeout in default 0 typename date_time,
-	pointer(NETLIBIOSBDEF) named iosb out default 0
+	pointer(NETLIBIOSBDEF) named iosb out optional
 	    typename io_status_block,
-	address(entry) value named astadr in default 0 typename ast_procedure,
-	longword value named astprm in default 0 typename user_arg
-    ) returns longword typename cond_value;
+	address(entry) value named astadr optional typename ast_procedure,
+	longword unsigned value named astprm optional typename user_arg
+    ) returns longword unsigned typename cond_value;
 
 end_iflanguage;
 
