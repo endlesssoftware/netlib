@@ -212,11 +212,11 @@ Software mailing lists:
 <endlist>
 
 
-<part>(Routine Descriptions\rtnpart)
+<part>(Socket Routine Descriptions\rtnpart)
 <part_page>
 <title>(<reference>(rtnpart)\<reference>(rtnpart\text))
 <abstract>
-This part describes the each of the NETLIB routines.
+This part describes each of the NETLIB socket routines.
 <endabstract>
 <endpart_page>(renumber)
 
@@ -1418,6 +1418,14 @@ all TCP/IP packages.
 <enddescription>
 
 <endroutine_section>
+
+<part>(SSL Routine Descriptions\rtnpart)
+<part_page>
+<title>(<reference>(rtnpart)\<reference>(rtnpart\text))
+<abstract>
+This part describes the each of the NETLIB SSL routines.
+<endabstract>
+<endpart_page>(renumber)
 
 <APPENDIX>(Status Codes\status_codes)
 <P>
