@@ -8,8 +8,9 @@ library.  It describes any last-minute features, restrictions, changes, or
 additions made to NETLIB.
 <ENDABSTRACT>
 <REVISION_INFO>(This is a revised manual.)
-<REVISION_INFO>(Operating System and Version:\VAX/VMS V5.5 or later;
-    	    	OpenVMS Alpha V6.2 or later)
+<REVISION_INFO>(Operating System and Version:\VAX/VMS V5.5 or later;)
+<REVISION_INFO>(\OpenVMS Alpha V6.2 or later;)
+<REVISION_INFO>(\OpenVMS Industry Standard 64 V8.2 or later)
 <REVISION_INFO>(Software Version:\<REFERENCE>(VER))
 <ENDTITLE_PAGE>(Endless Software Solutions<LINE>Perth, Western Australia)
 
@@ -31,8 +32,19 @@ additions made to NETLIB.
 <chapter>(Update History)
 <P>This chapter describes the NETLIB update history.
 <head1>(Updates in <REFERENCE>(ver))
-<P><REFERENCE>(VER) is a maintenance release that includes the following
-fixes:
+<P><REFERENCE>(VER) is a full release that includes the following changes:
+<LIST>(UNNUMBERED)
+<LE>Introduction of the OpenSSL interface, providing complete synchronous and
+asynchronous support for OpenSSL communications as well as an API compliant
+with the OpenVMS calling standard.
+<LE>Examle programs demonstrating simple client and server applications
+written in FORTRAN, BASIC, COBOL and Pascal.
+<LE>Although it was not mentioned in the 2.4 release notes, support for all
+TCP/IP packages that do not proived a UCX $QIO interface have been dropped.
+<ENDLIST>
+
+<head1>(Updates in V2.4)
+<P>V2.4 was a maintenance release that included the following fixes:
 <LIST>(UNNUMBERED)
 <LE>The fix to NETLIB_STRTOADDR provided in V2.3C introduced another
 problem, which has been corrected.
