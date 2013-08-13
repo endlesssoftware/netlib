@@ -575,7 +575,19 @@ entry netlib_hton_long returns longword unsigned;
 entry netlib_ntoh_long returns longword unsigned;
 entry netlib_hton_word returns word unsigned;
 entry netlib_ntoh_word returns word unsigned;
-entry netlib_version returns longword unsigned;
+
+    /*
+    /* NETLIB_VERSION
+    /*
+    /*	Return NETLIB version
+    /*	
+    /*	strver	= string to receive version string
+    /*	retlen	= optional, return length of string
+    /*
+    entry netlib_version parameter (
+	character descriptor named strver out typename char_string optional,
+	word unsigned named retlen out optional
+    ) returns longword unsigned typename cond_value;
 
 
 /*
