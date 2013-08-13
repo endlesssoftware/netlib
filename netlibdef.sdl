@@ -571,10 +571,50 @@ entry netlib_strtoaddr returns longword unsigned;
     ) returns longword unsigned typename cond_value;
 
 entry netlib_dns_mx_lookup returns longword unsigned;
-entry netlib_hton_long returns longword unsigned;
-entry netlib_ntoh_long returns longword unsigned;
-entry netlib_hton_word returns word unsigned;
-entry netlib_ntoh_word returns word unsigned;
+
+    /*
+    /* NETLIB_HTON_LONG
+    /*
+    /*	Convert host-order longword to network-order
+    /*
+    /*	value	= longword to convert
+    /*
+    entry netlib_hton_long parameter (
+	longword unsigned named "value" in
+    ) returns longword unsigned;
+
+    /*
+    /* NETLIB_NTOH_LONG
+    /*
+    /*	Convert network-order longword to host-order
+    /*
+    /*	value	= longword to convert
+    /*
+    entry netlib_ntoh_long parameter (
+	longword unsigned named "value" in
+    ) returns longword unsigned;
+
+    /*
+    /* NETLIB_HTON_WORD
+    /*
+    /*	Convert host-order word to network-order
+    /*
+    /*	value	= word to convert
+    /*
+    entry netlib_hton_word parameter (
+	word unsigned named "value" in
+    ) returns word unsigned;
+
+    /*
+    /* NETLIB_NTOH_WORD
+    /*
+    /*	Convert network-order word to host-order
+    /*
+    /*	value	= word to convert
+    /*
+    entry netlib_ntoh_word parameter (
+	word unsigned named "value" in
+    ) returns word unsigned;
 
     /*
     /* NETLIB_VERSION
