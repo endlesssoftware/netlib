@@ -62,6 +62,9 @@
 **  Forward declarations
 */
 
+    unsigned int netlib_ssl_version (struct dsc$descriptor *ver,
+				     unsigned short *retlen,
+				     unsigned *number);
     unsigned int netlib_ssl_context (void **xssl, unsigned int *method,
                                      struct dsc$descriptor *cert_d,
 				     int *cert_type,
@@ -128,6 +131,61 @@
 	// buffer...
 
 
+/*
+**++
+**  ROUTINE:    netlib_ssl_version
+**
+**  FUNCTIONAL DESCRIPTION:
+**
+**      Returns the OpenSSL version string being used by NETLIB.
+**
+**  RETURNS:    cond_value, condition value, longword (unsigned), write only, by value
+**
+**  PROTOTYPE:
+**
+**      NETLIB_SSL_VERSION  ver [,retlen] [,number]
+**
+**  ver:        char_string, character string, write only, by descriptor
+**  retlen:     word_unsigned, word (unsigned), write only, by reference
+**  number:	longword_unsigned, longword (unsigned), write only, by reference
+**
+**  IMPLICIT INPUTS:    None.
+**
+**  IMPLICIT OUTPUTS:   None.
+**
+**  COMPLETION CODES:   None.
+**
+**  SIDE EFFECTS:       None.
+**
+**--
+*/
+unsigned int netlib_ssl_version(struct dsc$descriptor *ver,
+				unsigned short *retlen,
+				unsigned *number) {
+
+    int argc, status = SS$_NORMAL;
+    const char *version_string = 0;
+    static $DESCRIPTOR(faodsc, "!AD");
+
+    VAXC$ESTABLISH(lib$sig_to_ret);
+
+    SETARGCOUNT(argc);
+    if (argc < 1) return SS$_INSFARG;
+
+    if (ver != 0) {
+	version_string = SSLeay_version(SSLEAY_VERSION);
+	status = lib$sys_fao(&faodsc, (argc > 1 ? retlen : 0), ver,
+			     strlen(version_string), version_string);
+    }
+
+    if ((argc > 2) && (number != 0)) {
+	*number = SSLeay();
+    }
+
+    return status;
+}
+
+
 /*
 **
 **  SS$_INSFMEM - unable to allocate internal SSL structures

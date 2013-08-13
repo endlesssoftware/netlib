@@ -1427,6 +1427,44 @@ This part describes the each of the NETLIB SSL routines.
 <endabstract>
 <endpart_page>(renumber)
 
+<comment>(----------------------------------------------------------------)
+<routine>(NETLIB_SSL_VERSION\Obtain version information for OpenSSL\\NETLIB_SSL_VERSION_DESCRIP)
+
+<overview>
+NETLIB_SSL_VERSION returns a character string and integer containing the
+version of OpenSSL being used by NETLIB.
+<endoverview>
+
+<format>
+<frtn>(NETLIB_SSL_VERSION)
+<fargs>([verstr] [,retlen] [,vernum])
+<endformat>
+<returns>(cond_value\longword (unsigned)\write only\by value)
+<argdeflist>
+<argitem>(verstr\char_string\character string\write only\by descriptor)
+<argdef>A character string into which the version information is copied.
+<argitem>(retlen\word_unsigned \word (unsigned)\write only\by reference)
+<argdef>The length of the version information string.
+<argitem>(vernum\longword_unsigned\longword (unsigned)\write only\by reference)
+<argdef>A longword to receive the version number.
+<endargdeflist>
+
+<description>
+Due to the linker options applied to the OpenSSL shareable images it is
+usually necessary to re-link all software after OpenSSL is upgraded.
+NETLIB avoids this situation be dynamically linking against OpenSSL and
+supporting any version-to-version differences at tun-time.
+
+This also has the benefit of being able to link against the SSL support in
+NETLIB without actually having to install NETLIB.
+
+The presence of the OpenSSL run-time libraries can be tested before calling
+any other NETLIB SSL routines by calling this function and testing for the
+return status LIB$_KEYNOTFOU. If this status is returned, OpenSSL is not
+available on the system.
+<ENDNOTE>
+<enddescription>
+
 <APPENDIX>(Status Codes\status_codes)
 <P>
 NETLIB translates all TCP/IP status codes into the codes used by

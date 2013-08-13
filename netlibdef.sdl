@@ -631,6 +631,21 @@ entry netlib_ssl_context returns longword unsigned;
 	longword unsigned value named astprm in optional typename user_arg
     ) returns longword unsigned typename cond_value;
 
+    /*
+    /* NETLIB_SSL_VERSION
+    /*
+    /*	Return OpenSSL library version
+    /*	
+    /*	strver	= optional, string to receive version string
+    /*	retlen	= optional, return length of string
+    /*	numver  = optional, longword to receive version as number
+    /*
+    entry netlib_ssl_version parameter (
+	character descriptor named strver out typename char_string optional,
+	word unsigned named retlen out optional,
+	longword unsigned named numver out optional
+    ) returns longword unsigned typename cond_value;
+
 end_iflanguage;
 
 iflanguage BLISS BLISS64 BLISSF;
