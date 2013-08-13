@@ -291,6 +291,7 @@ literal;
     unsigned int netlib_ssl_shutdown(void **sslsock, ...);
     unsigned int netlib_ssl_read(void **sslsock, void *bufdsc, ...);
     unsigned int netlib_ssl_write(void **sslsock, void *bufdsc, ...);
+    unsigned int netlib_ssl_version(void *dsc, ...);
 #endif /* not __NETLIB_BUILD__ */
 end_literal;
 end_iflanguage CC;
@@ -408,11 +409,6 @@ iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
 	longword unsigned value named astprm in optional typename user_arg
     ) returns longword unsigned typename cond_value;
 
-entry netlib_write returns longword unsigned;
-entry netlib_writeline returns longword unsigned;
-entry netlib_read returns longword unsigned;
-entry netlib_readline returns longword unsigned;
-
     /*
     /* NETLIB_SHUTDOWN
     /*
@@ -443,8 +439,6 @@ entry netlib_readline returns longword unsigned;
 	longword unsigned named socket in typename context
     ) returns longword unsigned typename cond_value;
 
-entry netlib_listen returns longword unsigned;
-
     /*
     /* NETLIB_ACCEPT
     /*
@@ -469,9 +463,6 @@ entry netlib_listen returns longword unsigned;
 	address(entry) value named astadr in optional typename ast_procedure,
 	longword unsigned value named astprm in optional typename user_arg
     ) returns longword unsigned typename cond_value;
-
-entry netlib_get_hostname returns longword unsigned;
-entry netlib_setsockopt returns longword unsigned;
 
     /*
     /* NETLIB_GETSOCKOPT
@@ -500,8 +491,6 @@ entry netlib_setsockopt returns longword unsigned;
 	longword unsigned value named astprm in optional typename user_arg
     ) returns longword unsigned typename cond_value;
 
-entry netlib_name_to_address returns longword unsigned;
-
     /*
     /* NETLIB_ADDRESS_TO_NAME
     /*
@@ -529,10 +518,21 @@ entry netlib_name_to_address returns longword unsigned;
 	longword unsigned value named astprm in optional typename user_arg
     ) returns longword unsigned typename cond_value;
 
+entry netlib_dns_mx_lookup returns longword unsigned;
 entry netlib_dns_skipname returns longword unsigned;
 entry netlib_dns_expandname returns longword unsigned;
 entry netlib_dns_query returns longword unsigned;
+
 entry netlib_strtoaddr returns longword unsigned;
+entry netlib_name_to_address returns longword unsigned;
+entry netlib_get_hostname returns longword unsigned;
+entry netlib_setsockopt returns longword unsigned;
+
+entry netlib_listen returns longword unsigned;
+entry netlib_write returns longword unsigned;
+entry netlib_writeline returns longword unsigned;
+entry netlib_read returns longword unsigned;
+entry netlib_readline returns longword unsigned;
 
     /*	
     /*	NETLIB_ADDRTOSTR
@@ -569,8 +569,6 @@ entry netlib_strtoaddr returns longword unsigned;
 	address(entry) value named astadr in optional typename ast_procedure,
 	longword unsigned value named astprm in optional typename user_arg
     ) returns longword unsigned typename cond_value;
-
-entry netlib_dns_mx_lookup returns longword unsigned;
 
     /*
     /* NETLIB_HTON_LONG
