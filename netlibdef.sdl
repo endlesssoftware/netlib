@@ -547,19 +547,42 @@ entry netlib_writeline returns longword unsigned;
     /*	astadr	= optional, I/O completion AST
     /*	astprm	= optional, AST parameter
     /*
-    entry netlib_connect_by_name parameter (
+    entry netlib_read parameter (
 	longword unsigned named socket in typename longword_unsigned,
 	character descriptor named buffer in typename char_string,
-	SOCKADDRDEF named sa out typename structure,
-	longword unsigned named sasize in,
-	longword unsigned named salen out,
-	quadword unsigned named timeout in default 0 typename delta_time,
+	SOCKADDRDEF named sa out optional typename structure,
+	longword unsigned named sasize in optional,
+	longword unsigned named salen out optional,
+	quadword unsigned named timeout in optional typename delta_time,
 	NETLIBIOSBDEF named iosb out optional typename io_status_block,
 	address(entry) value named astadr in optional typename ast_procedure,
 	longword unsigned value named astprm in optional typename user_arg
     ) returns longword unsigned typename cond_value;
 
-entry netlib_readline returns longword unsigned;
+    /*
+    /* NETLIB_READLINE
+    /*
+    /*	Read line from socket
+    /*
+    /*	socket	= socket to read from
+    /*  buffer	= buffer to receive line
+    /*  retlen	= optional, return length of buffer
+    /*  flags	= optional, control flags
+    /*  timeout	= optional, read timeout
+    /*	iosb	= optional, I/O status block
+    /*	astadr	= optional, I/O completion AST
+    /*	astprm	= optional, AST parameter
+    /*
+    entry netlib_readline parameter (
+	longword unsigned named socket in typename longword_unsigned,
+	character descriptor named buffer in typename char_string,
+	word unsigned named retlen out optional,
+	longword unsigned named flags in optional typename bitmask,
+	quadword unsigned named timeout in optional typename delta_time,
+	NETLIBIOSBDEF named iosb out optional typename io_status_block,
+	address(entry) value named astadr in optional typename ast_procedure,
+	longword unsigned value named astprm in optional typename user_arg
+    ) returns longword unsigned typename cond_value;
 
     /*	
     /*	NETLIB_ADDRTOSTR
@@ -573,7 +596,7 @@ entry netlib_readline returns longword unsigned;
     entry netlib_addrtostr parameter (
 	INADDRDEF named address in typename structure,
 	character descriptor named "string" out typename char_string,
-	word unsigned named retlen out
+	word unsigned named retlen out optional
     ) returns longword unsigned typename cond_value;
 
     /*
