@@ -529,7 +529,33 @@ entry netlib_dns_expandname returns longword unsigned;
 entry netlib_dns_query returns longword unsigned;
 
 entry netlib_strtoaddr returns longword unsigned;
-entry netlib_name_to_address returns longword unsigned;
+
+    /*
+    /* NETLIB_NAME_TO_ADDRESS
+    /*
+    /*	Get IP address(es) for a host name
+    /*
+    /*  socket	= socket to get info about
+    /*  which   = type of lookup
+    /*  hostname= host name to look up
+    /*  addrlist= array of INADDRDEF structures
+    /*  addrsize= number elements in addrlist
+    /*  addrcnt = number of elements actually written
+    /*	iosb	= optional, I/O status block
+    /*	astadr	= optional, I/O completion AST
+    /*	astprm	= optional, AST parameter
+    /*
+    entry netlib_name_to_address parameter (
+	longword unsigned named socket in typename context,
+	longword unsigned named which in default 0,
+	character descriptor named hostname in typename char_string,
+	INADDRDEF dimension * named addrlist out,
+	longword unsigned named addrsize in,
+	longword unsigned named addrcnt out optional,
+	NETLIBIOSBDEF named iosb out optional typename io_status_block,
+	address(entry) value named astadr in optional typename ast_procedure,
+	longword unsigned value named astprm in optional typename user_arg
+    ) returns longword unsigned typename cond_value;
 
     /*
     /* NETLIB_GET_HOSTNAME
