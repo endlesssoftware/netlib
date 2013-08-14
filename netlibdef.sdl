@@ -305,6 +305,12 @@ iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
     /*
     /* NETLIB_SOCKET
     /*
+    /*	Create socket
+    /*
+    /*	socket	= new socket
+    /*	type	= socket type
+    /*  family	= socket family
+    /*
     entry netlib_socket parameter (
 	longword unsigned named socket out typename context,
 	longword unsigned named type in,
@@ -547,7 +553,7 @@ entry netlib_strtoaddr returns longword unsigned;
     /*
     entry netlib_name_to_address parameter (
 	longword unsigned named socket in typename context,
-	longword unsigned named which in default 0,
+	longword unsigned named which in,
 	character descriptor named hostname in typename char_string,
 	INADDRDEF dimension * named addrlist out,
 	longword unsigned named addrsize in,
