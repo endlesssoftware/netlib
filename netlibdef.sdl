@@ -534,7 +534,18 @@ entry netlib_dns_skipname returns longword unsigned;
 entry netlib_dns_expandname returns longword unsigned;
 entry netlib_dns_query returns longword unsigned;
 
-entry netlib_strtoaddr returns longword unsigned;
+    /*
+    /* NETLIB_STRTOADDR
+    /*
+    /*	Convert a dotted-address to binary form
+    /*
+    /*	string	= input IP address string
+    /*  address	= output binary address
+    /*
+    entry netlib_strtoaddr parameter (
+	character descriptor named "string" in typename char_string,
+	INADDRDEF named "address" out typename structure
+    ) returns longword unsigned typename cond_value;
 
     /*
     /* NETLIB_NAME_TO_ADDRESS
@@ -555,7 +566,7 @@ entry netlib_strtoaddr returns longword unsigned;
 	longword unsigned named socket in typename context,
 	longword unsigned named which in,
 	character descriptor named hostname in typename char_string,
-	INADDRDEF dimension * named addrlist out,
+	INADDRDEF dimension * named addrlist out typename structure,
 	longword unsigned named addrsize in,
 	longword unsigned named addrcnt out optional,
 	NETLIBIOSBDEF named iosb out optional typename io_status_block,
