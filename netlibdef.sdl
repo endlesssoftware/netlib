@@ -314,7 +314,12 @@ iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
     /*
     /* NETLIB_SERVER_SETUP
     /*
+    /*	Socket setup for inetd server
     /*	
+    /*	socket	= socket to bind
+    /*	sa	= socket address (IP address, port, etc.)
+    /*	salen	= length of sa
+    /*
     entry netlib_server_setup parameter (
 	longword unsigned named socket out typename context,
 	SINDEF named sa in typename structure,
@@ -348,7 +353,7 @@ iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
     /*	Return local information for socket
     /*
     /*	socket	= socket to query
-    /*	sa	= SOCKADDRDEF structure
+    /*	sa	= SINDEF structure
     /*	sasize	= size of sa
     /*  salen	= returned length of sa
     /*	iosb	= optional, I/O status block
@@ -357,7 +362,7 @@ iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
     /*
     entry netlib_getsockname parameter (
 	longword unsigned named socket in typename context,
-	SOCKADDRDEF named sa out typename structure,
+	SINDEF named sa out typename structure,
 	longword unsigned named sasize in,
 	longword unsigned named salen out,
 	NETLIBIOSBDEF named iosb out optional typename io_status_block,
@@ -371,7 +376,7 @@ iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
     /*	Return remote information for socket
     /*
     /*	socket	= socket to query
-    /*	sa	= SOCKADDRDEF structure
+    /*	sa	= SINDEF structure
     /*	sasize	= size of sa
     /*  salen	= returned length of sa
     /*	iosb	= optional, I/O status block
@@ -380,7 +385,7 @@ iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
     /*
     entry netlib_getpeername parameter (
 	longword unsigned named socket in typename context,
-	SOCKADDRDEF named sa out typename structure,
+	SINDEF named sa out typename structure,
 	longword unsigned named sasize in,
 	longword unsigned named salen out,
 	NETLIBIOSBDEF named iosb out optional typename io_status_block,
@@ -456,7 +461,7 @@ iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
     entry netlib_accept parameter (
 	longword unsigned named socket in typename context,
 	longword unsigned named newsocket out typename context,
-	SOCKADDRDEF named ra out typename structure,
+	SINDEF named ra out typename structure,
 	longword unsigned named rasize in,
 	longword unsigned named ralen out,
 	NETLIBIOSBDEF named iosb out optional typename io_status_block,
@@ -525,12 +530,105 @@ entry netlib_dns_query returns longword unsigned;
 
 entry netlib_strtoaddr returns longword unsigned;
 entry netlib_name_to_address returns longword unsigned;
-entry netlib_get_hostname returns longword unsigned;
-entry netlib_setsockopt returns longword unsigned;
 
-entry netlib_listen returns longword unsigned;
-entry netlib_write returns longword unsigned;
-entry netlib_writeline returns longword unsigned;
+    /*
+    /* NETLIB_GET_HOSTNAME
+    /*
+    /*	Return internet hostname of local host
+    /*	
+    /*	namdsc	= string to receive hostname
+    /*	retlen	= optional, return length of hostname
+    /*
+    entry netlib_get_hostname parameter (
+	character descriptor named namdsc out typename char_string optional,
+	word unsigned named retlen out optional
+    ) returns longword unsigned typename cond_value;
+
+    /*
+    /* NETLIB_SETSOCKOPT
+    /*
+    /*	Set socket option
+    /*
+    /*	socket	= socket to query
+    /*  level	= level of option
+    /*  option	= option
+    /*  value	= address of result storage
+    /*  vallen	= size of value
+    /*	iosb	= optional, I/O status block
+    /*	astadr	= optional, I/O completion AST
+    /*	astprm	= optional, AST parameter
+    /*
+    entry netlib_setsockopt parameter (
+	longword unsigned named socket in typename context,
+	longword unsigned named level in,
+	longword unsigned named option in,
+	longword unsigned value named "value" typename varying_arg,
+	longword unsigned named vallen in,
+	NETLIBIOSBDEF named iosb out optional typename io_status_block,
+	address(entry) value named astadr in optional typename ast_procedure,
+	longword unsigned value named astprm in optional typename user_arg
+    ) returns longword unsigned typename cond_value;
+
+    /*
+    /* NETLIB_LISTEN
+    /*
+    /*	Configure socket to receive connections
+    /*
+    /*	socket	= socket to query
+    /*  level	= backlog connections
+    /*	iosb	= optional, I/O status block
+    /*	astadr	= optional, I/O completion AST
+    /*	astprm	= optional, AST parameter
+    /*
+    entry netlib_listen parameter (
+	longword unsigned named socket in typename context,
+	longword unsigned named backlog in optional,
+	NETLIBIOSBDEF named iosb out optional typename io_status_block,
+	address(entry) value named astadr in optional typename ast_procedure,
+	longword unsigned value named astprm in optional typename user_arg
+    ) returns longword unsigned typename cond_value;
+
+    /*
+    /* NETLIB_WRITE
+    /*
+    /*	Write data to socket
+    /*
+    /*	socket	= socket to read from
+    /*  buffer	= receive buffer
+    /*	sa	= optional, SINDEF structure
+    /*	salen	= optional, size of sa
+    /*	iosb	= optional, I/O status block
+    /*	astadr	= optional, I/O completion AST
+    /*	astprm	= optional, AST parameter
+    /*
+    entry netlib_write parameter (
+	longword unsigned named socket in typename longword_unsigned,
+	character descriptor named buffer in typename char_string,
+	SINDEF named sa in optional typename structure,
+	longword unsigned named salen in optional,
+	NETLIBIOSBDEF named iosb out optional typename io_status_block,
+	address(entry) value named astadr in optional typename ast_procedure,
+	longword unsigned value named astprm in optional typename user_arg
+    ) returns longword unsigned typename cond_value;
+
+    /*
+    /* NETLIB_WRITELINE
+    /*
+    /*	Write data to socket adding terminating CR/LF pair.
+    /*
+    /*	socket	= socket to read from
+    /*  buffer	= receive buffer
+    /*	iosb	= optional, I/O status block
+    /*	astadr	= optional, I/O completion AST
+    /*	astprm	= optional, AST parameter
+    /*
+    entry netlib_writeline parameter (
+	longword unsigned named socket in typename longword_unsigned,
+	character descriptor named buffer in typename char_string,
+	NETLIBIOSBDEF named iosb out optional typename io_status_block,
+	address(entry) value named astadr in optional typename ast_procedure,
+	longword unsigned value named astprm in optional typename user_arg
+    ) returns longword unsigned typename cond_value;
 
     /*
     /* NETLIB_READ
@@ -539,7 +637,7 @@ entry netlib_writeline returns longword unsigned;
     /*
     /*	socket	= socket to read from
     /*  buffer	= receive buffer
-    /*	sa	= optional, SOCKADDRDEF structure
+    /*	sa	= optional, SINDEF structure
     /*	sasize	= optional, size of sa
     /*  salen	= optional, returned length of sa
     /*  timeout	= optional, read timeout
@@ -549,8 +647,8 @@ entry netlib_writeline returns longword unsigned;
     /*
     entry netlib_read parameter (
 	longword unsigned named socket in typename longword_unsigned,
-	character descriptor named buffer in typename char_string,
-	SOCKADDRDEF named sa out optional typename structure,
+	character descriptor named buffer out typename char_string,
+	SINDEF named sa out optional typename structure,
 	longword unsigned named sasize in optional,
 	longword unsigned named salen out optional,
 	quadword unsigned named timeout in optional typename delta_time,
@@ -575,7 +673,7 @@ entry netlib_writeline returns longword unsigned;
     /*
     entry netlib_readline parameter (
 	longword unsigned named socket in typename longword_unsigned,
-	character descriptor named buffer in typename char_string,
+	character descriptor named buffer out typename char_string,
 	word unsigned named retlen out optional,
 	longword unsigned named flags in optional typename bitmask,
 	quadword unsigned named timeout in optional typename delta_time,
