@@ -531,8 +531,44 @@ iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
 
 entry netlib_dns_mx_lookup returns longword unsigned;
 entry netlib_dns_skipname returns longword unsigned;
-entry netlib_dns_expandname returns longword unsigned;
-entry netlib_dns_query returns longword unsigned;
+
+    /*
+    /* NETLIB_DNS_EXPANDNAME
+    /*
+    /*
+    /*
+/*    entry netlib_dns_expandname parameter (
+	
+/*    ) returns longword unsigned typename cond_value;
+
+    /*
+    /* NETLIB_DNS_QUERY
+    /*
+    /*	Perform a DNS query
+    /*
+    /*	socket	= a socket
+    /*	name	= domain name to look up
+    /*	class	= class of query
+    /*	type	= type of query
+    /*	buffer	= buffer to receive dns response
+    /*	bufsize	= size of buffer in bytes
+    /*	flags	= query options
+    /*	iosb	= optional, I/O status block
+    /*	astadr	= optional, I/O completion AST
+    /*	astprm	= optional, AST parameter
+    /*
+    entry netlib_dns_query parameter (
+	longword unsigned named socket in typename context,
+	character descriptor named name in typename char_string,
+	longword unsigned named class in default 0,
+	longword unsigned named type in,
+	address value named buffer typename varying_arg,
+	word unsigned named bufsize in,
+	longword unsigned named flags in optional typename longword_mask,
+	NETLIBIOSBDEF named iosb out optional typename io_status_block,
+	address(entry) value named astadr in optional typename ast_procedure,
+	longword unsigned value named astprm in optional typename user_arg
+    ) returns longword unsigned typename cond_value;
 
     /*
     /* NETLIB_STRTOADDR
