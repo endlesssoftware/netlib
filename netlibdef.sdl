@@ -829,6 +829,12 @@ entry netlib_ssl_context returns longword unsigned;
     /*
     /* NETLIB_SSL_SOCKET
     /*
+    /*	Allocate an SSL socket
+    /*
+    /*  context = SSL socket
+    /*	socket	= NETLIB socket
+    /*	ssl_ctx	= SSL_CTX structure
+    /*
     entry netlib_ssl_socket parameter (
 	longword unsigned named context out typename context,
 	longword unsigned named socket in typename context,
@@ -837,6 +843,14 @@ entry netlib_ssl_context returns longword unsigned;
 
     /*
     /* NETLIB_SSL_ACCEPT
+    /*
+    /*	Accept incoming SSL connection
+    /*
+    /*  context = SSL socket
+    /*  timeout	= optional, read timeout
+    /*	iosb	= optional, I/O status block
+    /*	astadr	= optional, I/O completion AST
+    /*	astprm	= optional, AST parameter
     /*
     entry netlib_ssl_accept parameter (
 	longword unsigned named context in out typename context,
@@ -849,6 +863,14 @@ entry netlib_ssl_context returns longword unsigned;
     /*
     /* NETLIB_SSL_CONNECT
     /*
+    /*	Establish an SSL connection to a remote system.
+    /*
+    /*  context = SSL socket
+    /*  timeout	= optional, read timeout
+    /*	iosb	= optional, I/O status block
+    /*	astadr	= optional, I/O completion AST
+    /*	astprm	= optional, AST parameter
+    /*
     entry netlib_ssl_connect parameter (
 	longword unsigned named context in out typename context,
 	quadword unsigned named timeout in default 0 typename delta_time,
@@ -860,6 +882,13 @@ entry netlib_ssl_context returns longword unsigned;
     /*
     /* NETLIB_SSL_SHUTDOWN
     /*
+    /*	Shutdown SSL socket (don't delete socket)
+    /*
+    /*  context = SSL socket
+    /*	iosb	= optional, I/O status block
+    /*	astadr	= optional, I/O completion AST
+    /*	astprm	= optional, AST parameter
+    /*
     entry netlib_ssl_shutdown parameter (
 	longword unsigned named context in out typename context,
 	NETLIBIOSBDEF named iosb out optional typename io_status_block,
@@ -868,7 +897,27 @@ entry netlib_ssl_context returns longword unsigned;
     ) returns longword unsigned typename cond_value;
 
     /*
+    /* NETLIB_SSL_CLOSE
+    /*
+    /*	Close an SSL socket
+    /*
+    /*	socket	= socket to close
+    /*
+    entry netlib_ssl_close parameter (
+	longword unsigned named socket in typename context
+    ) returns longword unsigned typename cond_value;
+
+    /*
     /* NETLIB_SSL_READ
+    /*
+    /*	Read data from SSL socket
+    /*
+    /*  context = SSL socket
+    /*  buffer	= receive buffer
+    /*  timeout	= optional, read timeout
+    /*	iosb	= optional, I/O status block
+    /*	astadr	= optional, I/O completion AST
+    /*	astprm	= optional, AST parameter
     /*
     entry netlib_ssl_read parameter (
 	longword unsigned named context in out typename context,
@@ -881,6 +930,15 @@ entry netlib_ssl_context returns longword unsigned;
 
     /*
     /* NETLIB_SSL_WRITE
+    /*
+    /*	Write data to SSL socket
+    /*
+    /*  context = SSL socket
+    /*  buffer	= receive buffer
+    /*  timeout	= optional, read timeout
+    /*	iosb	= optional, I/O status block
+    /*	astadr	= optional, I/O completion AST
+    /*	astprm	= optional, AST parameter
     /*
     entry netlib_ssl_write parameter (
 	longword unsigned named context in out typename context,
