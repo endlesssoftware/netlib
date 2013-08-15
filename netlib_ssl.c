@@ -97,7 +97,6 @@
     static unsigned int io_write(struct IOR *ior);
     static long outbio_callback(BIO *b, int oper, const char *argp, int argi,
 				long argl, long retvalue);
-    int netlib___cvt_status(int err, ...);
 
     /*
     ** These functions are needed by the DNS module, though unused by
@@ -920,61 +919,3 @@ static long outbio_callback (BIO *b, int oper, const char *argp, int argi,
 
     return retvalue;
 } /* outbio_callback */
-
-/*
-
-Translate SSL status codes to OpenVMS ones...
-
-Should we store these somewhere and provide an interface to fetch the
-full status via a netlib_ssl_xxx routine?  This way you could find out what
-was really going on.  Although, we still need to document the kind of
-errors that occur when processing the errors...
-
-*/
-int netlib___cvt_status(int err,
-			...) {
-
-    va_list argptr;
-    int argc;
-    int _errno = EVMSERR, _vaxc$errno = SS$_NORMAL;
-    int lib, func, reason, status;
-
-    SETARGCOUNT(argc);
-
-    if (argc > 1) {
-	va_start(argptr, err);
-	_errno = va_arg(argptr, int);
-	if (argc > 2) _vaxc$errno = va_arg(argptr, int);
-	va_end(argptr);
-    }
-
-    lib = ERR_GET_LIB(err);
-    func = ERR_GET_FUNC(err);
-    reason = ERR_GET_REASON(err);
-
-    switch (lib) {
-    case ERR_LIB_SYS:
-	status = _vaxc$errno;
-	break;
-
-    case ERR_LIB_X509:
-	switch (reason) {
-	case X509_R_INVALID_DIRECTORY:
-	    status = RMS$_DNF;
-	    break;
-	case X509_R_KEY_TYPE_MISMATCH:
-	case X509_R_KEY_VALUES_MISMATCH:
-	    status = RMS$_KEY_MISMATCH;
-	    break;
-	case X509_R_UNSUPPORTED_ALGORITHM:
-	    status = SS$_UNSUPPORTED;
-	    break;
-	default:
-	    status = SS$_BADCHECKSUM;
-	    break;
-	}
-	break;
-    }
-
-    return status;
-}
