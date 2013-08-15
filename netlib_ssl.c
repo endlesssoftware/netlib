@@ -81,6 +81,7 @@
     unsigned int netlib_ssl_shutdown (struct CTX **xctx,
                                       struct NETLIBIOSBDEF *iosb,
                                       void (*astadr)(), void *astprm);
+    unsigned int netlib_ssl_close (struct CTX **xctx);
     unsigned int netlib_ssl_read (struct CTX **xctx,
 				  struct dsc$descriptor *dsc, TIME *timeout,
 				  struct NETLIBIOSBDEF *iosb,
@@ -547,6 +548,50 @@ unsigned int netlib_ssl_shutdown (struct CTX **xctx,
 
     return status;
 } /* netlib_ssl_shutdown */
+
+/*
+**++
+**  ROUTINE:	netlib_ssl_close
+**
+**  FUNCTIONAL DESCRIPTION:
+**
+**  	Delete and SSL socket.
+**
+**  RETURNS:	cond_value, longword (unsigned), write only, by value
+**
+**  PROTOTYPE:
+**
+**  	tbs
+**
+**  IMPLICIT INPUTS:	None.
+**
+**  IMPLICIT OUTPUTS:	None.
+**
+**  COMPLETION CODES:
+**
+**
+**  SIDE EFFECTS:   	None.
+**
+**--
+*/
+unsigned int netlib_ssl_close (struct CTX **xctx) {
+
+    struct CTX *ctx;
+
+    VERIFY_CTX(xctx, ctx);
+
+    if (ctx->spec_inbio != 0) BIO_free(ctx->spec_inbio);
+    if (ctx->spec_outbio != 0) BIO_free(ctx->spec_outbio);
+    if (ctx->spec_ssl != 0) SSL_free(ctx->spec_ssl);
+    if (ctx->spec_data.dsc$a_pointer != 0)
+    	free(ctx->spec_data.dsc$a_pointer);
+
+    netlib___free_ctx(ctx);
+
+    *xctx = 0;
+
+    return SS$_NORMAL;
+} /* netlib_ssl_close */
 
 /*
 **++
