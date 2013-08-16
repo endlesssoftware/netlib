@@ -1,6 +1,6 @@
 /********************************************************************************************************************************/
-/* Created:  8-Aug-2013 00:01:05 by OpenVMS SDL EV2-3      */
-/* Source:  08-AUG-2013 00:00:45 MG_SRC:[NETLIB]NETLIBDEF.SDL;29 */
+/* Created: 16-Aug-2013 12:27:36 by OpenVMS SDL EV2-3      */
+/* Source:  16-AUG-2013 12:27:11 MG_SRC:[NETLIB]NETLIBDEF.SDL;67 */
 /********************************************************************************************************************************/
 /*** MODULE NETLIBDEF ***/
 #ifndef __NETLIBDEF_LOADED
@@ -257,6 +257,7 @@ struct mxrrdef {
     unsigned int netlib_ssl_shutdown(void **sslsock, ...);
     unsigned int netlib_ssl_read(void **sslsock, void *bufdsc, ...);
     unsigned int netlib_ssl_write(void **sslsock, void *bufdsc, ...);
+    unsigned int netlib_ssl_version(void *dsc, ...);
 #endif /* not __NETLIB_BUILD__ */
 	
 	

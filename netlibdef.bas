@@ -1,6 +1,6 @@
  !********************************************************************************************************************************
- ! Created:  8-Aug-2013 00:00:57 by OpenVMS SDL EV2-3      
- ! Source:  08-AUG-2013 00:00:45 MG_SRC:[NETLIB]NETLIBDEF.SDL;29 
+ ! Created: 16-Aug-2013 12:27:17 by OpenVMS SDL EV2-3      
+ ! Source:  16-AUG-2013 12:27:11 MG_SRC:[NETLIB]NETLIBDEF.SDL;67 
  !********************************************************************************************************************************
       ! *** PREDECLARED TYPES
      
@@ -199,41 +199,620 @@
       DECLARE LONG CONSTANT NETLIB_K_METHOD_TLS1 = 3
       DECLARE LONG CONSTANT NETLIB_K_FILETYPE_PEM = 1
       DECLARE LONG CONSTANT NETLIB_K_FILETYPE_ASN1 = 2
-      EXTERNAL LONG FUNCTION  netlib_socket
-      EXTERNAL LONG FUNCTION  netlib_server_setup
-      EXTERNAL LONG FUNCTION  netlib_bind
-      EXTERNAL LONG FUNCTION  netlib_getsockname
-      EXTERNAL LONG FUNCTION  netlib_getpeername
     ! 
-      EXTERNAL LONG FUNCTION  netlib_connect
-      EXTERNAL LONG FUNCTION  netlib_write
-      EXTERNAL LONG FUNCTION  netlib_writeline
-      EXTERNAL LONG FUNCTION  netlib_read
-      EXTERNAL LONG FUNCTION  netlib_readline
-      EXTERNAL LONG FUNCTION  netlib_shutdown
-      EXTERNAL LONG FUNCTION  netlib_close
-      EXTERNAL LONG FUNCTION  netlib_listen
-      EXTERNAL LONG FUNCTION  netlib_accept
-      EXTERNAL LONG FUNCTION  netlib_get_hostname
-      EXTERNAL LONG FUNCTION  netlib_setsockopt
-      EXTERNAL LONG FUNCTION  netlib_getsockopt
-      EXTERNAL LONG FUNCTION  netlib_name_to_address
-      EXTERNAL LONG FUNCTION  netlib_address_to_name
-      EXTERNAL LONG FUNCTION  netlib_dns_skipname
-      EXTERNAL LONG FUNCTION  netlib_dns_expandname
-      EXTERNAL LONG FUNCTION  netlib_dns_query
-      EXTERNAL LONG FUNCTION  netlib_strtoaddr
-      EXTERNAL LONG FUNCTION  netlib_addrtostr
-      EXTERNAL LONG FUNCTION  netlib_connect_by_name
-      EXTERNAL LONG FUNCTION  netlib_dns_mx_lookup
-      EXTERNAL LONG FUNCTION  netlib_hton_long
-      EXTERNAL LONG FUNCTION  netlib_ntoh_long
-      EXTERNAL WORD FUNCTION  netlib_hton_word
-      EXTERNAL WORD FUNCTION  netlib_ntoh_word
-      EXTERNAL LONG FUNCTION  netlib_version
+    !  Socket Routines...
+    ! 
+    ! 
+    !  NETLIB_SOCKET
+    ! 
+    ! 	Create socket
+    ! 
+    ! 	socket	= new socket
+    ! 	type	= socket type
+    !   family	= socket family
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_socket &
+               ( &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                   LONG  BY REF &
+               )
+    ! 
+    !  NETLIB_SERVER_SETUP
+    ! 
+    ! 	Socket setup for inetd server
+    ! 	
+    ! 	socket	= socket to bind
+    ! 	sa	= socket address (IP address, port, etc.)
+    ! 	salen	= length of sa
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_server_setup &
+               ( &
+                   LONG  BY REF, &
+                   SINDEF  BY REF, &
+                   LONG  BY REF &
+               )
+    ! 
+    !  NETLIB_BIND
+    ! 
+    ! 	Set address and/or port for socket.
+    ! 
+    ! 	socket	= socket to bind
+    ! 	sa	= socket address (IP address, port, etc.)
+    ! 	salen	= length of sa
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_bind &
+               ( &
+                   LONG  BY REF, &
+                   SINDEF  BY REF, &
+                   LONG  BY REF, &
+                  OPTIONAL NETLIBIOSBDEF  BY REF, &
+                   LONG  BY VALUE, &
+                   LONG  BY VALUE &
+               )
+    ! 
+    !  NETLIB_GETSOCKNAME
+    ! 
+    ! 	Return local information for socket
+    ! 
+    ! 	socket	= socket to query
+    ! 	sa	= SINDEF structure
+    ! 	sasize	= size of sa
+    !   salen	= returned length of sa
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_getsockname &
+               ( &
+                   LONG  BY REF, &
+                   SINDEF  BY REF, &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                  OPTIONAL NETLIBIOSBDEF  BY REF, &
+                   LONG  BY VALUE, &
+                   LONG  BY VALUE &
+               )
+    ! 
+    !  NETLIB_GETPEERNAME
+    ! 
+    ! 	Return remote information for socket
+    ! 
+    ! 	socket	= socket to query
+    ! 	sa	= SINDEF structure
+    ! 	sasize	= size of sa
+    !   salen	= returned length of sa
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_getpeername &
+               ( &
+                   LONG  BY REF, &
+                   SINDEF  BY REF, &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                  OPTIONAL NETLIBIOSBDEF  BY REF, &
+                   LONG  BY VALUE, &
+                   LONG  BY VALUE &
+               )
+    ! 
+    !  NETLIB_CONNECT
+    ! 
+    ! 	Establish a connection to a remote system.
+    ! 
+    ! 	socket	= socket to connect
+    ! 	sa	= socket address describing where to connect
+    ! 	salen	= length of sa
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_connect &
+               ( &
+                   LONG  BY REF, &
+                   SINDEF  BY REF, &
+                   LONG  BY REF, &
+                  OPTIONAL NETLIBIOSBDEF  BY REF, &
+                   LONG  BY VALUE, &
+                   LONG  BY VALUE &
+               )
+    ! 
+    !  NETLIB_SHUTDOWN
+    ! 
+    ! 	Shutdown connection (don't delete socket)
+    ! 
+    ! 	socket	= socket to shutdown
+    !   shuttype= type of shutdown
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_shutdown &
+               ( &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                  OPTIONAL NETLIBIOSBDEF  BY REF, &
+                   LONG  BY VALUE, &
+                   LONG  BY VALUE &
+               )
+    ! 
+    !  NETLIB_CLOSE
+    ! 
+    ! 	Close a socket
+    ! 
+    ! 	socket	= socket to close
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_close &
+               ( &
+                   LONG  BY REF &
+               )
+    ! 
+    !  NETLIB_ACCEPT
+    ! 
+    ! 	Wait for incoming connections
+    ! 
+    ! 	socket	= socket to connect
+    ! 	newsocket = new incoming socket
+    ! 	ra	= socket address describing remote end
+    ! 	rasize	= length of ra
+    ! 	ralen	= returned length of ra
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_accept &
+               ( &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                   SINDEF  BY REF, &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                  OPTIONAL NETLIBIOSBDEF  BY REF, &
+                   LONG  BY VALUE, &
+                   LONG  BY VALUE &
+               )
+    ! 
+    !  NETLIB_GETSOCKOPT
+    ! 
+    ! 	Get socket option
+    ! 
+    ! 	socket	= socket to query
+    !   level	= level of option
+    !   option	= option
+    !   value	= address of result storage
+    !   valsize	= size of value
+    !   vallen	= returned length of value
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_getsockopt &
+               ( &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                   LONG  BY VALUE, &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                  OPTIONAL NETLIBIOSBDEF  BY REF, &
+                   LONG  BY VALUE, &
+                   LONG  BY VALUE &
+               )
+    ! 
+    !  NETLIB_ADDRESS_TO_NAME
+    ! 
+    ! 	Get the hostname of an IP address
+    ! 
+    !   socket	= socket to get info about
+    !   which	= optional, type of DNS lookup
+    !   address	= INADDRDEF to be looked up
+    !   addrsize= length of address
+    !   hostname= descriptor to receive hostname
+    !   retlen	= hostname length
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_address_to_name &
+               ( &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                   INADDRDEF  BY REF, &
+                   LONG  BY REF, &
+                   STRING  BY DESC, &
+                   WORD  BY REF, &
+                  OPTIONAL NETLIBIOSBDEF  BY REF, &
+                   LONG  BY VALUE, &
+                   LONG  BY VALUE &
+               )
+    ! 
+    !  NETLIB_DNS_MX_LOOKUP
+    ! 
+    ! 	Look up MX records for a domain name
+    ! 
+    ! 	socket	= a socket
+    ! 	hostname= hostname to lookup
+    !   mxrrlist= array of MXRRDEF structures
+    !   mxrrsize= number elements in mxrrlist
+    !   mxrrcnt = number of elements actually written
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_dns_mx_lookup &
+               ( &
+                   LONG  BY REF, &
+                   STRING  BY DESC, &
+                   MXRRDEF DIM() BY REF, &
+                   LONG  BY REF, &
+                  OPTIONAL LONG  BY REF, &
+                   NETLIBIOSBDEF  BY REF, &
+                   LONG  BY VALUE, &
+                   LONG  BY VALUE &
+               )
+    ! 
+    !  NETLIB_DNS_SKIPNAME
+    ! 
+    ! 	Skip a name in a DNS response
+    ! 
+    ! 	bufptr	= pointer to DNS response area
+    ! 	buflen	= count of bytes in buffer from bufptr
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_dns_skipname &
+               ( &
+                   LONG  BY VALUE, &
+                   WORD  BY REF &
+               )
+    ! 
+    !  NETLIB_DNS_EXPANDNAME
+    ! 
+    ! 	Expand name is DNS response
+    ! 
+    ! 	buffer	= start of DNS response buffer
+    ! 	buflen	= buffer size
+    ! 	bufptr	= area containing domain name
+    ! 	name	= descriptor to receive expanded name
+    ! 	retlen	= optional, length of name
+    !   skipcount=number of bytes in buffer used
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_dns_expandname &
+               ( &
+                   LONG  BY VALUE, &
+                   WORD  BY REF, &
+                   LONG  BY VALUE, &
+                   STRING  BY DESC, &
+                  OPTIONAL WORD  BY REF, &
+                   WORD  BY REF &
+               )
+    ! 
+    !  NETLIB_DNS_QUERY
+    ! 
+    ! 	Perform a DNS query
+    ! 
+    ! 	socket	= a socket
+    ! 	name	= domain name to look up
+    ! 	class	= class of query
+    ! 	type	= type of query
+    ! 	buffer	= buffer to receive dns response
+    ! 	bufsize	= size of buffer in bytes
+    ! 	flags	= query options
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_dns_query &
+               ( &
+                   LONG  BY REF, &
+                   STRING  BY DESC, &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                   LONG  BY VALUE, &
+                   WORD  BY REF, &
+                  OPTIONAL LONG  BY REF, &
+                   NETLIBIOSBDEF  BY REF, &
+                   LONG  BY VALUE, &
+                   LONG  BY VALUE &
+               )
+    ! 
+    !  NETLIB_STRTOADDR
+    ! 
+    ! 	Convert a dotted-address to binary form
+    ! 
+    ! 	string	= input IP address string
+    !   address	= output binary address
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_strtoaddr &
+               ( &
+                   STRING  BY DESC, &
+                   INADDRDEF  BY REF &
+               )
+    ! 
+    !  NETLIB_NAME_TO_ADDRESS
+    ! 
+    ! 	Get IP address(es) for a host name
+    ! 
+    !   socket	= socket to get info about
+    !   which   = type of lookup
+    !   hostname= host name to look up
+    !   addrlist= array of INADDRDEF structures
+    !   addrsize= number elements in addrlist
+    !   addrcnt = number of elements actually written
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_name_to_address &
+               ( &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                   STRING  BY DESC, &
+                   INADDRDEF DIM() BY REF, &
+                   LONG  BY REF, &
+                  OPTIONAL LONG  BY REF, &
+                   NETLIBIOSBDEF  BY REF, &
+                   LONG  BY VALUE, &
+                   LONG  BY VALUE &
+               )
+    ! 
+    !  NETLIB_GET_HOSTNAME
+    ! 
+    ! 	Return internet hostname of local host
+    ! 	
+    ! 	namdsc	= string to receive hostname
+    ! 	retlen	= optional, return length of hostname
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_get_hostname &
+               ( &
+                  OPTIONAL STRING  BY DESC, &
+                   WORD  BY REF &
+               )
+    ! 
+    !  NETLIB_SETSOCKOPT
+    ! 
+    ! 	Set socket option
+    ! 
+    ! 	socket	= socket to query
+    !   level	= level of option
+    !   option	= option
+    !   value	= address of result storage
+    !   vallen	= size of value
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_setsockopt &
+               ( &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                   LONG  BY VALUE, &
+                   LONG  BY REF, &
+                  OPTIONAL NETLIBIOSBDEF  BY REF, &
+                   LONG  BY VALUE, &
+                   LONG  BY VALUE &
+               )
+    ! 
+    !  NETLIB_LISTEN
+    ! 
+    ! 	Configure socket to receive connections
+    ! 
+    ! 	socket	= socket to query
+    !   level	= backlog connections
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_listen &
+               ( &
+                   LONG  BY REF, &
+                  OPTIONAL LONG  BY REF, &
+                   NETLIBIOSBDEF  BY REF, &
+                   LONG  BY VALUE, &
+                   LONG  BY VALUE &
+               )
+    ! 
+    !  NETLIB_WRITE
+    ! 
+    ! 	Write data to socket
+    ! 
+    ! 	socket	= socket to read from
+    !   buffer	= receive buffer
+    ! 	sa	= optional, SINDEF structure
+    ! 	salen	= optional, size of sa
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_write &
+               ( &
+                   LONG  BY REF, &
+                   STRING  BY DESC, &
+                  OPTIONAL SINDEF  BY REF, &
+                   LONG  BY REF, &
+                   NETLIBIOSBDEF  BY REF, &
+                   LONG  BY VALUE, &
+                   LONG  BY VALUE &
+               )
+    ! 
+    !  NETLIB_WRITELINE
+    ! 
+    ! 	Write data to socket adding terminating CR/LF pair.
+    ! 
+    ! 	socket	= socket to read from
+    !   buffer	= receive buffer
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_writeline &
+               ( &
+                   LONG  BY REF, &
+                   STRING  BY DESC, &
+                  OPTIONAL NETLIBIOSBDEF  BY REF, &
+                   LONG  BY VALUE, &
+                   LONG  BY VALUE &
+               )
+    ! 
+    !  NETLIB_READ
+    ! 
+    ! 	Read data from socket
+    ! 
+    ! 	socket	= socket to read from
+    !   buffer	= receive buffer
+    ! 	sa	= optional, SINDEF structure
+    ! 	sasize	= optional, size of sa
+    !   salen	= optional, returned length of sa
+    !   timeout	= optional, read timeout
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_read &
+               ( &
+                   LONG  BY REF, &
+                   STRING  BY DESC, &
+                  OPTIONAL SINDEF  BY REF, &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                   BASIC$QUADWORD  BY REF, &
+                   NETLIBIOSBDEF  BY REF, &
+                   LONG  BY VALUE, &
+                   LONG  BY VALUE &
+               )
+    ! 
+    !  NETLIB_READLINE
+    ! 
+    ! 	Read line from socket
+    ! 
+    ! 	socket	= socket to read from
+    !   buffer	= buffer to receive line
+    !   retlen	= optional, return length of buffer
+    !   flags	= optional, control flags
+    !   timeout	= optional, read timeout
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_readline &
+               ( &
+                   LONG  BY REF, &
+                   STRING  BY DESC, &
+                  OPTIONAL WORD  BY REF, &
+                   LONG  BY REF, &
+                   BASIC$QUADWORD  BY REF, &
+                   NETLIBIOSBDEF  BY REF, &
+                   LONG  BY VALUE, &
+                   LONG  BY VALUE &
+               )
+    ! 	
+    ! 	NETLIB_ADDRTOSTR
+    ! 	
+    ! 	Convert binary IP to string
+    ! 	
+    ! 	address	= INADDRDEF structure
+    ! 	string	= string to receive address
+    ! 	retlen	= optional, return length of string
+    ! 	
+      EXTERNAL LONG FUNCTION  netlib_addrtostr &
+               ( &
+                   INADDRDEF  BY REF, &
+                   STRING  BY DESC, &
+                  OPTIONAL WORD  BY REF &
+               )
+    ! 
+    !  NETLIB_CONNECT_BY_NAME
+    ! 
+    ! 	Connect to remote host by name.
+    ! 
+    ! 	socket	= stream socket allocated by NETLIB_SOCKET
+    ! 	hostname= string containing the hostname
+    ! 	port	= port number in host order
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_connect_by_name &
+               ( &
+                   LONG  BY REF, &
+                   STRING  BY DESC, &
+                   WORD  BY REF, &
+                  OPTIONAL NETLIBIOSBDEF  BY REF, &
+                   LONG  BY VALUE, &
+                   LONG  BY VALUE &
+               )
+    ! 
+    !  NETLIB_HTON_LONG
+    ! 
+    ! 	Convert host-order longword to network-order
+    ! 
+    ! 	value	= longword to convert
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_hton_long &
+               ( &
+                   LONG  BY REF &
+               )
+    ! 
+    !  NETLIB_NTOH_LONG
+    ! 
+    ! 	Convert network-order longword to host-order
+    ! 
+    ! 	value	= longword to convert
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_ntoh_long &
+               ( &
+                   LONG  BY REF &
+               )
+    ! 
+    !  NETLIB_HTON_WORD
+    ! 
+    ! 	Convert host-order word to network-order
+    ! 
+    ! 	value	= word to convert
+    ! 
+      EXTERNAL WORD FUNCTION  netlib_hton_word &
+               ( &
+                   WORD  BY REF &
+               )
+    ! 
+    !  NETLIB_NTOH_WORD
+    ! 
+    ! 	Convert network-order word to host-order
+    ! 
+    ! 	value	= word to convert
+    ! 
+      EXTERNAL WORD FUNCTION  netlib_ntoh_word &
+               ( &
+                   WORD  BY REF &
+               )
+    ! 
+    !  NETLIB_VERSION
+    ! 
+    ! 	Return NETLIB version
+    ! 	
+    ! 	strver	= string to receive version string
+    ! 	retlen	= optional, return length of string
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_version &
+               ( &
+                  OPTIONAL STRING  BY DESC, &
+                   WORD  BY REF &
+               )
+    ! 
+    !  SSL Routines
+    ! 
       EXTERNAL LONG FUNCTION  netlib_ssl_context
     ! 
     !  NETLIB_SSL_SOCKET
+    ! 
+    ! 	Allocate an SSL socket
+    ! 
+    !   context = SSL socket
+    ! 	socket	= NETLIB socket
+    ! 	ssl_ctx	= SSL_CTX structure
     ! 
       EXTERNAL LONG FUNCTION  netlib_ssl_socket &
                ( &
@@ -244,56 +823,123 @@
     ! 
     !  NETLIB_SSL_ACCEPT
     ! 
+    ! 	Accept incoming SSL connection
+    ! 
+    !   context = SSL socket
+    !   timeout	= optional, read timeout
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
+    ! 
       EXTERNAL LONG FUNCTION  netlib_ssl_accept &
                ( &
                    LONG  BY REF, &
                    BASIC$QUADWORD  BY REF, &
-                   LONG  BY REF, &
+                  OPTIONAL NETLIBIOSBDEF  BY REF, &
                    LONG  BY VALUE, &
                    LONG  BY VALUE &
                )
     ! 
     !  NETLIB_SSL_CONNECT
     ! 
+    ! 	Establish an SSL connection to a remote system.
+    ! 
+    !   context = SSL socket
+    !   timeout	= optional, read timeout
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
+    ! 
       EXTERNAL LONG FUNCTION  netlib_ssl_connect &
                ( &
                    LONG  BY REF, &
                    BASIC$QUADWORD  BY REF, &
-                   LONG  BY REF, &
+                  OPTIONAL NETLIBIOSBDEF  BY REF, &
                    LONG  BY VALUE, &
                    LONG  BY VALUE &
                )
     ! 
     !  NETLIB_SSL_SHUTDOWN
     ! 
+    ! 	Shutdown SSL socket (don't delete socket)
+    ! 
+    !   context = SSL socket
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
+    ! 
       EXTERNAL LONG FUNCTION  netlib_ssl_shutdown &
                ( &
                    LONG  BY REF, &
-                   LONG  BY REF, &
+                  OPTIONAL NETLIBIOSBDEF  BY REF, &
                    LONG  BY VALUE, &
                    LONG  BY VALUE &
                )
     ! 
+    !  NETLIB_SSL_CLOSE
+    ! 
+    ! 	Close an SSL socket
+    ! 
+    ! 	socket	= socket to close
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_ssl_close &
+               ( &
+                   LONG  BY REF &
+               )
+    ! 
     !  NETLIB_SSL_READ
+    ! 
+    ! 	Read data from SSL socket
+    ! 
+    !   context = SSL socket
+    !   buffer	= receive buffer
+    !   timeout	= optional, read timeout
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
     ! 
       EXTERNAL LONG FUNCTION  netlib_ssl_read &
                ( &
                    LONG  BY REF, &
                    STRING  BY DESC, &
                    BASIC$QUADWORD  BY REF, &
-                   LONG  BY REF, &
+                  OPTIONAL NETLIBIOSBDEF  BY REF, &
                    LONG  BY VALUE, &
                    LONG  BY VALUE &
                )
     ! 
     !  NETLIB_SSL_WRITE
     ! 
+    ! 	Write data to SSL socket
+    ! 
+    !   context = SSL socket
+    !   buffer	= receive buffer
+    !   timeout	= optional, read timeout
+    ! 	iosb	= optional, I/O status block
+    ! 	astadr	= optional, I/O completion AST
+    ! 	astprm	= optional, AST parameter
+    ! 
       EXTERNAL LONG FUNCTION  netlib_ssl_write &
                ( &
                    LONG  BY REF, &
                    STRING  BY DESC, &
                    BASIC$QUADWORD  BY REF, &
-                   LONG  BY REF, &
+                  OPTIONAL NETLIBIOSBDEF  BY REF, &
                    LONG  BY VALUE, &
                    LONG  BY VALUE &
+               )
+    ! 
+    !  NETLIB_SSL_VERSION
+    ! 
+    ! 	Return OpenSSL library version
+    ! 	
+    ! 	strver	= optional, string to receive version string
+    ! 	retlen	= optional, return length of string
+    ! 	numver  = optional, longword to receive version as number
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_ssl_version &
+               ( &
+                  OPTIONAL STRING  BY DESC, &
+                   WORD  BY REF, &
+                   LONG  BY REF &
                )

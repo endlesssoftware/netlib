@@ -1,6 +1,6 @@
 /********************************************************************************************************************************/
-/* Created:  8-Aug-2013 00:01:18 by OpenVMS SDL EV2-3      */
-/* Source:  08-AUG-2013 00:00:45 MG_SRC:[NETLIB]NETLIBDEF.SDL;29 */
+/* Created: 16-Aug-2013 12:28:04 by OpenVMS SDL EV2-3      */
+/* Source:  16-AUG-2013 12:27:11 MG_SRC:[NETLIB]NETLIBDEF.SDL;67 */
 /********************************************************************************************************************************/
  
 /*** MODULE NETLIBDEF ***/
@@ -140,73 +140,590 @@ dcl 1 MXRRDEF  based,
 %replace NETLIB_K_METHOD_TLS1 by 3;
 %replace NETLIB_K_FILETYPE_PEM by 1;
 %replace NETLIB_K_FILETYPE_ASN1 by 2;
-dcl netlib_socket entry 
-	returns (fixed binary(31));
-dcl netlib_server_setup entry 
-	returns (fixed binary(31));
-dcl netlib_bind entry 
-	returns (fixed binary(31));
-dcl netlib_getsockname entry 
-	returns (fixed binary(31));
-dcl netlib_getpeername entry 
+/*                                                                          */
+/* Socket Routines...                                                       */
+/*                                                                          */
+/*                                                                          */
+/* NETLIB_SOCKET                                                            */
+/*                                                                          */
+/*	Create socket                                                       */
+/*                                                                          */
+/*	socket	= new socket                                                */
+/*	type	= socket type                                               */
+/*  family	= socket family                                             */
+/*                                                                          */
+dcl netlib_socket entry (
+	fixed binary(31) reference,
+	fixed binary(31) reference,
+	fixed binary(31) reference)
 	returns (fixed binary(31));
 /*                                                                          */
-dcl netlib_connect entry 
+/* NETLIB_SERVER_SETUP                                                      */
+/*                                                                          */
+/*	Socket setup for inetd server                                       */
+/*	                                                                    */
+/*	socket	= socket to bind                                            */
+/*	sa	= socket address (IP address, port, etc.)                   */
+/*	salen	= length of sa                                              */
+/*                                                                          */
+dcl netlib_server_setup entry (
+	fixed binary(31) reference,
+	1 like SINDEF reference,
+	fixed binary(31) reference)
 	returns (fixed binary(31));
-dcl netlib_write entry 
+/*                                                                          */
+/* NETLIB_BIND                                                              */
+/*                                                                          */
+/*	Set address and/or port for socket.                                 */
+/*                                                                          */
+/*	socket	= socket to bind                                            */
+/*	sa	= socket address (IP address, port, etc.)                   */
+/*	salen	= length of sa                                              */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
+/*                                                                          */
+dcl netlib_bind entry (
+	fixed binary(31) reference,
+	1 like SINDEF reference,
+	fixed binary(31) reference,
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
 	returns (fixed binary(31));
-dcl netlib_writeline entry 
+/*                                                                          */
+/* NETLIB_GETSOCKNAME                                                       */
+/*                                                                          */
+/*	Return local information for socket                                 */
+/*                                                                          */
+/*	socket	= socket to query                                           */
+/*	sa	= SINDEF structure                                          */
+/*	sasize	= size of sa                                                */
+/*  salen	= returned length of sa                                     */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
+/*                                                                          */
+dcl netlib_getsockname entry (
+	fixed binary(31) reference,
+	1 like SINDEF reference,
+	fixed binary(31) reference,
+	fixed binary(31) reference,
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
 	returns (fixed binary(31));
-dcl netlib_read entry 
+/*                                                                          */
+/* NETLIB_GETPEERNAME                                                       */
+/*                                                                          */
+/*	Return remote information for socket                                */
+/*                                                                          */
+/*	socket	= socket to query                                           */
+/*	sa	= SINDEF structure                                          */
+/*	sasize	= size of sa                                                */
+/*  salen	= returned length of sa                                     */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
+/*                                                                          */
+dcl netlib_getpeername entry (
+	fixed binary(31) reference,
+	1 like SINDEF reference,
+	fixed binary(31) reference,
+	fixed binary(31) reference,
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
 	returns (fixed binary(31));
-dcl netlib_readline entry 
+/*                                                                          */
+/* NETLIB_CONNECT                                                           */
+/*                                                                          */
+/*	Establish a connection to a remote system.                          */
+/*                                                                          */
+/*	socket	= socket to connect                                         */
+/*	sa	= socket address describing where to connect                */
+/*	salen	= length of sa                                              */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
+/*                                                                          */
+dcl netlib_connect entry (
+	fixed binary(31) reference,
+	1 like SINDEF reference,
+	fixed binary(31) reference,
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
 	returns (fixed binary(31));
-dcl netlib_shutdown entry 
+/*                                                                          */
+/* NETLIB_SHUTDOWN                                                          */
+/*                                                                          */
+/*	Shutdown connection (don't delete socket)                           */
+/*                                                                          */
+/*	socket	= socket to shutdown                                        */
+/*  shuttype= type of shutdown                                              */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
+/*                                                                          */
+dcl netlib_shutdown entry (
+	fixed binary(31) reference,
+	fixed binary(31) reference,
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
 	returns (fixed binary(31));
-dcl netlib_close entry 
+/*                                                                          */
+/* NETLIB_CLOSE                                                             */
+/*                                                                          */
+/*	Close a socket                                                      */
+/*                                                                          */
+/*	socket	= socket to close                                           */
+/*                                                                          */
+dcl netlib_close entry (
+	fixed binary(31) reference)
 	returns (fixed binary(31));
-dcl netlib_listen entry 
+/*                                                                          */
+/* NETLIB_ACCEPT                                                            */
+/*                                                                          */
+/*	Wait for incoming connections                                       */
+/*                                                                          */
+/*	socket	= socket to connect                                         */
+/*	newsocket = new incoming socket                                     */
+/*	ra	= socket address describing remote end                      */
+/*	rasize	= length of ra                                              */
+/*	ralen	= returned length of ra                                     */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
+/*                                                                          */
+dcl netlib_accept entry (
+	fixed binary(31) reference,
+	fixed binary(31) reference,
+	1 like SINDEF reference,
+	fixed binary(31) reference,
+	fixed binary(31) reference,
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
 	returns (fixed binary(31));
-dcl netlib_accept entry 
+/*                                                                          */
+/* NETLIB_GETSOCKOPT                                                        */
+/*                                                                          */
+/*	Get socket option                                                   */
+/*                                                                          */
+/*	socket	= socket to query                                           */
+/*  level	= level of option                                           */
+/*  option	= option                                                    */
+/*  value	= address of result storage                                 */
+/*  valsize	= size of value                                             */
+/*  vallen	= returned length of value                                  */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
+/*                                                                          */
+dcl netlib_getsockopt entry (
+	fixed binary(31) reference,
+	fixed binary(31) reference,
+	fixed binary(31) reference,
+	any value,
+	fixed binary(31) reference,
+	fixed binary(31) reference,
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
 	returns (fixed binary(31));
-dcl netlib_get_hostname entry 
+/*                                                                          */
+/* NETLIB_ADDRESS_TO_NAME                                                   */
+/*                                                                          */
+/*	Get the hostname of an IP address                                   */
+/*                                                                          */
+/*  socket	= socket to get info about                                  */
+/*  which	= optional, type of DNS lookup                              */
+/*  address	= INADDRDEF to be looked up                                 */
+/*  addrsize= length of address                                             */
+/*  hostname= descriptor to receive hostname                                */
+/*  retlen	= hostname length                                           */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
+/*                                                                          */
+dcl netlib_address_to_name entry (
+	fixed binary(31) reference,
+	fixed binary(31) reference optional,
+	1 like INADDRDEF reference,
+	fixed binary(31) reference,
+	character(*),
+	fixed binary(15) reference,
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
 	returns (fixed binary(31));
-dcl netlib_setsockopt entry 
+/*                                                                          */
+/* NETLIB_DNS_MX_LOOKUP                                                     */
+/*                                                                          */
+/*	Look up MX records for a domain name                                */
+/*                                                                          */
+/*	socket	= a socket                                                  */
+/*	hostname= hostname to lookup                                        */
+/*  mxrrlist= array of MXRRDEF structures                                   */
+/*  mxrrsize= number elements in mxrrlist                                   */
+/*  mxrrcnt = number of elements actually written                           */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
+/*                                                                          */
+dcl netlib_dns_mx_lookup entry (
+	fixed binary(31) reference,
+	character(*),
+	1 (*) like MXRRDEF reference,
+	fixed binary(31) reference,
+	fixed binary(31) reference optional truncate,
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
 	returns (fixed binary(31));
-dcl netlib_getsockopt entry 
+/*                                                                          */
+/* NETLIB_DNS_SKIPNAME                                                      */
+/*                                                                          */
+/*	Skip a name in a DNS response                                       */
+/*                                                                          */
+/*	bufptr	= pointer to DNS response area                              */
+/*	buflen	= count of bytes in buffer from bufptr                      */
+/*                                                                          */
+dcl netlib_dns_skipname entry (
+	entry value,
+	fixed binary(15) reference)
 	returns (fixed binary(31));
-dcl netlib_name_to_address entry 
+/*                                                                          */
+/* NETLIB_DNS_EXPANDNAME                                                    */
+/*                                                                          */
+/*	Expand name is DNS response                                         */
+/*                                                                          */
+/*	buffer	= start of DNS response buffer                              */
+/*	buflen	= buffer size                                               */
+/*	bufptr	= area containing domain name                               */
+/*	name	= descriptor to receive expanded name                       */
+/*	retlen	= optional, length of name                                  */
+/*  skipcount=number of bytes in buffer used                                */
+/*                                                                          */
+dcl netlib_dns_expandname entry (
+	entry value,
+	fixed binary(15) reference,
+	entry value,
+	character(*),
+	fixed binary(15) reference optional truncate,
+	fixed binary(15) reference optional truncate)
 	returns (fixed binary(31));
-dcl netlib_address_to_name entry 
+/*                                                                          */
+/* NETLIB_DNS_QUERY                                                         */
+/*                                                                          */
+/*	Perform a DNS query                                                 */
+/*                                                                          */
+/*	socket	= a socket                                                  */
+/*	name	= domain name to look up                                    */
+/*	class	= class of query                                            */
+/*	type	= type of query                                             */
+/*	buffer	= buffer to receive dns response                            */
+/*	bufsize	= size of buffer in bytes                                   */
+/*	flags	= query options                                             */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
+/*                                                                          */
+dcl netlib_dns_query entry (
+	fixed binary(31) reference,
+	character(*),
+	fixed binary(31) reference optional,
+	fixed binary(31) reference,
+	any value,
+	fixed binary(15) reference,
+	fixed binary(31) reference optional truncate,
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
 	returns (fixed binary(31));
-dcl netlib_dns_skipname entry 
+/*                                                                          */
+/* NETLIB_STRTOADDR                                                         */
+/*                                                                          */
+/*	Convert a dotted-address to binary form                             */
+/*                                                                          */
+/*	string	= input IP address string                                   */
+/*  address	= output binary address                                     */
+/*                                                                          */
+dcl netlib_strtoaddr entry (
+	character(*),
+	1 like INADDRDEF reference)
 	returns (fixed binary(31));
-dcl netlib_dns_expandname entry 
+/*                                                                          */
+/* NETLIB_NAME_TO_ADDRESS                                                   */
+/*                                                                          */
+/*	Get IP address(es) for a host name                                  */
+/*                                                                          */
+/*  socket	= socket to get info about                                  */
+/*  which   = type of lookup                                                */
+/*  hostname= host name to look up                                          */
+/*  addrlist= array of INADDRDEF structures                                 */
+/*  addrsize= number elements in addrlist                                   */
+/*  addrcnt = number of elements actually written                           */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
+/*                                                                          */
+dcl netlib_name_to_address entry (
+	fixed binary(31) reference,
+	fixed binary(31) reference,
+	character(*),
+	1 (*) like INADDRDEF reference,
+	fixed binary(31) reference,
+	fixed binary(31) reference optional truncate,
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
 	returns (fixed binary(31));
-dcl netlib_dns_query entry 
+/*                                                                          */
+/* NETLIB_GET_HOSTNAME                                                      */
+/*                                                                          */
+/*	Return internet hostname of local host                              */
+/*	                                                                    */
+/*	namdsc	= string to receive hostname                                */
+/*	retlen	= optional, return length of hostname                       */
+/*                                                                          */
+dcl netlib_get_hostname entry (
+	character(*) optional truncate,
+	fixed binary(15) reference optional truncate)
 	returns (fixed binary(31));
-dcl netlib_strtoaddr entry 
+/*                                                                          */
+/* NETLIB_SETSOCKOPT                                                        */
+/*                                                                          */
+/*	Set socket option                                                   */
+/*                                                                          */
+/*	socket	= socket to query                                           */
+/*  level	= level of option                                           */
+/*  option	= option                                                    */
+/*  value	= address of result storage                                 */
+/*  vallen	= size of value                                             */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
+/*                                                                          */
+dcl netlib_setsockopt entry (
+	fixed binary(31) reference,
+	fixed binary(31) reference,
+	fixed binary(31) reference,
+	any value,
+	fixed binary(31) reference,
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
 	returns (fixed binary(31));
-dcl netlib_addrtostr entry 
+/*                                                                          */
+/* NETLIB_LISTEN                                                            */
+/*                                                                          */
+/*	Configure socket to receive connections                             */
+/*                                                                          */
+/*	socket	= socket to query                                           */
+/*  level	= backlog connections                                       */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
+/*                                                                          */
+dcl netlib_listen entry (
+	fixed binary(31) reference,
+	fixed binary(31) reference optional truncate,
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
 	returns (fixed binary(31));
-dcl netlib_connect_by_name entry 
+/*                                                                          */
+/* NETLIB_WRITE                                                             */
+/*                                                                          */
+/*	Write data to socket                                                */
+/*                                                                          */
+/*	socket	= socket to read from                                       */
+/*  buffer	= receive buffer                                            */
+/*	sa	= optional, SINDEF structure                                */
+/*	salen	= optional, size of sa                                      */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
+/*                                                                          */
+dcl netlib_write entry (
+	fixed binary(31) reference,
+	character(*),
+	1 like SINDEF reference optional truncate,
+	fixed binary(31) reference optional truncate,
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
 	returns (fixed binary(31));
-dcl netlib_dns_mx_lookup entry 
+/*                                                                          */
+/* NETLIB_WRITELINE                                                         */
+/*                                                                          */
+/*	Write data to socket adding terminating CR/LF pair.                 */
+/*                                                                          */
+/*	socket	= socket to read from                                       */
+/*  buffer	= receive buffer                                            */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
+/*                                                                          */
+dcl netlib_writeline entry (
+	fixed binary(31) reference,
+	character(*),
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
 	returns (fixed binary(31));
-dcl netlib_hton_long entry 
+/*                                                                          */
+/* NETLIB_READ                                                              */
+/*                                                                          */
+/*	Read data from socket                                               */
+/*                                                                          */
+/*	socket	= socket to read from                                       */
+/*  buffer	= receive buffer                                            */
+/*	sa	= optional, SINDEF structure                                */
+/*	sasize	= optional, size of sa                                      */
+/*  salen	= optional, returned length of sa                           */
+/*  timeout	= optional, read timeout                                    */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
+/*                                                                          */
+dcl netlib_read entry (
+	fixed binary(31) reference,
+	character(*),
+	1 like SINDEF reference optional truncate,
+	fixed binary(31) reference optional truncate,
+	fixed binary(31) reference optional truncate,
+	any optional truncate,
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
 	returns (fixed binary(31));
-dcl netlib_ntoh_long entry 
+/*                                                                          */
+/* NETLIB_READLINE                                                          */
+/*                                                                          */
+/*	Read line from socket                                               */
+/*                                                                          */
+/*	socket	= socket to read from                                       */
+/*  buffer	= buffer to receive line                                    */
+/*  retlen	= optional, return length of buffer                         */
+/*  flags	= optional, control flags                                   */
+/*  timeout	= optional, read timeout                                    */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
+/*                                                                          */
+dcl netlib_readline entry (
+	fixed binary(31) reference,
+	character(*),
+	fixed binary(15) reference optional truncate,
+	fixed binary(31) reference optional truncate,
+	any optional truncate,
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
 	returns (fixed binary(31));
-dcl netlib_hton_word entry 
+/*	                                                                    */
+/*	NETLIB_ADDRTOSTR                                                    */
+/*	                                                                    */
+/*	Convert binary IP to string                                         */
+/*	                                                                    */
+/*	address	= INADDRDEF structure                                       */
+/*	string	= string to receive address                                 */
+/*	retlen	= optional, return length of string                         */
+/*	                                                                    */
+dcl netlib_addrtostr entry (
+	1 like INADDRDEF reference,
+	character(*),
+	fixed binary(15) reference optional truncate)
+	returns (fixed binary(31));
+/*                                                                          */
+/* NETLIB_CONNECT_BY_NAME                                                   */
+/*                                                                          */
+/*	Connect to remote host by name.                                     */
+/*                                                                          */
+/*	socket	= stream socket allocated by NETLIB_SOCKET                  */
+/*	hostname= string containing the hostname                            */
+/*	port	= port number in host order                                 */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
+/*                                                                          */
+dcl netlib_connect_by_name entry (
+	fixed binary(31) reference,
+	character(*),
+	fixed binary(15) reference,
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
+	returns (fixed binary(31));
+/*                                                                          */
+/* NETLIB_HTON_LONG                                                         */
+/*                                                                          */
+/*	Convert host-order longword to network-order                        */
+/*                                                                          */
+/*	value	= longword to convert                                       */
+/*                                                                          */
+dcl netlib_hton_long entry (
+	fixed binary(31) reference)
+	returns (fixed binary(31));
+/*                                                                          */
+/* NETLIB_NTOH_LONG                                                         */
+/*                                                                          */
+/*	Convert network-order longword to host-order                        */
+/*                                                                          */
+/*	value	= longword to convert                                       */
+/*                                                                          */
+dcl netlib_ntoh_long entry (
+	fixed binary(31) reference)
+	returns (fixed binary(31));
+/*                                                                          */
+/* NETLIB_HTON_WORD                                                         */
+/*                                                                          */
+/*	Convert host-order word to network-order                            */
+/*                                                                          */
+/*	value	= word to convert                                           */
+/*                                                                          */
+dcl netlib_hton_word entry (
+	fixed binary(15) reference)
 	returns (fixed binary(15));
-dcl netlib_ntoh_word entry 
+/*                                                                          */
+/* NETLIB_NTOH_WORD                                                         */
+/*                                                                          */
+/*	Convert network-order word to host-order                            */
+/*                                                                          */
+/*	value	= word to convert                                           */
+/*                                                                          */
+dcl netlib_ntoh_word entry (
+	fixed binary(15) reference)
 	returns (fixed binary(15));
-dcl netlib_version entry 
+/*                                                                          */
+/* NETLIB_VERSION                                                           */
+/*                                                                          */
+/*	Return NETLIB version                                               */
+/*	                                                                    */
+/*	strver	= string to receive version string                          */
+/*	retlen	= optional, return length of string                         */
+/*                                                                          */
+dcl netlib_version entry (
+	character(*) optional truncate,
+	fixed binary(15) reference optional truncate)
 	returns (fixed binary(31));
+/*                                                                          */
+/* SSL Routines                                                             */
+/*                                                                          */
 dcl netlib_ssl_context entry 
 	returns (fixed binary(31));
 /*                                                                          */
 /* NETLIB_SSL_SOCKET                                                        */
+/*                                                                          */
+/*	Allocate an SSL socket                                              */
+/*                                                                          */
+/*  context = SSL socket                                                    */
+/*	socket	= NETLIB socket                                             */
+/*	ssl_ctx	= SSL_CTX structure                                         */
 /*                                                                          */
 dcl netlib_ssl_socket entry (
 	fixed binary(31) reference,
@@ -216,51 +733,116 @@ dcl netlib_ssl_socket entry (
 /*                                                                          */
 /* NETLIB_SSL_ACCEPT                                                        */
 /*                                                                          */
+/*	Accept incoming SSL connection                                      */
+/*                                                                          */
+/*  context = SSL socket                                                    */
+/*  timeout	= optional, read timeout                                    */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
+/*                                                                          */
 dcl netlib_ssl_accept entry (
 	fixed binary(31) reference,
 	any optional,
-	pointer reference optional,
-	entry value optional,
-	any value optional)
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
 	returns (fixed binary(31));
 /*                                                                          */
 /* NETLIB_SSL_CONNECT                                                       */
 /*                                                                          */
+/*	Establish an SSL connection to a remote system.                     */
+/*                                                                          */
+/*  context = SSL socket                                                    */
+/*  timeout	= optional, read timeout                                    */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
+/*                                                                          */
 dcl netlib_ssl_connect entry (
 	fixed binary(31) reference,
 	any optional,
-	pointer reference optional,
-	entry value optional,
-	any value optional)
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
 	returns (fixed binary(31));
 /*                                                                          */
 /* NETLIB_SSL_SHUTDOWN                                                      */
 /*                                                                          */
+/*	Shutdown SSL socket (don't delete socket)                           */
+/*                                                                          */
+/*  context = SSL socket                                                    */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
+/*                                                                          */
 dcl netlib_ssl_shutdown entry (
 	fixed binary(31) reference,
-	pointer reference optional,
-	entry value optional,
-	any value optional)
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
+	returns (fixed binary(31));
+/*                                                                          */
+/* NETLIB_SSL_CLOSE                                                         */
+/*                                                                          */
+/*	Close an SSL socket                                                 */
+/*                                                                          */
+/*	socket	= socket to close                                           */
+/*                                                                          */
+dcl netlib_ssl_close entry (
+	fixed binary(31) reference)
 	returns (fixed binary(31));
 /*                                                                          */
 /* NETLIB_SSL_READ                                                          */
+/*                                                                          */
+/*	Read data from SSL socket                                           */
+/*                                                                          */
+/*  context = SSL socket                                                    */
+/*  buffer	= receive buffer                                            */
+/*  timeout	= optional, read timeout                                    */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
 /*                                                                          */
 dcl netlib_ssl_read entry (
 	fixed binary(31) reference,
 	character(*),
 	any optional,
-	pointer reference optional,
-	entry value optional,
-	any value optional)
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
 	returns (fixed binary(31));
 /*                                                                          */
 /* NETLIB_SSL_WRITE                                                         */
+/*                                                                          */
+/*	Write data to SSL socket                                            */
+/*                                                                          */
+/*  context = SSL socket                                                    */
+/*  buffer	= receive buffer                                            */
+/*  timeout	= optional, read timeout                                    */
+/*	iosb	= optional, I/O status block                                */
+/*	astadr	= optional, I/O completion AST                              */
+/*	astprm	= optional, AST parameter                                   */
 /*                                                                          */
 dcl netlib_ssl_write entry (
 	fixed binary(31) reference,
 	character(*),
 	any optional,
-	pointer reference optional,
-	entry value optional,
-	any value optional)
+	1 like NETLIBIOSBDEF reference optional truncate,
+	entry value optional truncate,
+	any value optional truncate)
+	returns (fixed binary(31));
+/*                                                                          */
+/* NETLIB_SSL_VERSION                                                       */
+/*                                                                          */
+/*	Return OpenSSL library version                                      */
+/*	                                                                    */
+/*	strver	= optional, string to receive version string                */
+/*	retlen	= optional, return length of string                         */
+/*	numver  = optional, longword to receive version as number           */
+/*                                                                          */
+dcl netlib_ssl_version entry (
+	character(*) optional truncate,
+	fixed binary(15) reference optional truncate,
+	fixed binary(31) reference optional truncate)
 	returns (fixed binary(31));

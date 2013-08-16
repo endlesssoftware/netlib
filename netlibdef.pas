@@ -1,6 +1,6 @@
 (********************************************************************************************************************************)
-(* Created:  8-Aug-2013 00:01:11 by OpenVMS SDL EV2-3      *)
-(* Source:  08-AUG-2013 00:00:45 MG_SRC:[NETLIB]NETLIBDEF.SDL;29 *)
+(* Created: 16-Aug-2013 12:27:44 by OpenVMS SDL EV2-3      *)
+(* Source:  16-AUG-2013 12:27:11 MG_SRC:[NETLIB]NETLIBDEF.SDL;67 *)
 (********************************************************************************************************************************)
  
 MODULE NETLIBDEF ;
@@ -57,14 +57,6 @@ MODULE NETLIBDEF ;
 	$BIT32 = [BIT(32),UNSAFE] UNSIGNED;
  
 (*** MODULE NETLIBDEF ***)
- 
-[HIDDEN] TYPE	(**** SDL-Generated type names ****)
-	NETLIBDEF$$TYP1 = ^NETLIBIOSB$TYPE;
-	NETLIBDEF$$TYP2 = ^NETLIBIOSB$TYPE;
-	NETLIBDEF$$TYP3 = ^NETLIBIOSB$TYPE;
-	NETLIBDEF$$TYP4 = ^NETLIBIOSB$TYPE;
-	NETLIBDEF$$TYP5 = ^NETLIBIOSB$TYPE;
- 
  
 CONST	NETLIB_K_TYPE_STREAM = 1;
 	NETLIB_K_TYPE_DGRAM = 2;
@@ -147,7 +139,7 @@ CONST	NETLIB_K_TYPE_STREAM = 1;
 	dns_m_xx_unused_xx = 7;
 	dns_m_recursion_available = 1;
  
-TYPE	NETLIB_DNS_HEADER$TYPE = RECORD CASE INTEGER OF
+TYPE	NETLIB_DNS_HEADER = RECORD CASE INTEGER OF
 	1: (dns_w_queryid : $UWORD;
 	    dns_r_flags_overlay : [BYTE(2)] RECORD END;
 	    dns_w_qdcount : $UWORD;
@@ -216,135 +208,750 @@ CONST	NETLIB_K_METHOD_ANY = 0;
 	NETLIB_K_FILETYPE_PEM = 1;
 	NETLIB_K_FILETYPE_ASN1 = 2;
  
-[ASYNCHRONOUS] FUNCTION netlib_socket : UNSIGNED; EXTERNAL;
- 
-[ASYNCHRONOUS] FUNCTION netlib_server_setup : UNSIGNED; EXTERNAL;
- 
-[ASYNCHRONOUS] FUNCTION netlib_bind : UNSIGNED; EXTERNAL;
- 
-[ASYNCHRONOUS] FUNCTION netlib_getsockname : UNSIGNED; EXTERNAL;
- 
-[ASYNCHRONOUS] FUNCTION netlib_getpeername : UNSIGNED; EXTERNAL;
- 
+(*                                                                          *)
+(* Socket Routines...                                                       *)
+(*                                                                          *)
+(*                                                                          *)
+(* NETLIB_SOCKET                                                            *)
+(*                                                                          *)
+(*	Create socket                                                       *)
+(*                                                                          *)
+(*	socket	= new socket                                                *)
+(*	type	= socket type                                               *)
+(*  family	= socket family                                             *)
 (*                                                                          *)
  
-[ASYNCHRONOUS] FUNCTION netlib_connect : UNSIGNED; EXTERNAL;
+[ASYNCHRONOUS] FUNCTION netlib_socket (
+	VAR socket : [VOLATILE] UNSIGNED;
+	type : UNSIGNED;
+	family : UNSIGNED) : UNSIGNED; EXTERNAL;
  
-[ASYNCHRONOUS] FUNCTION netlib_write : UNSIGNED; EXTERNAL;
+(*                                                                          *)
+(* NETLIB_SERVER_SETUP                                                      *)
+(*                                                                          *)
+(*	Socket setup for inetd server                                       *)
+(*	                                                                    *)
+(*	socket	= socket to bind                                            *)
+(*	sa	= socket address (IP address, port, etc.)                   *)
+(*	salen	= length of sa                                              *)
+(*                                                                          *)
  
-[ASYNCHRONOUS] FUNCTION netlib_writeline : UNSIGNED; EXTERNAL;
+[ASYNCHRONOUS] FUNCTION netlib_server_setup (
+	VAR socket : [VOLATILE] UNSIGNED;
+	sa : SIN$TYPE;
+	salen : UNSIGNED) : UNSIGNED; EXTERNAL;
  
-[ASYNCHRONOUS] FUNCTION netlib_read : UNSIGNED; EXTERNAL;
+(*                                                                          *)
+(* NETLIB_BIND                                                              *)
+(*                                                                          *)
+(*	Set address and/or port for socket.                                 *)
+(*                                                                          *)
+(*	socket	= socket to bind                                            *)
+(*	sa	= socket address (IP address, port, etc.)                   *)
+(*	salen	= length of sa                                              *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
+(*                                                                          *)
  
-[ASYNCHRONOUS] FUNCTION netlib_readline : UNSIGNED; EXTERNAL;
+[ASYNCHRONOUS] FUNCTION netlib_bind (
+	VAR socket : [VOLATILE] UNSIGNED;
+	sa : SIN$TYPE;
+	salen : UNSIGNED;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
+	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
  
-[ASYNCHRONOUS] FUNCTION netlib_shutdown : UNSIGNED; EXTERNAL;
+(*                                                                          *)
+(* NETLIB_GETSOCKNAME                                                       *)
+(*                                                                          *)
+(*	Return local information for socket                                 *)
+(*                                                                          *)
+(*	socket	= socket to query                                           *)
+(*	sa	= SINDEF structure                                          *)
+(*	sasize	= size of sa                                                *)
+(*  salen	= returned length of sa                                     *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
+(*                                                                          *)
  
-[ASYNCHRONOUS] FUNCTION netlib_close : UNSIGNED; EXTERNAL;
+[ASYNCHRONOUS] FUNCTION netlib_getsockname (
+	socket : UNSIGNED;
+	VAR sa : [VOLATILE] SIN$TYPE;
+	sasize : UNSIGNED;
+	VAR salen : [VOLATILE] UNSIGNED;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
+	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
  
-[ASYNCHRONOUS] FUNCTION netlib_listen : UNSIGNED; EXTERNAL;
+(*                                                                          *)
+(* NETLIB_GETPEERNAME                                                       *)
+(*                                                                          *)
+(*	Return remote information for socket                                *)
+(*                                                                          *)
+(*	socket	= socket to query                                           *)
+(*	sa	= SINDEF structure                                          *)
+(*	sasize	= size of sa                                                *)
+(*  salen	= returned length of sa                                     *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
+(*                                                                          *)
  
-[ASYNCHRONOUS] FUNCTION netlib_accept : UNSIGNED; EXTERNAL;
+[ASYNCHRONOUS] FUNCTION netlib_getpeername (
+	socket : UNSIGNED;
+	VAR sa : [VOLATILE] SIN$TYPE;
+	sasize : UNSIGNED;
+	VAR salen : [VOLATILE] UNSIGNED;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
+	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
  
-[ASYNCHRONOUS] FUNCTION netlib_get_hostname : UNSIGNED; EXTERNAL;
+(*                                                                          *)
+(* NETLIB_CONNECT                                                           *)
+(*                                                                          *)
+(*	Establish a connection to a remote system.                          *)
+(*                                                                          *)
+(*	socket	= socket to connect                                         *)
+(*	sa	= socket address describing where to connect                *)
+(*	salen	= length of sa                                              *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
+(*                                                                          *)
  
-[ASYNCHRONOUS] FUNCTION netlib_setsockopt : UNSIGNED; EXTERNAL;
+[ASYNCHRONOUS] FUNCTION netlib_connect (
+	socket : UNSIGNED;
+	sa : SIN$TYPE;
+	salen : UNSIGNED;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
+	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
  
-[ASYNCHRONOUS] FUNCTION netlib_getsockopt : UNSIGNED; EXTERNAL;
+(*                                                                          *)
+(* NETLIB_SHUTDOWN                                                          *)
+(*                                                                          *)
+(*	Shutdown connection (don't delete socket)                           *)
+(*                                                                          *)
+(*	socket	= socket to shutdown                                        *)
+(*  shuttype= type of shutdown                                              *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
+(*                                                                          *)
  
-[ASYNCHRONOUS] FUNCTION netlib_name_to_address : UNSIGNED; EXTERNAL;
+[ASYNCHRONOUS] FUNCTION netlib_shutdown (
+	VAR socket : [VOLATILE] UNSIGNED;
+	shuttype : UNSIGNED;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
+	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
  
-[ASYNCHRONOUS] FUNCTION netlib_address_to_name : UNSIGNED; EXTERNAL;
+(*                                                                          *)
+(* NETLIB_CLOSE                                                             *)
+(*                                                                          *)
+(*	Close a socket                                                      *)
+(*                                                                          *)
+(*	socket	= socket to close                                           *)
+(*                                                                          *)
  
-[ASYNCHRONOUS] FUNCTION netlib_dns_skipname : INTEGER; EXTERNAL;
+[ASYNCHRONOUS] FUNCTION netlib_close (
+	socket : UNSIGNED) : UNSIGNED; EXTERNAL;
  
-[ASYNCHRONOUS] FUNCTION netlib_dns_expandname : UNSIGNED; EXTERNAL;
+(*                                                                          *)
+(* NETLIB_ACCEPT                                                            *)
+(*                                                                          *)
+(*	Wait for incoming connections                                       *)
+(*                                                                          *)
+(*	socket	= socket to connect                                         *)
+(*	newsocket = new incoming socket                                     *)
+(*	ra	= socket address describing remote end                      *)
+(*	rasize	= length of ra                                              *)
+(*	ralen	= returned length of ra                                     *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
+(*                                                                          *)
  
-[ASYNCHRONOUS] FUNCTION netlib_dns_query : UNSIGNED; EXTERNAL;
+[ASYNCHRONOUS] FUNCTION netlib_accept (
+	socket : UNSIGNED;
+	VAR newsocket : [VOLATILE] UNSIGNED;
+	VAR ra : [VOLATILE] SIN$TYPE;
+	rasize : UNSIGNED;
+	VAR ralen : [VOLATILE] UNSIGNED;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
+	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
  
-[ASYNCHRONOUS] FUNCTION netlib_strtoaddr : UNSIGNED; EXTERNAL;
+(*                                                                          *)
+(* NETLIB_GETSOCKOPT                                                        *)
+(*                                                                          *)
+(*	Get socket option                                                   *)
+(*                                                                          *)
+(*	socket	= socket to query                                           *)
+(*  level	= level of option                                           *)
+(*  option	= option                                                    *)
+(*  value	= address of result storage                                 *)
+(*  valsize	= size of value                                             *)
+(*  vallen	= returned length of value                                  *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
+(*                                                                          *)
  
-[ASYNCHRONOUS] FUNCTION netlib_addrtostr : UNSIGNED; EXTERNAL;
+[ASYNCHRONOUS] FUNCTION netlib_getsockopt (
+	socket : UNSIGNED;
+	level : UNSIGNED;
+	option : UNSIGNED;
+	%IMMED value : UNSIGNED;
+	valsize : UNSIGNED;
+	VAR vallen : [VOLATILE] UNSIGNED;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
+	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
  
-[ASYNCHRONOUS] FUNCTION netlib_connect_by_name : UNSIGNED; EXTERNAL;
+(*                                                                          *)
+(* NETLIB_ADDRESS_TO_NAME                                                   *)
+(*                                                                          *)
+(*	Get the hostname of an IP address                                   *)
+(*                                                                          *)
+(*  socket	= socket to get info about                                  *)
+(*  which	= optional, type of DNS lookup                              *)
+(*  address	= INADDRDEF to be looked up                                 *)
+(*  addrsize= length of address                                             *)
+(*  hostname= descriptor to receive hostname                                *)
+(*  retlen	= hostname length                                           *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
+(*                                                                          *)
  
-[ASYNCHRONOUS] FUNCTION netlib_dns_mx_lookup : UNSIGNED; EXTERNAL;
+[ASYNCHRONOUS] FUNCTION netlib_address_to_name (
+	socket : UNSIGNED;
+	which : UNSIGNED := %IMMED 0;
+	ADDRESS : INADDR$TYPE;
+	addrsize : UNSIGNED;
+	VAR hostname : [CLASS_S,VOLATILE] PACKED ARRAY [$l5..$u5:INTEGER] OF CHAR;
+	VAR retlen : [VOLATILE] $UWORD;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
+	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
  
-[ASYNCHRONOUS] FUNCTION netlib_hton_long : UNSIGNED; EXTERNAL;
+(*                                                                          *)
+(* NETLIB_DNS_MX_LOOKUP                                                     *)
+(*                                                                          *)
+(*	Look up MX records for a domain name                                *)
+(*                                                                          *)
+(*	socket	= a socket                                                  *)
+(*	hostname= hostname to lookup                                        *)
+(*  mxrrlist= array of MXRRDEF structures                                   *)
+(*  mxrrsize= number elements in mxrrlist                                   *)
+(*  mxrrcnt = number of elements actually written                           *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
+(*                                                                          *)
  
-[ASYNCHRONOUS] FUNCTION netlib_ntoh_long : UNSIGNED; EXTERNAL;
+[ASYNCHRONOUS] FUNCTION netlib_dns_mx_lookup (
+	socket : UNSIGNED;
+	name : [CLASS_S] PACKED ARRAY [$l2..$u2:INTEGER] OF CHAR;
+	%REF mxrrlist : [VOLATILE] ARRAY [$l3..$u3:INTEGER] OF MXRR$TYPE;
+	mxrrsize : UNSIGNED;
+	VAR mxrrcnt : [VOLATILE] UNSIGNED := %IMMED 0;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
+	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
  
-[ASYNCHRONOUS] FUNCTION netlib_hton_word : $UWORD; EXTERNAL;
+(*                                                                          *)
+(* NETLIB_DNS_SKIPNAME                                                      *)
+(*                                                                          *)
+(*	Skip a name in a DNS response                                       *)
+(*                                                                          *)
+(*	bufptr	= pointer to DNS response area                              *)
+(*	buflen	= count of bytes in buffer from bufptr                      *)
+(*                                                                          *)
  
-[ASYNCHRONOUS] FUNCTION netlib_ntoh_word : $UWORD; EXTERNAL;
+[ASYNCHRONOUS] FUNCTION netlib_dns_skipname (
+	%IMMED bufptr : $DEFPTR;
+	buflen : $UWORD) : UNSIGNED; EXTERNAL;
  
-[ASYNCHRONOUS] FUNCTION netlib_version : UNSIGNED; EXTERNAL;
+(*                                                                          *)
+(* NETLIB_DNS_EXPANDNAME                                                    *)
+(*                                                                          *)
+(*	Expand name is DNS response                                         *)
+(*                                                                          *)
+(*	buffer	= start of DNS response buffer                              *)
+(*	buflen	= buffer size                                               *)
+(*	bufptr	= area containing domain name                               *)
+(*	name	= descriptor to receive expanded name                       *)
+(*	retlen	= optional, length of name                                  *)
+(*  skipcount=number of bytes in buffer used                                *)
+(*                                                                          *)
+ 
+[ASYNCHRONOUS] FUNCTION netlib_dns_expandname (
+	%IMMED bufstart : $DEFPTR;
+	buflen : $UWORD;
+	%IMMED bufptr : $DEFPTR;
+	VAR name : [CLASS_S,VOLATILE] PACKED ARRAY [$l4..$u4:INTEGER] OF CHAR;
+	VAR retlen : [VOLATILE] $UWORD := %IMMED 0;
+	VAR skipcount : [VOLATILE] $UWORD := %IMMED 0) : UNSIGNED; EXTERNAL;
+ 
+(*                                                                          *)
+(* NETLIB_DNS_QUERY                                                         *)
+(*                                                                          *)
+(*	Perform a DNS query                                                 *)
+(*                                                                          *)
+(*	socket	= a socket                                                  *)
+(*	name	= domain name to look up                                    *)
+(*	class	= class of query                                            *)
+(*	type	= type of query                                             *)
+(*	buffer	= buffer to receive dns response                            *)
+(*	bufsize	= size of buffer in bytes                                   *)
+(*	flags	= query options                                             *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
+(*                                                                          *)
+ 
+[ASYNCHRONOUS] FUNCTION netlib_dns_query (
+	socket : UNSIGNED;
+	name : [CLASS_S] PACKED ARRAY [$l2..$u2:INTEGER] OF CHAR;
+	class : UNSIGNED := %IMMED 0;
+	type : UNSIGNED;
+	%IMMED buffer : $DEFPTR;
+	bufsize : $UWORD;
+	flags : UNSIGNED := %IMMED 0;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
+	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
+ 
+(*                                                                          *)
+(* NETLIB_STRTOADDR                                                         *)
+(*                                                                          *)
+(*	Convert a dotted-address to binary form                             *)
+(*                                                                          *)
+(*	string	= input IP address string                                   *)
+(*  address	= output binary address                                     *)
+(*                                                                          *)
+ 
+[ASYNCHRONOUS] FUNCTION netlib_strtoaddr (
+	string : [CLASS_S] PACKED ARRAY [$l1..$u1:INTEGER] OF CHAR;
+	VAR address : [VOLATILE] INADDR$TYPE) : UNSIGNED; EXTERNAL;
+ 
+(*                                                                          *)
+(* NETLIB_NAME_TO_ADDRESS                                                   *)
+(*                                                                          *)
+(*	Get IP address(es) for a host name                                  *)
+(*                                                                          *)
+(*  socket	= socket to get info about                                  *)
+(*  which   = type of lookup                                                *)
+(*  hostname= host name to look up                                          *)
+(*  addrlist= array of INADDRDEF structures                                 *)
+(*  addrsize= number elements in addrlist                                   *)
+(*  addrcnt = number of elements actually written                           *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
+(*                                                                          *)
+ 
+[ASYNCHRONOUS] FUNCTION netlib_name_to_address (
+	socket : UNSIGNED;
+	which : UNSIGNED;
+	hostname : [CLASS_S] PACKED ARRAY [$l3..$u3:INTEGER] OF CHAR;
+	%REF addrlist : [VOLATILE] ARRAY [$l4..$u4:INTEGER] OF INADDR$TYPE;
+	addrsize : UNSIGNED;
+	VAR addrcnt : [VOLATILE] UNSIGNED := %IMMED 0;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
+	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
+ 
+(*                                                                          *)
+(* NETLIB_GET_HOSTNAME                                                      *)
+(*                                                                          *)
+(*	Return internet hostname of local host                              *)
+(*	                                                                    *)
+(*	namdsc	= string to receive hostname                                *)
+(*	retlen	= optional, return length of hostname                       *)
+(*                                                                          *)
+ 
+[ASYNCHRONOUS] FUNCTION netlib_get_hostname (
+	VAR namdsc : [CLASS_S,VOLATILE] PACKED ARRAY [$l1..$u1:INTEGER] OF CHAR := %IMMED 0;
+	VAR retlen : [VOLATILE] $UWORD := %IMMED 0) : UNSIGNED; EXTERNAL;
+ 
+(*                                                                          *)
+(* NETLIB_SETSOCKOPT                                                        *)
+(*                                                                          *)
+(*	Set socket option                                                   *)
+(*                                                                          *)
+(*	socket	= socket to query                                           *)
+(*  level	= level of option                                           *)
+(*  option	= option                                                    *)
+(*  value	= address of result storage                                 *)
+(*  vallen	= size of value                                             *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
+(*                                                                          *)
+ 
+[ASYNCHRONOUS] FUNCTION netlib_setsockopt (
+	socket : UNSIGNED;
+	level : UNSIGNED;
+	option : UNSIGNED;
+	%IMMED value : UNSIGNED;
+	vallen : UNSIGNED;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
+	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
+ 
+(*                                                                          *)
+(* NETLIB_LISTEN                                                            *)
+(*                                                                          *)
+(*	Configure socket to receive connections                             *)
+(*                                                                          *)
+(*	socket	= socket to query                                           *)
+(*  level	= backlog connections                                       *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
+(*                                                                          *)
+ 
+[ASYNCHRONOUS] FUNCTION netlib_listen (
+	socket : UNSIGNED;
+	backlog : UNSIGNED := %IMMED 0;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
+	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
+ 
+(*                                                                          *)
+(* NETLIB_WRITE                                                             *)
+(*                                                                          *)
+(*	Write data to socket                                                *)
+(*                                                                          *)
+(*	socket	= socket to read from                                       *)
+(*  buffer	= receive buffer                                            *)
+(*	sa	= optional, SINDEF structure                                *)
+(*	salen	= optional, size of sa                                      *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
+(*                                                                          *)
+ 
+[ASYNCHRONOUS] FUNCTION netlib_write (
+	socket : UNSIGNED;
+	buffer : [CLASS_S] PACKED ARRAY [$l2..$u2:INTEGER] OF CHAR;
+	sa : SIN$TYPE := %IMMED 0;
+	salen : UNSIGNED := %IMMED 0;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
+	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
+ 
+(*                                                                          *)
+(* NETLIB_WRITELINE                                                         *)
+(*                                                                          *)
+(*	Write data to socket adding terminating CR/LF pair.                 *)
+(*                                                                          *)
+(*	socket	= socket to read from                                       *)
+(*  buffer	= receive buffer                                            *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
+(*                                                                          *)
+ 
+[ASYNCHRONOUS] FUNCTION netlib_writeline (
+	socket : UNSIGNED;
+	buffer : [CLASS_S] PACKED ARRAY [$l2..$u2:INTEGER] OF CHAR;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
+	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
+ 
+(*                                                                          *)
+(* NETLIB_READ                                                              *)
+(*                                                                          *)
+(*	Read data from socket                                               *)
+(*                                                                          *)
+(*	socket	= socket to read from                                       *)
+(*  buffer	= receive buffer                                            *)
+(*	sa	= optional, SINDEF structure                                *)
+(*	sasize	= optional, size of sa                                      *)
+(*  salen	= optional, returned length of sa                           *)
+(*  timeout	= optional, read timeout                                    *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
+(*                                                                          *)
+ 
+[ASYNCHRONOUS] FUNCTION netlib_read (
+	socket : UNSIGNED;
+	VAR buffer : [CLASS_S,VOLATILE] PACKED ARRAY [$l2..$u2:INTEGER] OF CHAR;
+	VAR sa : [VOLATILE] SIN$TYPE := %IMMED 0;
+	sasize : UNSIGNED := %IMMED 0;
+	VAR salen : [VOLATILE] UNSIGNED := %IMMED 0;
+	timeout : $UQUAD := %IMMED 0;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
+	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
+ 
+(*                                                                          *)
+(* NETLIB_READLINE                                                          *)
+(*                                                                          *)
+(*	Read line from socket                                               *)
+(*                                                                          *)
+(*	socket	= socket to read from                                       *)
+(*  buffer	= buffer to receive line                                    *)
+(*  retlen	= optional, return length of buffer                         *)
+(*  flags	= optional, control flags                                   *)
+(*  timeout	= optional, read timeout                                    *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
+(*                                                                          *)
+ 
+[ASYNCHRONOUS] FUNCTION netlib_readline (
+	socket : UNSIGNED;
+	VAR buffer : [CLASS_S,VOLATILE] PACKED ARRAY [$l2..$u2:INTEGER] OF CHAR;
+	VAR retlen : [VOLATILE] $UWORD := %IMMED 0;
+	flags : UNSIGNED := %IMMED 0;
+	timeout : $UQUAD := %IMMED 0;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
+	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
+ 
+(*	                                                                    *)
+(*	NETLIB_ADDRTOSTR                                                    *)
+(*	                                                                    *)
+(*	Convert binary IP to string                                         *)
+(*	                                                                    *)
+(*	address	= INADDRDEF structure                                       *)
+(*	string	= string to receive address                                 *)
+(*	retlen	= optional, return length of string                         *)
+(*	                                                                    *)
+ 
+[ASYNCHRONOUS] FUNCTION netlib_addrtostr (
+	ADDRESS : INADDR$TYPE;
+	VAR string : [CLASS_S,VOLATILE] PACKED ARRAY [$l2..$u2:INTEGER] OF CHAR;
+	VAR retlen : [VOLATILE] $UWORD := %IMMED 0) : UNSIGNED; EXTERNAL;
+ 
+(*                                                                          *)
+(* NETLIB_CONNECT_BY_NAME                                                   *)
+(*                                                                          *)
+(*	Connect to remote host by name.                                     *)
+(*                                                                          *)
+(*	socket	= stream socket allocated by NETLIB_SOCKET                  *)
+(*	hostname= string containing the hostname                            *)
+(*	port	= port number in host order                                 *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
+(*                                                                          *)
+ 
+[ASYNCHRONOUS] FUNCTION netlib_connect_by_name (
+	socket : UNSIGNED;
+	hostname : [CLASS_S] PACKED ARRAY [$l2..$u2:INTEGER] OF CHAR;
+	port : $UWORD;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
+	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
+ 
+(*                                                                          *)
+(* NETLIB_HTON_LONG                                                         *)
+(*                                                                          *)
+(*	Convert host-order longword to network-order                        *)
+(*                                                                          *)
+(*	value	= longword to convert                                       *)
+(*                                                                          *)
+ 
+[ASYNCHRONOUS] FUNCTION netlib_hton_long (
+	value : UNSIGNED) : UNSIGNED; EXTERNAL;
+ 
+(*                                                                          *)
+(* NETLIB_NTOH_LONG                                                         *)
+(*                                                                          *)
+(*	Convert network-order longword to host-order                        *)
+(*                                                                          *)
+(*	value	= longword to convert                                       *)
+(*                                                                          *)
+ 
+[ASYNCHRONOUS] FUNCTION netlib_ntoh_long (
+	value : UNSIGNED) : UNSIGNED; EXTERNAL;
+ 
+(*                                                                          *)
+(* NETLIB_HTON_WORD                                                         *)
+(*                                                                          *)
+(*	Convert host-order word to network-order                            *)
+(*                                                                          *)
+(*	value	= word to convert                                           *)
+(*                                                                          *)
+ 
+[ASYNCHRONOUS] FUNCTION netlib_hton_word (
+	value : $UWORD) : $UWORD; EXTERNAL;
+ 
+(*                                                                          *)
+(* NETLIB_NTOH_WORD                                                         *)
+(*                                                                          *)
+(*	Convert network-order word to host-order                            *)
+(*                                                                          *)
+(*	value	= word to convert                                           *)
+(*                                                                          *)
+ 
+[ASYNCHRONOUS] FUNCTION netlib_ntoh_word (
+	value : $UWORD) : $UWORD; EXTERNAL;
+ 
+(*                                                                          *)
+(* NETLIB_VERSION                                                           *)
+(*                                                                          *)
+(*	Return NETLIB version                                               *)
+(*	                                                                    *)
+(*	strver	= string to receive version string                          *)
+(*	retlen	= optional, return length of string                         *)
+(*                                                                          *)
+ 
+[ASYNCHRONOUS] FUNCTION netlib_version (
+	VAR strver : [CLASS_S,VOLATILE] PACKED ARRAY [$l1..$u1:INTEGER] OF CHAR := %IMMED 0;
+	VAR retlen : [VOLATILE] $UWORD := %IMMED 0) : UNSIGNED; EXTERNAL;
+ 
+(*                                                                          *)
+(* SSL Routines                                                             *)
+(*                                                                          *)
  
 [ASYNCHRONOUS] FUNCTION netlib_ssl_context : UNSIGNED; EXTERNAL;
  
 (*                                                                          *)
 (* NETLIB_SSL_SOCKET                                                        *)
 (*                                                                          *)
+(*	Allocate an SSL socket                                              *)
+(*                                                                          *)
+(*  context = SSL socket                                                    *)
+(*	socket	= NETLIB socket                                             *)
+(*	ssl_ctx	= SSL_CTX structure                                         *)
+(*                                                                          *)
  
 [ASYNCHRONOUS] FUNCTION netlib_ssl_socket (
 	VAR context : [VOLATILE] UNSIGNED;
 	socket : UNSIGNED;
-	ssl_ctx : UNSIGNED) : INTEGER; EXTERNAL;
+	ssl_ctx : UNSIGNED) : UNSIGNED; EXTERNAL;
  
 (*                                                                          *)
 (* NETLIB_SSL_ACCEPT                                                        *)
+(*                                                                          *)
+(*	Accept incoming SSL connection                                      *)
+(*                                                                          *)
+(*  context = SSL socket                                                    *)
+(*  timeout	= optional, read timeout                                    *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
 (*                                                                          *)
  
 [ASYNCHRONOUS] FUNCTION netlib_ssl_accept (
 	VAR context : [VOLATILE] UNSIGNED;
 	timeout : $UQUAD := %IMMED 0;
-	VAR iosb : [VOLATILE] NETLIBDEF$$TYP1 := %IMMED 0;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
 	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
-	%IMMED astprm : UNSIGNED := %IMMED 0) : INTEGER; EXTERNAL;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
  
 (*                                                                          *)
 (* NETLIB_SSL_CONNECT                                                       *)
+(*                                                                          *)
+(*	Establish an SSL connection to a remote system.                     *)
+(*                                                                          *)
+(*  context = SSL socket                                                    *)
+(*  timeout	= optional, read timeout                                    *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
 (*                                                                          *)
  
 [ASYNCHRONOUS] FUNCTION netlib_ssl_connect (
 	VAR context : [VOLATILE] UNSIGNED;
 	timeout : $UQUAD := %IMMED 0;
-	VAR iosb : [VOLATILE] NETLIBDEF$$TYP2 := %IMMED 0;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
 	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
-	%IMMED astprm : UNSIGNED := %IMMED 0) : INTEGER; EXTERNAL;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
  
 (*                                                                          *)
 (* NETLIB_SSL_SHUTDOWN                                                      *)
 (*                                                                          *)
+(*	Shutdown SSL socket (don't delete socket)                           *)
+(*                                                                          *)
+(*  context = SSL socket                                                    *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
+(*                                                                          *)
  
 [ASYNCHRONOUS] FUNCTION netlib_ssl_shutdown (
 	VAR context : [VOLATILE] UNSIGNED;
-	VAR iosb : [VOLATILE] NETLIBDEF$$TYP3 := %IMMED 0;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
 	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
-	%IMMED astprm : UNSIGNED := %IMMED 0) : INTEGER; EXTERNAL;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
+ 
+(*                                                                          *)
+(* NETLIB_SSL_CLOSE                                                         *)
+(*                                                                          *)
+(*	Close an SSL socket                                                 *)
+(*                                                                          *)
+(*	socket	= socket to close                                           *)
+(*                                                                          *)
+ 
+[ASYNCHRONOUS] FUNCTION netlib_ssl_close (
+	socket : UNSIGNED) : UNSIGNED; EXTERNAL;
  
 (*                                                                          *)
 (* NETLIB_SSL_READ                                                          *)
+(*                                                                          *)
+(*	Read data from SSL socket                                           *)
+(*                                                                          *)
+(*  context = SSL socket                                                    *)
+(*  buffer	= receive buffer                                            *)
+(*  timeout	= optional, read timeout                                    *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
 (*                                                                          *)
  
 [ASYNCHRONOUS] FUNCTION netlib_ssl_read (
 	VAR context : [VOLATILE] UNSIGNED;
 	buffer : [CLASS_S] PACKED ARRAY [$l2..$u2:INTEGER] OF CHAR;
 	timeout : $UQUAD := %IMMED 0;
-	VAR iosb : [VOLATILE] NETLIBDEF$$TYP4 := %IMMED 0;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
 	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
-	%IMMED astprm : INTEGER := %IMMED 0) : INTEGER; EXTERNAL;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
  
 (*                                                                          *)
 (* NETLIB_SSL_WRITE                                                         *)
+(*                                                                          *)
+(*	Write data to SSL socket                                            *)
+(*                                                                          *)
+(*  context = SSL socket                                                    *)
+(*  buffer	= receive buffer                                            *)
+(*  timeout	= optional, read timeout                                    *)
+(*	iosb	= optional, I/O status block                                *)
+(*	astadr	= optional, I/O completion AST                              *)
+(*	astprm	= optional, AST parameter                                   *)
 (*                                                                          *)
  
 [ASYNCHRONOUS] FUNCTION netlib_ssl_write (
 	VAR context : [VOLATILE] UNSIGNED;
 	buffer : [CLASS_S] PACKED ARRAY [$l2..$u2:INTEGER] OF CHAR;
 	timeout : $UQUAD := %IMMED 0;
-	VAR iosb : [VOLATILE] NETLIBDEF$$TYP5 := %IMMED 0;
+	VAR iosb : [VOLATILE] NETLIBIOSB$TYPE := %IMMED 0;
 	%IMMED [UNBOUND, ASYNCHRONOUS] PROCEDURE astadr := %IMMED 0;
-	%IMMED astprm : INTEGER := %IMMED 0) : INTEGER; EXTERNAL;
+	%IMMED astprm : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
+ 
+(*                                                                          *)
+(* NETLIB_SSL_VERSION                                                       *)
+(*                                                                          *)
+(*	Return OpenSSL library version                                      *)
+(*	                                                                    *)
+(*	strver	= optional, string to receive version string                *)
+(*	retlen	= optional, return length of string                         *)
+(*	numver  = optional, longword to receive version as number           *)
+(*                                                                          *)
+ 
+[ASYNCHRONOUS] FUNCTION netlib_ssl_version (
+	VAR strver : [CLASS_S,VOLATILE] PACKED ARRAY [$l1..$u1:INTEGER] OF CHAR := %IMMED 0;
+	VAR retlen : [VOLATILE] $UWORD := %IMMED 0;
+	VAR numver : [VOLATILE] UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
  
 END.

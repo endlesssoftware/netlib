@@ -529,17 +529,64 @@ iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
 	longword unsigned value named astprm in optional typename user_arg
     ) returns longword unsigned typename cond_value;
 
-entry netlib_dns_mx_lookup returns longword unsigned;
-entry netlib_dns_skipname returns longword unsigned;
+    /*
+    /* NETLIB_DNS_MX_LOOKUP
+    /*
+    /*	Look up MX records for a domain name
+    /*
+    /*	socket	= a socket
+    /*	hostname= hostname to lookup
+    /*  mxrrlist= array of MXRRDEF structures
+    /*  mxrrsize= number elements in mxrrlist
+    /*  mxrrcnt = number of elements actually written
+    /*	iosb	= optional, I/O status block
+    /*	astadr	= optional, I/O completion AST
+    /*	astprm	= optional, AST parameter
+    /*
+    entry netlib_dns_mx_lookup parameter (
+	longword unsigned named socket in typename context,
+	character descriptor named name in typename char_string,
+	MXRRDEF dimension * named mxrrlist out typename structure,
+	longword unsigned named mxrrsize in,
+	longword unsigned named mxrrcnt out optional,
+	NETLIBIOSBDEF named iosb out optional typename io_status_block,
+	address(entry) value named astadr in optional typename ast_procedure,
+	longword unsigned value named astprm in optional typename user_arg
+    ) returns longword unsigned typename cond_value;
+
+    /*
+    /* NETLIB_DNS_SKIPNAME
+    /*
+    /*	Skip a name in a DNS response
+    /*
+    /*	bufptr	= pointer to DNS response area
+    /*	buflen	= count of bytes in buffer from bufptr
+    /*
+    entry netlib_dns_skipname parameter (
+	address value named bufptr in typename "pointer",
+	word unsigned named buflen in
+    ) returns longword unsigned;
 
     /*
     /* NETLIB_DNS_EXPANDNAME
     /*
+    /*	Expand name is DNS response
     /*
+    /*	buffer	= start of DNS response buffer
+    /*	buflen	= buffer size
+    /*	bufptr	= area containing domain name
+    /*	name	= descriptor to receive expanded name
+    /*	retlen	= optional, length of name
+    /*  skipcount=number of bytes in buffer used
     /*
-/*    entry netlib_dns_expandname parameter (
-	
-/*    ) returns longword unsigned typename cond_value;
+    entry netlib_dns_expandname parameter (
+	address value named bufstart typename "pointer",
+	word unsigned named buflen in,
+	address value named bufptr typename "pointer",
+	character descriptor named name out typename char_string,
+	word unsigned named retlen out optional,
+	word unsigned named skipcount out optional
+    ) returns longword unsigned typename cond_value;
 
     /*
     /* NETLIB_DNS_QUERY
