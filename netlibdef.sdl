@@ -49,6 +49,7 @@
 {  04-APR-2013	    Sneddon	More corrections to replace old C header.
 {  05-AUG-2013	    Sneddon	Add parameter lists to entry definitions.
 {  08-AUG-2013	    Sneddon	Add full parameter definitions for routines.
+{  19-AUG-2013	    Sneddon	Fix arg. names that were Pascal keywords.
 {--
 module NETLIBDEF;
 iflanguage CC;
@@ -308,12 +309,12 @@ iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
     /*	Create socket
     /*
     /*	socket	= new socket
-    /*	type	= socket type
+    /*	socktyp = socket type
     /*  family	= socket family
     /*
     entry netlib_socket parameter (
 	longword unsigned named socket out typename context,
-	longword unsigned named type in,
+	longword unsigned named socktyp in,
 	longword unsigned named family in
     ) returns longword unsigned typename cond_value;
 
@@ -596,7 +597,7 @@ iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
     /*	socket	= a socket
     /*	name	= domain name to look up
     /*	class	= class of query
-    /*	type	= type of query
+    /*	qtype	= type of query
     /*	buffer	= buffer to receive dns response
     /*	bufsize	= size of buffer in bytes
     /*	flags	= query options
@@ -608,7 +609,7 @@ iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
 	longword unsigned named socket in typename context,
 	character descriptor named name in typename char_string,
 	longword unsigned named class in default 0,
-	longword unsigned named type in,
+	longword unsigned named qtype in,
 	address value named buffer typename varying_arg,
 	word unsigned named bufsize in,
 	longword unsigned named flags in optional typename longword_mask,

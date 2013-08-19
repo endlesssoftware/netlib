@@ -1,6 +1,6 @@
 (********************************************************************************************************************************)
-(* Created: 16-Aug-2013 12:27:44 by OpenVMS SDL EV2-3      *)
-(* Source:  16-AUG-2013 12:27:11 MG_SRC:[NETLIB]NETLIBDEF.SDL;67 *)
+(* Created: 19-Aug-2013 12:49:27 by OpenVMS SDL EV2-3      *)
+(* Source:  19-AUG-2013 12:48:51 MG_SRC:[NETLIB]NETLIBDEF.SDL;69 *)
 (********************************************************************************************************************************)
  
 MODULE NETLIBDEF ;
@@ -217,13 +217,13 @@ CONST	NETLIB_K_METHOD_ANY = 0;
 (*	Create socket                                                       *)
 (*                                                                          *)
 (*	socket	= new socket                                                *)
-(*	type	= socket type                                               *)
+(*	socktyp = socket type                                               *)
 (*  family	= socket family                                             *)
 (*                                                                          *)
  
 [ASYNCHRONOUS] FUNCTION netlib_socket (
 	VAR socket : [VOLATILE] UNSIGNED;
-	type : UNSIGNED;
+	socktyp : UNSIGNED;
 	family : UNSIGNED) : UNSIGNED; EXTERNAL;
  
 (*                                                                          *)
@@ -505,7 +505,7 @@ CONST	NETLIB_K_METHOD_ANY = 0;
 (*	socket	= a socket                                                  *)
 (*	name	= domain name to look up                                    *)
 (*	class	= class of query                                            *)
-(*	type	= type of query                                             *)
+(*	qtype	= type of query                                             *)
 (*	buffer	= buffer to receive dns response                            *)
 (*	bufsize	= size of buffer in bytes                                   *)
 (*	flags	= query options                                             *)
@@ -518,7 +518,7 @@ CONST	NETLIB_K_METHOD_ANY = 0;
 	socket : UNSIGNED;
 	name : [CLASS_S] PACKED ARRAY [$l2..$u2:INTEGER] OF CHAR;
 	class : UNSIGNED := %IMMED 0;
-	type : UNSIGNED;
+	qtype : UNSIGNED;
 	%IMMED buffer : $DEFPTR;
 	bufsize : $UWORD;
 	flags : UNSIGNED := %IMMED 0;

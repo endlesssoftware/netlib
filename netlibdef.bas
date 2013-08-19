@@ -1,6 +1,6 @@
  !********************************************************************************************************************************
- ! Created: 16-Aug-2013 12:27:17 by OpenVMS SDL EV2-3      
- ! Source:  16-AUG-2013 12:27:11 MG_SRC:[NETLIB]NETLIBDEF.SDL;67 
+ ! Created: 19-Aug-2013 12:49:00 by OpenVMS SDL EV2-3      
+ ! Source:  19-AUG-2013 12:48:51 MG_SRC:[NETLIB]NETLIBDEF.SDL;69 
  !********************************************************************************************************************************
       ! *** PREDECLARED TYPES
      
@@ -208,7 +208,7 @@
     ! 	Create socket
     ! 
     ! 	socket	= new socket
-    ! 	type	= socket type
+    ! 	socktyp = socket type
     !   family	= socket family
     ! 
       EXTERNAL LONG FUNCTION  netlib_socket &
@@ -496,7 +496,7 @@
     ! 	socket	= a socket
     ! 	name	= domain name to look up
     ! 	class	= class of query
-    ! 	type	= type of query
+    ! 	qtype	= type of query
     ! 	buffer	= buffer to receive dns response
     ! 	bufsize	= size of buffer in bytes
     ! 	flags	= query options
