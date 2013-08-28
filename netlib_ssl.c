@@ -153,7 +153,10 @@
 **
 **  IMPLICIT OUTPUTS:   None.
 **
-**  COMPLETION CODES:   None.
+**  COMPLETION CODES:
+**
+**	SS$_NORMAL	Normal successful completion.
+**	LIB$_KEYNOTFOU	HP SSL is not installed.
 **
 **  SIDE EFFECTS:       None.
 **
@@ -736,6 +739,31 @@ unsigned int netlib_ssl_write (struct CTX **xctx, struct dsc$descriptor *dsc,
     return status;
 } /* netlib_ssl_write */
 
+/*
+**++
+**  ROUTINE:	io_queue
+**
+**  FUNCTIONAL DESCRIPTION:
+**
+**  	Queue an SSL function call with asynchronous I/O support.
+**
+**  RETURNS:	cond_value, longword (unsigned), write only, by value
+**
+**  PROTOTYPE:
+**
+**  	tbs
+**
+**  IMPLICIT INPUTS:	None.
+**
+**  IMPLICIT OUTPUTS:	None.
+**
+**  COMPLETION CODES:
+**
+**
+**  SIDE EFFECTS:   	None.
+**
+**--
+*/
 static unsigned int io_queue (struct IOR *ior) {
 
     int aststat, status = SS$_NORMAL;
@@ -759,6 +787,31 @@ static unsigned int io_queue (struct IOR *ior) {
     return status;
 }
 
+/*
+**++
+**  ROUTINE:	io_start
+**
+**  FUNCTIONAL DESCRIPTION:
+**
+**  	Commence a queued SSL call.
+**
+**  RETURNS:	cond_value, longword (unsigned), write only, by value
+**
+**  PROTOTYPE:
+**
+**  	tbs
+**
+**  IMPLICIT INPUTS:	None.
+**
+**  IMPLICIT OUTPUTS:	None.
+**
+**  COMPLETION CODES:
+**
+**
+**  SIDE EFFECTS:   	None.
+**
+**--
+*/
 static unsigned int io_start (struct IOR *ior) {
 
     struct CTX *ctx = ior->ctx;
@@ -771,6 +824,32 @@ static unsigned int io_start (struct IOR *ior) {
     return SS$_NORMAL;
 } /* io_start */
 
+/*
+**++
+**  ROUTINE:	io_perform
+**
+**  FUNCTIONAL DESCRIPTION:
+**
+**  	Perform the SSL call.  If more I/O is required, then take the
+**  appropriate action to either read or write, to/from, the NETLIB socket.
+**
+**  RETURNS:	cond_value, longword (unsigned), write only, by value
+**
+**  PROTOTYPE:
+**
+**  	tbs
+**
+**  IMPLICIT INPUTS:	None.
+**
+**  IMPLICIT OUTPUTS:	None.
+**
+**  COMPLETION CODES:
+**
+**
+**  SIDE EFFECTS:   	None.
+**
+**--
+*/
 static unsigned int io_perform (struct IOR *ior) {
 
     int ret, status;
@@ -843,6 +922,32 @@ static unsigned int io_perform (struct IOR *ior) {
     return SS$_NORMAL;
 } /* io_perform */
 
+/*
+**++
+**  ROUTINE:	io_read
+**
+**  FUNCTIONAL DESCRIPTION:
+**
+**  	AST to be called after data has been read from the NETLIB socket.
+**  The data is then fed back into the SSL API.
+**
+**  RETURNS:	cond_value, longword (unsigned), write only, by value
+**
+**  PROTOTYPE:
+**
+**  	tbs
+**
+**  IMPLICIT INPUTS:	None.
+**
+**  IMPLICIT OUTPUTS:	None.
+**
+**  COMPLETION CODES:
+**
+**
+**  SIDE EFFECTS:   	None.
+**
+**--
+*/
 static unsigned int io_read (struct IOR *ior) {
 
     char *ptr;
@@ -868,6 +973,32 @@ static unsigned int io_read (struct IOR *ior) {
     return SS$_NORMAL;
 } /* io_read */
 
+/*
+**++
+**  ROUTINE:	io_write
+**
+**  FUNCTIONAL DESCRIPTION:
+**
+**  	Read data from the SSL output channel and write it to the NETLIB
+**  socket.
+**
+**  RETURNS:	cond_value, longword (unsigned), write only, by value
+**
+**  PROTOTYPE:
+**
+**  	tbs
+**
+**  IMPLICIT INPUTS:	None.
+**
+**  IMPLICIT OUTPUTS:	None.
+**
+**  COMPLETION CODES:
+**
+**
+**  SIDE EFFECTS:   	None.
+**
+**--
+*/
 static unsigned int io_write (struct IOR *ior) {
 
     int ret, status;
@@ -896,6 +1027,32 @@ static unsigned int io_write (struct IOR *ior) {
     return SS$_NORMAL;
 } /* io_write */
 
+/*
+**++
+**  ROUTINE:	outbio_callback
+**
+**  FUNCTIONAL DESCRIPTION:
+**
+**  	Callback applied to the output BIO channel to ensure that SSL
+**  returns asking for data to be written.
+**
+**  RETURNS:	cond_value, longword (unsigned), write only, by value
+**
+**  PROTOTYPE:
+**
+**  	tbs
+**
+**  IMPLICIT INPUTS:	None.
+**
+**  IMPLICIT OUTPUTS:	None.
+**
+**  COMPLETION CODES:
+**
+**
+**  SIDE EFFECTS:   	None.
+**
+**--
+*/
 static long outbio_callback (BIO *b, int oper, const char *argp, int argi,
 			     long argl, long retvalue) {
 
@@ -907,9 +1064,24 @@ static long outbio_callback (BIO *b, int oper, const char *argp, int argi,
 
     case BIO_CB_WRITE|BIO_CB_RETURN:
 	if (ctx->spec_flags & IOR_M_COMPLETE) {
+	    /*
+	    ** If the write has been completed, then clear the flag
+	    ** indicating that all data has been written to the
+	    ** NETLIB socket, reset the BIO and continue and indicate to
+	    ** SSL that the I/O was successful.
+	    **
+	    ** We reset the BIO otherwise the data just stacks up and we
+	    ** end up resending everything we already sent.
+	    */
 	    ctx->spec_flags &= ~IOR_M_COMPLETE;
 	    BIO_reset(b);
 	} else {
+	    /*
+	    ** We have to set that we want a retry.  Although, that isn't
+	    ** enough.  Return a -1 to ensure that SSL stops what it is doing
+	    ** and asks for s WRITE.  That way we can drain it and go round
+	    ** again.
+	    */
 	    BIO_set_retry_write(b);
 	    retvalue = -1;
 	}
