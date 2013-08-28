@@ -9,6 +9,20 @@
 **  	This module contains the SSL implementation for NETLIB, including
 **  AST support for OpenSSL.
 **
+**      All SSL routines that require I/O are handled by the routine
+**  io_perform.  Although, all requests are started by io_queue.
+**
+**      The SSL AST functionality works by building an argument list in
+**  the IOR allocated for each IOR.  The address of the SSL routine is
+**  then set and the call made from AST level with LIB$CALLG.  If the SSL
+**  routine is unable to complete it will either fail or return
+**  SSL_ERROR_WANT_READ or SSL_ERROR_WANT_WRITE.  From that point we queue
+**  the appropriate AST routine to handle the I/O at the NETLIB socket
+**  level, fill or drain the SSL memory BIO and then retry the I/O.
+**
+**      For support of synchronous calls we simply perform everything
+**  asynchronously, but wait on the event flag netlib_ssl_synch.
+**
 **  AUTHOR: 	    Tim Sneddon
 **
 **  Copyright (c) 2013, Endless Software Solutions.
@@ -65,6 +79,7 @@
     unsigned int netlib_ssl_version (struct dsc$descriptor *ver,
 				     unsigned short *retlen,
 				     unsigned *number);
+    unsigned int netlib_ssl_get_ssl (struct CTX **xctx, void **ssl);
     unsigned int netlib_ssl_context (void **xssl, unsigned int *method,
                                      struct dsc$descriptor *cert_d,
 				     int *cert_type,
@@ -186,6 +201,45 @@ unsigned int netlib_ssl_version(struct dsc$descriptor *ver,
     }
 
     return status;
+}
+
+/*
+**++
+**  ROUTINE:	netlib_ssl_get_ssl
+**
+**  FUNCTIONAL DESCRIPTION:
+**
+**  	Retrieve the SSL connection context.
+**
+**  RETURNS:	cond_value, longword (unsigned), write only, by value
+**
+**  PROTOTYPE:
+**
+**  	tbs
+**
+**  IMPLICIT INPUTS:	None.
+**
+**  IMPLICIT OUTPUTS:	None.
+**
+**  COMPLETION CODES:
+**
+**
+**  SIDE EFFECTS:   	None.
+**
+**--
+*/
+unsigned int netlib_ssl_get_ssl (struct CTX **xctx, void **ssl) {
+
+    struct CTX *ctx;
+    int argc;
+
+    VERIFY_CTX(xctx, ctx);
+    SETARGCOUNT(argc);
+    if (argc < 2) return SS$_INSFARG;
+
+    *ssl = ctx->spec_ssl;
+
+    return SS$_NORMAL;
 }
 
 
