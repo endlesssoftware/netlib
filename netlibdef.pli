@@ -1,11 +1,14 @@
 /********************************************************************************************************************************/
-/* Created: 19-Aug-2013 12:49:46 by OpenVMS SDL EV2-3      */
-/* Source:  19-AUG-2013 12:48:51 MG_SRC:[NETLIB]NETLIBDEF.SDL;69 */
+/* Created: 30-Aug-2013 11:41:49 by OpenVMS SDL EV2-3      */
+/* Source:  30-AUG-2013 11:40:47 MG_SRC:[NETLIB]NETLIBDEF.SDL;73 */
 /********************************************************************************************************************************/
  
 /*** MODULE NETLIBDEF ***/
 %replace NETLIB_K_TYPE_STREAM by 1;
 %replace NETLIB_K_TYPE_DGRAM by 2;
+/*                                                                          */
+/* IP Socket options                                                        */
+/*                                                                          */
 %replace NETLIB_K_OPTION_REUSEADDR by 4;
 %replace NETLIB_K_OPTION_KEEPALIVE by 8;
 %replace NETLIB_K_OPTION_BROADCAST by 32;
@@ -13,6 +16,12 @@
 %replace NETLIB_K_OPTION_RCVBUF by 4098;
 %replace NETLIB_K_OPTION_SNDLOWAT by 4099;
 %replace NETLIB_K_OPTION_RCVLOWAT by 4100;
+/*                                                                          */
+/* SSL Socket options                                                       */
+/*                                                                          */
+%replace NETLIB_K_OPTION_SOCKET by 16385;
+%replace NETLIB_K_OPTION_SSL by 16386;
+%replace NETLIB_K_OPTION_CIPHER by 16388;
 %replace NETLIB_K_LEVEL_SOCKET by 65535;
 %replace NETLIB_K_AF_INET by 2;
 %replace NETLIB_K_LOOKUP_DNS by 1;
@@ -154,8 +163,8 @@ dcl 1 MXRRDEF  based,
 /*                                                                          */
 dcl netlib_socket entry (
 	fixed binary(31) reference,
-	fixed binary(31) reference,
-	fixed binary(31) reference)
+	fixed binary(31) reference optional truncate,
+	fixed binary(31) reference optional truncate)
 	returns (fixed binary(31));
 /*                                                                          */
 /* NETLIB_SERVER_SETUP                                                      */
@@ -844,5 +853,23 @@ dcl netlib_ssl_write entry (
 dcl netlib_ssl_version entry (
 	character(*) optional truncate,
 	fixed binary(15) reference optional truncate,
+	fixed binary(31) reference optional truncate)
+	returns (fixed binary(31));
+/*                                                                          */
+/* NETLIB_SSL_GETSOCKOPT                                                    */
+/*                                                                          */
+/*	Get SSL socket option                                               */
+/*                                                                          */
+/*	socket	= socket to query                                           */
+/*  option	= option                                                    */
+/*  value	= address of result storage                                 */
+/*  valsize	= size of value                                             */
+/*  vallen	= returned length of value                                  */
+/*                                                                          */
+dcl netlib_getsockopt entry (
+	fixed binary(31) reference,
+	fixed binary(31) reference,
+	any value,
+	fixed binary(31) reference,
 	fixed binary(31) reference optional truncate)
 	returns (fixed binary(31));

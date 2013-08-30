@@ -1,6 +1,6 @@
 /********************************************************************************************************************************/
-/* Created: 19-Aug-2013 12:49:20 by OpenVMS SDL EV2-3      */
-/* Source:  19-AUG-2013 12:48:51 MG_SRC:[NETLIB]NETLIBDEF.SDL;69 */
+/* Created: 30-Aug-2013 11:41:19 by OpenVMS SDL EV2-3      */
+/* Source:  30-AUG-2013 11:40:47 MG_SRC:[NETLIB]NETLIBDEF.SDL;73 */
 /********************************************************************************************************************************/
 /*** MODULE NETLIBDEF ***/
 #ifndef __NETLIBDEF_LOADED
@@ -41,6 +41,9 @@
 #define __NETLIBDEF_H_LOADED__
 #define NETLIB_K_TYPE_STREAM 1
 #define NETLIB_K_TYPE_DGRAM 2
+/*                                                                          */
+/* IP Socket options                                                        */
+/*                                                                          */
 #define NETLIB_K_OPTION_REUSEADDR 4
 #define NETLIB_K_OPTION_KEEPALIVE 8
 #define NETLIB_K_OPTION_BROADCAST 32
@@ -48,6 +51,12 @@
 #define NETLIB_K_OPTION_RCVBUF 4098
 #define NETLIB_K_OPTION_SNDLOWAT 4099
 #define NETLIB_K_OPTION_RCVLOWAT 4100
+/*                                                                          */
+/* SSL Socket options                                                       */
+/*                                                                          */
+#define NETLIB_K_OPTION_SOCKET 16385
+#define NETLIB_K_OPTION_SSL 16386
+#define NETLIB_K_OPTION_CIPHER 16388
 #define NETLIB_K_LEVEL_SOCKET 65535
 #define NETLIB_K_AF_INET 2
 #define NETLIB_K_LOOKUP_DNS 1
@@ -258,6 +267,8 @@ struct mxrrdef {
     unsigned int netlib_ssl_read(void **sslsock, void *bufdsc, ...);
     unsigned int netlib_ssl_write(void **sslsock, void *bufdsc, ...);
     unsigned int netlib_ssl_version(void *dsc, ...);
+    unsigned int netlib_ssl_getsockopt(void **socket, unsigned int *option,
+				void *buffer, unsigned int *bufsize, ...);
 #endif /* not __NETLIB_BUILD__ */
 	
 	

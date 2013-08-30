@@ -50,6 +50,7 @@
 {  05-AUG-2013	    Sneddon	Add parameter lists to entry definitions.
 {  08-AUG-2013	    Sneddon	Add full parameter definitions for routines.
 {  19-AUG-2013	    Sneddon	Fix arg. names that were Pascal keywords.
+{  30-AUG-2013	    Sneddon	Add NETLIB_SSL_GETSOCKOPT.
 {--
 module NETLIBDEF;
 iflanguage CC;
@@ -62,6 +63,9 @@ end_iflanguage CC;
 constant NETLIB_K_TYPE_STREAM 	    equals 1;
 constant NETLIB_K_TYPE_DGRAM  	    equals 2;
 
+/*
+/* IP Socket options
+/*
 constant NETLIB_K_OPTION_REUSEADDR  equals %x04;
 constant NETLIB_K_OPTION_KEEPALIVE  equals %x08;
 constant NETLIB_K_OPTION_BROADCAST  equals %x20;
@@ -70,6 +74,13 @@ constant NETLIB_K_OPTION_SNDBUF	    equals %x1001;
 constant NETLIB_K_OPTION_RCVBUF	    equals %x1002;
 constant NETLIB_K_OPTION_SNDLOWAT   equals %x1003;
 constant NETLIB_K_OPTION_RCVLOWAT   equals %x1004;
+
+/*
+/* SSL Socket options
+/*
+constant NETLIB_K_OPTION_SOCKET	    equals %x4001;
+constant NETLIB_K_OPTION_SSL	    equals %x4002;
+constant NETLIB_K_OPTION_CIPHER	    equals %x4004;
 
 constant NETLIB_K_LEVEL_SOCKET	    equals %xffff;
 
@@ -293,6 +304,8 @@ literal;
     unsigned int netlib_ssl_read(void **sslsock, void *bufdsc, ...);
     unsigned int netlib_ssl_write(void **sslsock, void *bufdsc, ...);
     unsigned int netlib_ssl_version(void *dsc, ...);
+    unsigned int netlib_ssl_getsockopt(void **socket, unsigned int *option,
+				void *buffer, unsigned int *bufsize, ...);
 #endif /* not __NETLIB_BUILD__ */
 end_literal;
 end_iflanguage CC;
@@ -314,8 +327,8 @@ iflanguage ADA BASIC FORTRAN FORTRAN_STEVE_LIONEL FORTV3 MACRO PASCAL PLI SDML;
     /*
     entry netlib_socket parameter (
 	longword unsigned named socket out typename context,
-	longword unsigned named socktyp in,
-	longword unsigned named family in
+	longword unsigned named socktyp in optional,
+	longword unsigned named family in optional
     ) returns longword unsigned typename cond_value;
 
     /*
@@ -1046,6 +1059,25 @@ entry netlib_ssl_context returns longword unsigned;
 	character descriptor named strver out typename char_string optional,
 	word unsigned named retlen out optional,
 	longword unsigned named numver out optional
+    ) returns longword unsigned typename cond_value;
+
+    /*
+    /* NETLIB_SSL_GETSOCKOPT
+    /*
+    /*	Get SSL socket option
+    /*
+    /*	socket	= socket to query
+    /*  option	= option
+    /*  value	= address of result storage
+    /*  valsize	= size of value
+    /*  vallen	= returned length of value
+    /*
+    entry netlib_getsockopt parameter (
+	longword unsigned named socket in typename context,
+	longword unsigned named option in,
+	longword unsigned value named "value" typename varying_arg,
+	longword unsigned named valsize in,
+	longword unsigned named vallen out optional
     ) returns longword unsigned typename cond_value;
 
 end_iflanguage;

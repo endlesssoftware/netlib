@@ -1,6 +1,6 @@
  !********************************************************************************************************************************
- ! Created: 19-Aug-2013 12:49:00 by OpenVMS SDL EV2-3      
- ! Source:  19-AUG-2013 12:48:51 MG_SRC:[NETLIB]NETLIBDEF.SDL;69 
+ ! Created: 30-Aug-2013 11:40:57 by OpenVMS SDL EV2-3      
+ ! Source:  30-AUG-2013 11:40:47 MG_SRC:[NETLIB]NETLIBDEF.SDL;73 
  !********************************************************************************************************************************
       ! *** PREDECLARED TYPES
      
@@ -56,6 +56,9 @@
     
       DECLARE LONG CONSTANT NETLIB_K_TYPE_STREAM = 1
       DECLARE LONG CONSTANT NETLIB_K_TYPE_DGRAM = 2
+    ! 
+    !  IP Socket options
+    ! 
       DECLARE LONG CONSTANT NETLIB_K_OPTION_REUSEADDR = 4
       DECLARE LONG CONSTANT NETLIB_K_OPTION_KEEPALIVE = 8
       DECLARE LONG CONSTANT NETLIB_K_OPTION_BROADCAST = 32
@@ -63,6 +66,12 @@
       DECLARE LONG CONSTANT NETLIB_K_OPTION_RCVBUF = 4098
       DECLARE LONG CONSTANT NETLIB_K_OPTION_SNDLOWAT = 4099
       DECLARE LONG CONSTANT NETLIB_K_OPTION_RCVLOWAT = 4100
+    ! 
+    !  SSL Socket options
+    ! 
+      DECLARE LONG CONSTANT NETLIB_K_OPTION_SOCKET = 16385
+      DECLARE LONG CONSTANT NETLIB_K_OPTION_SSL = 16386
+      DECLARE LONG CONSTANT NETLIB_K_OPTION_CIPHER = 16388
       DECLARE LONG CONSTANT NETLIB_K_LEVEL_SOCKET = 65535
       DECLARE LONG CONSTANT NETLIB_K_AF_INET = 2
       DECLARE LONG CONSTANT NETLIB_K_LOOKUP_DNS = 1
@@ -214,7 +223,7 @@
       EXTERNAL LONG FUNCTION  netlib_socket &
                ( &
                    LONG  BY REF, &
-                   LONG  BY REF, &
+                  OPTIONAL LONG  BY REF, &
                    LONG  BY REF &
                )
     ! 
@@ -942,4 +951,23 @@
                   OPTIONAL STRING  BY DESC, &
                    WORD  BY REF, &
                    LONG  BY REF &
+               )
+    ! 
+    !  NETLIB_SSL_GETSOCKOPT
+    ! 
+    ! 	Get SSL socket option
+    ! 
+    ! 	socket	= socket to query
+    !   option	= option
+    !   value	= address of result storage
+    !   valsize	= size of value
+    !   vallen	= returned length of value
+    ! 
+      EXTERNAL LONG FUNCTION  netlib_getsockopt &
+               ( &
+                   LONG  BY REF, &
+                   LONG  BY REF, &
+                   LONG  BY VALUE, &
+                   LONG  BY REF, &
+                  OPTIONAL LONG  BY REF &
                )

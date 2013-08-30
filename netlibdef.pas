@@ -1,6 +1,6 @@
 (********************************************************************************************************************************)
-(* Created: 19-Aug-2013 12:49:27 by OpenVMS SDL EV2-3      *)
-(* Source:  19-AUG-2013 12:48:51 MG_SRC:[NETLIB]NETLIBDEF.SDL;69 *)
+(* Created: 30-Aug-2013 11:41:29 by OpenVMS SDL EV2-3      *)
+(* Source:  30-AUG-2013 11:40:47 MG_SRC:[NETLIB]NETLIBDEF.SDL;73 *)
 (********************************************************************************************************************************)
  
 MODULE NETLIBDEF ;
@@ -60,13 +60,26 @@ MODULE NETLIBDEF ;
  
 CONST	NETLIB_K_TYPE_STREAM = 1;
 	NETLIB_K_TYPE_DGRAM = 2;
-	NETLIB_K_OPTION_REUSEADDR = 4;
+ 
+(*                                                                          *)
+(* IP Socket options                                                        *)
+(*                                                                          *)
+ 
+CONST	NETLIB_K_OPTION_REUSEADDR = 4;
 	NETLIB_K_OPTION_KEEPALIVE = 8;
 	NETLIB_K_OPTION_BROADCAST = 32;
 	NETLIB_K_OPTION_SNDBUF = 4097;
 	NETLIB_K_OPTION_RCVBUF = 4098;
 	NETLIB_K_OPTION_SNDLOWAT = 4099;
 	NETLIB_K_OPTION_RCVLOWAT = 4100;
+ 
+(*                                                                          *)
+(* SSL Socket options                                                       *)
+(*                                                                          *)
+ 
+CONST	NETLIB_K_OPTION_SOCKET = 16385;
+	NETLIB_K_OPTION_SSL = 16386;
+	NETLIB_K_OPTION_CIPHER = 16388;
 	NETLIB_K_LEVEL_SOCKET = 65535;
 	NETLIB_K_AF_INET = 2;
 	NETLIB_K_LOOKUP_DNS = 1;
@@ -223,8 +236,8 @@ CONST	NETLIB_K_METHOD_ANY = 0;
  
 [ASYNCHRONOUS] FUNCTION netlib_socket (
 	VAR socket : [VOLATILE] UNSIGNED;
-	socktyp : UNSIGNED;
-	family : UNSIGNED) : UNSIGNED; EXTERNAL;
+	socktyp : UNSIGNED := %IMMED 0;
+	family : UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
  
 (*                                                                          *)
 (* NETLIB_SERVER_SETUP                                                      *)
@@ -953,5 +966,24 @@ CONST	NETLIB_K_METHOD_ANY = 0;
 	VAR strver : [CLASS_S,VOLATILE] PACKED ARRAY [$l1..$u1:INTEGER] OF CHAR := %IMMED 0;
 	VAR retlen : [VOLATILE] $UWORD := %IMMED 0;
 	VAR numver : [VOLATILE] UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
+ 
+(*                                                                          *)
+(* NETLIB_SSL_GETSOCKOPT                                                    *)
+(*                                                                          *)
+(*	Get SSL socket option                                               *)
+(*                                                                          *)
+(*	socket	= socket to query                                           *)
+(*  option	= option                                                    *)
+(*  value	= address of result storage                                 *)
+(*  valsize	= size of value                                             *)
+(*  vallen	= returned length of value                                  *)
+(*                                                                          *)
+ 
+[ASYNCHRONOUS] FUNCTION netlib_getsockopt (
+	socket : UNSIGNED;
+	option : UNSIGNED;
+	%IMMED value : UNSIGNED;
+	valsize : UNSIGNED;
+	VAR vallen : [VOLATILE] UNSIGNED := %IMMED 0) : UNSIGNED; EXTERNAL;
  
 END.

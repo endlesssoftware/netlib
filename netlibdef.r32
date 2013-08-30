@@ -1,11 +1,14 @@
 ! ********************************************************************************************************************************
-!  Created: 19-Aug-2013 12:50:05 by OpenVMS SDL EV2-3      
-!  Source:  19-AUG-2013 12:48:51 MG_SRC:[NETLIB]NETLIBDEF.SDL;69 
+!  Created: 30-Aug-2013 11:42:09 by OpenVMS SDL EV2-3      
+!  Source:  30-AUG-2013 11:40:47 MG_SRC:[NETLIB]NETLIBDEF.SDL;73 
 ! ********************************************************************************************************************************
  
 !*** MODULE NETLIBDEF ***
 literal NETLIB_K_TYPE_STREAM = 1;
 literal NETLIB_K_TYPE_DGRAM = 2;
+! 
+!  IP Socket options
+! 
 literal NETLIB_K_OPTION_REUSEADDR = 4;
 literal NETLIB_K_OPTION_KEEPALIVE = 8;
 literal NETLIB_K_OPTION_BROADCAST = 32;
@@ -13,6 +16,12 @@ literal NETLIB_K_OPTION_SNDBUF = 4097;
 literal NETLIB_K_OPTION_RCVBUF = 4098;
 literal NETLIB_K_OPTION_SNDLOWAT = 4099;
 literal NETLIB_K_OPTION_RCVLOWAT = 4100;
+! 
+!  SSL Socket options
+! 
+literal NETLIB_K_OPTION_SOCKET = 16385;
+literal NETLIB_K_OPTION_SSL = 16386;
+literal NETLIB_K_OPTION_CIPHER = 16388;
 literal NETLIB_K_LEVEL_SOCKET = 65535;
 literal NETLIB_K_AF_INET = 2;
 literal NETLIB_K_LOOKUP_DNS = 1;
