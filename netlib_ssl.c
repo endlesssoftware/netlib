@@ -201,15 +201,15 @@ unsigned int netlib_ssl_version(struct dsc$descriptor *ver,
     }
 
     return status;
-}
+} /* netlib_ssl_version */
 
 /*
 **++
-**  ROUTINE:	netlib_ssl_get_ssl
+**  ROUTINE:	netlib_ssl_getsockopt
 **
 **  FUNCTIONAL DESCRIPTION:
 **
-**  	Retrieve the SSL connection context.
+**  	Retrieve SSL socket information.
 **
 **  RETURNS:	cond_value, longword (unsigned), write only, by value
 **
@@ -228,19 +228,73 @@ unsigned int netlib_ssl_version(struct dsc$descriptor *ver,
 **
 **--
 */
-unsigned int netlib_ssl_get_ssl (struct CTX **xctx, void **ssl) {
+unsigned int netlib_ssl_getsockopt (struct CTX **xctx,
+				    unsigned int *option, void *value,
+				    unsigned int *valsize,
+				    unsigned int *vallen) {
 
     struct CTX *ctx;
+    unsigned int status;
     int argc;
 
     VERIFY_CTX(xctx, ctx);
     SETARGCOUNT(argc);
-    if (argc < 2) return SS$_INSFARG;
 
-    *ssl = ctx->spec_ssl;
+    if (argc < 4) return SS$_INSFARG;
+    if (option == 0 || value == 0 || valsize == 0) return SS$_BADPARAM;
 
-    return SS$_NORMAL;
-}
+    switch (*option) {
+    case NETLIB_K_OPTION_SOCKET: {
+	void **socket = value;
+
+	if (*valsize < sizeof(void *)) {
+	    status = SS$_BADPARAM;
+	} else {
+	    *socket = ctx->spec_socket;
+	    if (argc > 4 && vallen != 0) *vallen = sizeof(void *);
+	    status = SS$_NORMAL;
+	}
+	break;
+    }
+
+    case NETLIB_K_OPTION_SSL: {
+	SSL **ssl = value;
+
+	if (*valsize < sizeof(SSL *)) {
+	    status = SS$_BADPARAM;
+	} else {
+	    *ssl = ctx->spec_ssl;
+	    if (argc > 4 && vallen != 0) *vallen = sizeof(ssl);
+    	    status = SS$_NORMAL;
+	}
+	break;
+    }
+
+    case NETLIB_K_OPTION_CIPHER: {
+	SSL_CIPHER **cipher = value;
+
+	if (*valsize < sizeof(SSL_CIPHER *)) {
+	    status = SS$_BADPARAM;
+	} else {
+	    *cipher = SSL_get_current_cipher(ctx->spec_ssl);
+	    if (*cipher == 0) {
+	        if (argc > 4 && vallen != 0) *vallen = sizeof(SSL_CIPHER *);
+		status = SS$_NOLINKS;
+	    } else {
+		status = SS$_NORMAL;
+	    }
+	}
+	break;
+    }
+
+    default:
+	status = SS$_BADPARAM;
+	break;
+    }
+
+    return status;
+
+} /* netlib_ssl_getsockopt */
 
 
 /*
@@ -839,7 +893,7 @@ static unsigned int io_queue (struct IOR *ior) {
     UNBLOCK_ASTS(aststat);
 
     return status;
-}
+} /* io_queue */
 
 /*
 **++
