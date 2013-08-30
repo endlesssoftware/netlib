@@ -1,5 +1,5 @@
 %TITLE 'SSL_API'
-MODULE SSL_API (IDENT='V1.1-4', ADDRESSING_MODE (EXTERNAL=GENERAL)) =
+MODULE SSL_API (IDENT='V1.1-5', ADDRESSING_MODE (EXTERNAL=GENERAL)) =
 BEGIN
 !++
 ! FACILITY:         NETLIB
@@ -67,6 +67,7 @@ BEGIN
 !   07-Aug-2013 V1.1-3  Sneddon     Add SSL_read, SSL_write, BIO_read and
 !				    BIO_write.  Remove BIO_f_buffer.
 !   13-AUG-2013 V1.3-4  Sneddon	    Add SSLeay_version and SSLeay.
+!   30-AUG-2013 V1.3-5  Sneddon	    Add SSL_get_current_cipher.
 !--
 
     LIBRARY 'SYS$LIBRARY:LIB';
@@ -149,6 +150,7 @@ BEGIN
     SSL_ROUTINE(TLSv1_method, SSL$LIBSSL_SHR32);
     SSL_ROUTINE(SSLeay, SSL$LIBCRYPTO_SHR32);
     SSL_ROUTINE(SSLeay_version, SSL$LIBCRYPTO_SHR32);
+    SSL_ROUTINE(SSL_get_current_cipher, SSL$LIBCRYPTO_SHR32);
 
 END
 ELUDOM
