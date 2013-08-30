@@ -79,7 +79,18 @@
     unsigned int netlib_ssl_version (struct dsc$descriptor *ver,
 				     unsigned short *retlen,
 				     unsigned *number);
-    unsigned int netlib_ssl_get_ssl (struct CTX **xctx, void **ssl);
+    unsigned int netlib_ssl_getsockopt (struct CTX **xctx,
+				        unsigned int *option, void *value,
+				        unsigned int *valsize,
+				        unsigned int *vallen);
+    unsigned int netlib_ssl_cipher_info (void **cipher,
+					 struct dsc$descriptor *name,
+					 struct dsc$descriptor *version,
+					 struct dsc$descriptor *kx,
+					 struct dsc$descriptor *au,
+					 struct dsc$descriptor *enc,
+					 struct dsc$descriptor *mac,
+					 unsigned *export);
     unsigned int netlib_ssl_context (void **xssl, unsigned int *method,
                                      struct dsc$descriptor *cert_d,
 				     int *cert_type,
@@ -296,7 +307,54 @@ unsigned int netlib_ssl_getsockopt (struct CTX **xctx,
 
 } /* netlib_ssl_getsockopt */
 
+/*
+**++
+**  ROUTINE:	netlib_ssl_cipher_info
+**
+**  FUNCTIONAL DESCRIPTION:
+**
+**  	Retrieve information regarding a cipher.
+**
+**  RETURNS:	cond_value, longword (unsigned), write only, by value
+**
+**  PROTOTYPE:
+**
+**  	tbs
+**
+**  IMPLICIT INPUTS:	None.
+**
+**  IMPLICIT OUTPUTS:	None.
+**
+**  COMPLETION CODES:
+**
+**
+**  SIDE EFFECTS:   	None.
+**
+**--
+*/
+unsigned int netlib_ssl_cipher_info (void **cipher,
+				     struct dsc$descriptor *name,
+				     struct dsc$descriptor *version,
+				     struct dsc$descriptor *kx,
+				     struct dsc$descriptor *au,
+				     struct dsc$descriptor *enc,
+				     struct dsc$descriptor *mac,
+				     unsigned *export) {
 
+    unsigned int status = SS$_NORMAL;
+
+    // need to have at least 2 arguments
+
+    // call the parse routine...
+
+    // build an array of pointers to descriptors.
+
+    // parse routine just increments after parsing each key value
+
+    return status;
+
+} /* netlib_ssl_cipher_info */
+
 /*
 **
 **  SS$_INSFMEM - unable to allocate internal SSL structures
