@@ -1,5 +1,5 @@
 %TITLE 'SSL_API'
-MODULE SSL_API (IDENT='V1.1-5', ADDRESSING_MODE (EXTERNAL=GENERAL)) =
+MODULE SSL_API (IDENT='V1.2', ADDRESSING_MODE (EXTERNAL=GENERAL)) =
 BEGIN
 !++
 ! FACILITY:         NETLIB
@@ -68,6 +68,7 @@ BEGIN
 !				    BIO_write.  Remove BIO_f_buffer.
 !   13-AUG-2013 V1.3-4  Sneddon	    Add SSLeay_version and SSLeay.
 !   30-AUG-2013 V1.3-5  Sneddon	    Add SSL_get_current_cipher.
+!   05-SEP-2013 V1.2    Sneddon	    Changed to support Alpha and I64.
 !--
 
     LIBRARY 'SYS$LIBRARY:LIB';
@@ -86,7 +87,7 @@ BEGIN
 	GLOBAL ROUTINE RTN =
 	BEGIN
 	    BUILTIN
-		AP, CALLG;
+		%IF %BLISS(BLISS32V) %THEN AP %ELSE ARGPTR %FI, CALLG;
 
 	    EXTERNAL ROUTINE
 		SSL_library_init;
@@ -111,7 +112,8 @@ BEGIN
 		SSL_library_init();
 	    END;
 
-	    CALLG(.AP, .%NAME('__',RTN))
+	    CALLG(%IF %BLISS(BLISS32V) %THEN .AP %ELSE ARGPTR() %FI,
+		  .%NAME('__',RTN))
 	END;
     %;
 
