@@ -26,6 +26,7 @@ $!  08-APR-1998	V1.7-1	Madison	    UCX can have an INET0 device.
 $!  22-DEC-1998	V1.8	Madison	    Add support for UCX V5.0.
 $!  26-DEC-2000	V2.0	Madison	    Remove link step.
 $!  07-NOV-2004 V2.1    Madison     IA64 support.  Remove VAX support.
+$!  05-SEP-2013 V2.2    Madison     VAX support.
 $!
 $ ON CONTROL_Y THEN GOTO NETLIB_CONTROL_Y
 $ ON WARNING THEN GOTO NETLIB_FAIL
