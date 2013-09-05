@@ -273,6 +273,18 @@ $(KITDIR)NETLIB_SHR.AXP_EXE : $(BINAXP)NETLIB_SHR.EXE
 $(KITDIR)NETLIB_SHR.I64_EXE : $(BINI64)NETLIB_SHR.EXE
     COPY $(MMS$SOURCE) $(MMS$TARGET)
 
+$(KITDIR)NETLIB_SHR.VAX_EXE : $(BINAXP)NETLIB_SHR.EXE
+    COPY $(MMS$SOURCE) $(MMS$TARGET)
+
+$(KITDIR)NETLIB_SSL.AXP_EXE : $(BINAXP)NETLIB_SSL.EXE
+    COPY $(MMS$SOURCE) $(MMS$TARGET)
+
+$(KITDIR)NETLIB_SSL.I64_EXE : $(BINI64)NETLIB_SSL.EXE
+    COPY $(MMS$SOURCE) $(MMS$TARGET)
+
+$(KITDIR)NETLIB_SSL.VAX_EXE : $(BINAXP)NETLIB_SSL.EXE
+    COPY $(MMS$SOURCE) $(MMS$TARGET)
+
 !++
 !   End of dependencies for binaries.  Kit dependencies follow.
 !--
@@ -342,7 +354,10 @@ $(KITDIR)NETLIB$(NUM_VERSION).A	: $(SRCDIR)KITINSTAL.COM,-
     	    	    	    	  $(KITDIR)NETLIB_GET_VERSION.I64_EXE,-
                                   $(KITDIR)NETLIB_SHR.VAX_EXE,-
                                   $(KITDIR)NETLIB_SHR.AXP_EXE,-
-                                  $(KITDIR)NETLIB_SHR.I64_EXE
+                                  $(KITDIR)NETLIB_SHR.I64_EXE,-
+                                  $(KITDIR)NETLIB_SSL.VAX_EXE,-
+                                  $(KITDIR)NETLIB_SSL.AXP_EXE,-
+                                  $(KITDIR)NETLIB_SSL.I64_EXE
     PURGE/NOLOG $(MMS$SOURCE_LIST)
     BACKUP $(MMS$SOURCE_LIST) $(MMS$TARGET)/SAVE/INTERCHANGE/BLOCK=8192/NOCRC/GROU=0
 
