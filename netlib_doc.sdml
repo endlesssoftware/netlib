@@ -184,33 +184,39 @@ However, that extra shareable image is no longer needed.  The NETLIB_SHRXFR
 logical name is still provided by NETLIB, though, for compatibility with
 old build procedures.
 
-<HEAD1>(Contacting the Author\NETLIB_DOC_15)
-<p>There is no formal support for NETLIB.  If you have Internet connectivity,
-however, you may wish to subscribe to one or more of the following MadGoat
-Software mailing lists:
-<list>(simple)
-<le><emphasis>(Info-MadGoat@MadGoat.Com\bold)
-<p>
-        Discussion of MadGoat Software products by users and MadGoat
-        developers.  To subscribe, send a message to
-    	<emphasis>(Info-MadGoat-Request@MadGoat.Com)
-        with the word SUBSCRIBE in the first line of the body of the
-        message.
-<le><emphasis>(MadGoat-Announce@MadGoat.Com\bold)
-<p>
-        Announcements of new releases and new products from MadGoat.
-        To subscribe, send a message to
-<emphasis>(MadGoat-Announce-Request@MadGoat.Com)
-        with the word SUBSCRIBE in the first line of the body of the
-        message.
-<le><emphasis>(MadGoat-Bugs@MadGoat.Com\bold)
-<p>
-        Address for reporting bugs in MadGoat Software products.  Please
-        include the name of the package and version in the subject header
-        of the message, so the report can be more easily directed to the
-        appropriate developer.
-<endlist>
+<HEAD1>(Software Product Support\NETLIB_DOC_15)
+<P>NETLIB is released under a BSD-style open source license.  The software
+source code repository is maintained at Github:
 
+<INTERACTIVE>
+https://github.com/endlesssoftware/netlib
+<ENDINTERACTIVE>
+
+<P>Now that MadGoat (the original developers of NETLIB) has ceased operation
+Endless Software Solutions has taken over stewardship of this software and
+continued to provide updated releases (including the development and release
+of the OpenSSL API) and maintain a user community.
+
+<P>If you are using NETLIB in a commercial environment and are interested
+in seeing more features, a higher level of support and response as well
+as continued general improvement of the product, then you or your business
+might like to consider a support contract with Endless Software Solutions.
+For further information regarding support and how to obtain a quote,
+please point your browser to:
+
+<INTERACTIVE>
+http://www.endlesssoftwares.com.au
+<ENDINTERACTIVE>
+
+<P>For all other queries, please consider joining the NETLIB mailing list by
+sending a mail containg only the word SUBSCRIBE to:
+
+<INTERACTIVE>
+NETLIB-List-request@endlesssoftware.com.au
+<ENDINTERACTIVE>
+
+<P>Alternatively, you can submit bug/enchancement/etc. reports to the github
+Issues tracking system for this project.
 
 <part>(Socket Routine Descriptions\rtnpart)
 <part_page>
