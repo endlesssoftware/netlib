@@ -83,6 +83,12 @@ packages that includes that interface.
 <P>TCP/IP does not have to be installed or running on
 the system in order for NETLIB to be installed; however, you must
 be running TCP/IP before any NETLIB-based applications are run.
+<P>
+The NETLIB SSL socket-style interface requires HP SSL for VAX, Alpha and
+Industry Standard 64.  Although, it does not need to be installed in
+order for NETLIB to be installed, or even used.  However, to use the SSL
+interface it does have to be installed and configured correctly.
+
 <head1>(VMScluster Support\NETLIB_INST_12)
 <P>
 NETLIB supports all VMScluster configurations.  For mixed
@@ -212,6 +218,7 @@ The NETLIB documentation set is provided in the following forms:
 <le>HTML; and
 <le>Plain Text.
 <endlist>
+<P>
 The documentation is no longer shipped in DECwindows Bookreader format.  All
 documentation is also available on line at:
 <interactive>
