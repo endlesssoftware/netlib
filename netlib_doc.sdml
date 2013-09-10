@@ -1481,6 +1481,36 @@ do require the Compaq/HP SSL product to be installed.
 <routine_section>(NETLIB SSL Routines\RTN)
 
 <comment>(----------------------------------------------------------------)
+<routine>(NETLIB_SSL_SOCKET\Create an SSL communication endpoint\\NETLIB_SSL_SOCKET)
+
+<overview>
+NETLIB_SSL_SOCKET creates an SSL <quote>(socket) -- a local endpoint for
+encrypted communication over TCP/IP.
+<endoverview>
+
+<format>
+<frtn>(NETLIB_SSL_SOCKET)
+<fargs>(ssl-socket, ip-socket, ssl-ctx)
+<endformat>
+<returns>(cond_value\longword (unsigned)\write only\by value)
+<argdeflist>
+<argitem>(ssl-socket\longword_unsigned\longword (unsigned)\write only\by reference)
+<argdef>The returned SSL socket, for use in subsequent NETLIB SSL calls.
+<argitem>(ip-socket\longword_unsigned\longword (unsigned)\read only\by reference)
+<argdef>The TCP/IP socket to use for transmitting and receiving encrypted
+data.
+<argitem>(ssl-ctx\longword_unsigned\longword (unsigned)\read only\by reference)
+<argdef>Address of an SSL_CTX context.  This can either be allocated and
+configured by NETLIB_SSL_CONTEXT or via the OpenSSL API.
+<endargdeflist>
+
+<description>
+This routine creates an SSL socket from the supplied SSL_CTX and ip-socket.
+From this point on it is possible to use the remaining NETLIB SSL API routines
+to communicate using this socket.
+<enddescription>
+
+<comment>(----------------------------------------------------------------)
 <routine>(NETLIB_SSL_VERSION\Obtain version information for OpenSSL\\NETLIB_SSL_VERSION_DESCRIP)
 
 <overview>
@@ -1509,7 +1539,7 @@ NETLIB avoids this situation be dynamically linking against OpenSSL and
 supporting any version-to-version differences at tun-time.
 
 This also has the benefit of being able to link against the SSL support in
-NETLIB without actually having to install NETLIB.
+NETLIB without actually having to install SSL.
 
 The presence of the OpenSSL run-time libraries can be tested before calling
 any other NETLIB SSL routines by calling this function and testing for the
