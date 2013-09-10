@@ -53,7 +53,7 @@ major TCP/IP interfaces still in development on OpenVMS.  These are:
 The last two now have excellent emulation of HP TCP/IP $QIO-interface and
 so support for all packages, except TCP/IP, has been dropped.  However,
 NETLIB is still a relevant and useful package.  As well as being a major
-component of MX and other TCP/IP based application it also now provides an
+component of MX and other TCP/IP based applications it also now provides an
 asynchronous interface to the OpenSSL package, as well as the existing API.
 <head1>(Intended Audience\NETLIB_INST_3)
 <p>This manual is intended for system managers or users
@@ -76,13 +76,13 @@ NETLIB.
 
 <HEAD1>(Prerequisite Software\NETLIB_INST_11)
 <P>
-NETLIB requires OpenVMS Alpha V6.0 or later, or OpenVMS Industry Standard 64 E8.2 or later.
-NETLIB uses the HP TCP/IP Services (UCX) driver interface, and should support any
-third-party TCP/IP packages that includes that interface.
+NETLIB requires OpenVMS VAX V6.2 or later, OpenVMS Alpha V6.0 or later
+or OpenVMS Industry Standard 64 E8.2 or later.  NETLIB uses the HP TCP/IP
+Services (UCX) driver interface, and should support any third-party TCP/IP
+packages that includes that interface.
 <P>TCP/IP does not have to be installed or running on
 the system in order for NETLIB to be installed; however, you must
-be running TCP/IP before any NETLIB-based applications
-are run.
+be running TCP/IP before any NETLIB-based applications are run.
 <head1>(VMScluster Support\NETLIB_INST_12)
 <P>
 NETLIB supports all VMScluster configurations.  For mixed
@@ -91,21 +91,13 @@ each architecture.  Different directories must be used for each platform.
 <head1>(Installation Requirements\NETLIB_INST_13)
 <P>NETLIB requires the following resources:
 <list>(unnumbered)
-<le>Approximately 3,000 (VAX) or 4,000 (Alpha) free disk blocks on the
-installation working device (the system disk, or the device specified in
-the AWD option for VMSINSTAL).
+<le>Approximately 3,000 (VAX), 4,000 (Alpha) or 6,000 (Industry Standard 64)
+free disk blocks on the installation working device (the system disk, or the
+device specified in the AWD option for VMSINSTAL).
 <le>Approximately 1,000 disk blocks after installation on the disk
-where NETLIB is installed for common files, plus an additional 50 (VAX) or
-(150) Alpha disk blocks per TCP/IP package selected.
-<le>If NETLIB is installed system-wide, you will need
-3 (VAX) or 7 (Alpha) global sections and 15 (VAX) or 30 (Alpha) global pages
-for the common NETLIB transfer vector library, plus 3 (VAX) or 10 (Alpha)
-global sections and approximately 50 (VAX) or 80 (Alpha) global pages for
-each TCP/IP-specific library.
+where NETLIB is installed for common files.
 <le>Approximately 5 to 20 mintues for installation time, depending on
 system type and installation media.
-<le>If you are running CMU TCP/IP, the SYSGEN parameter MAXBUF must
-be set to at least 2300.
 <endlist>
 
 <HEAD1>(Release Notes\NETLIB_INST_14)
@@ -175,13 +167,19 @@ directory.  All installations require the A save set:
 <interactive>
 <s>($ )<U>(BACKUP disk:[dir]NETLIB<REFERENCE>(NUMVER).A/SAVE [])
 <endinteractive>
-<P>For Alpha systems, you will need the B save set:
+<P>All instalations require the B saveset.  However, it is not necessary
+to extract all images for all architectures.
+<P>For VAX systems you will need:
 <interactive>
-<s>($ )<U>(BACKUP disk:[dir]NETLIB<REFERENCE>(NUMVER).B/SAVE [])
+<s>($ )<U>(BACKUP disk:[dir]NETLIB<REFERENCE>(NUMVER).B/SAVE []/SELECT=*.VAX_EXE)
 <endinteractive>
-<P>For IA64 systems, you will need the C save set:
+<P>For Alpha systems you will need:
 <interactive>
-<s>($ )<U>(BACKUP disk:[dir]NETLIB<REFERENCE>(NUMVER).C/SAVE [])
+<s>($ )<U>(BACKUP disk:[dir]NETLIB<REFERENCE>(NUMVER).B/SAVE []/SELECT=*.AXP_EXE)
+<endinteractive>
+<P>For Industry Standard 64 systems you will need:
+<interactive>
+<s>($ )<U>(BACKUP disk:[dir]NETLIB<REFERENCE>(NUMVER).B/SAVE []/SELECT=*.I64_EXE)
 <endinteractive>
 <P>Next, invoke the user-install command procedure:
 <interactive>
@@ -198,7 +196,7 @@ you can delete the files and the working directory:
 <ENDINTERACTIVE>
 <P>
 If you want to use the programming support files or documentation,
-use BACKUP to retrieve them from saveset NETLIB<REFERENCE>(NUMVER).D.
+use BACKUP to retrieve them from saveset NETLIB<REFERENCE>(NUMVER).C.
 
 <head1>(Personal NETLIB Restriction\NETLIB_INST_10)
 <p>You cannot use a personal NETLIB with NETLIB-based applications that
@@ -207,11 +205,18 @@ are installed with privileges.
 
 <chapter>(On-Line Documentation\online_doc)
 <P>
-The NETLIB documentation set is provided in a form suitable for use with
-the VMS DECwindows Bookreader program (VMS V5.3 and later).  To make
-the NETLIB on-line documentation available automatically through Bookreader,
-you should add a reference to the directory containing the documentation
-(if you elected to install those files) to the DECW$BOOK logical name.
+The NETLIB documentation set is provided in the following forms:
+<list>(unnumbered)
+<le>Portable Document Format (PDF);
+<le>Postscript (PS);
+<le>HTML; and
+<le>Plain Text.
+<endlist>
+The documentation is no longer shipped in DECwindows Bookreader format.  All
+documentation is also available on line at:
+<interactive>
+<s>(http://endlesssoftware.com.au/netlib)
+<endinteractive>
 
 <chapter>(Multi-Language Header Files\headers)
 <P>
@@ -221,9 +226,43 @@ structures and constants used by the NETLIB routines.
 <P>
 This file can be used with the Structure Definition Language (SDL) tool
 to generate a header for any language supported by SDL.  At this point
-only headers for BLISS, C and BASIC are typically shipped as standard.  An
-example of the commands necessary to build a Fortran header using SDL are
-included below.
+only headers for BLISS, C, BASIC, Pascal, PL/I are typically shipped as
+standard.  An example of the commands necessary to build a Fortran header
+using SDL are included below.
 <interactive>
-<s>($ )<u>(SDL/VAX/LANGUAGE=FORTRAN NETLIBDEF.SDL)
+<s>($ )<u>(SDL/ALPHA/LANGUAGE=FORTRAN NETLIBDEF.SDL)
 <endinteractive>
+
+<chapter>(Software Product Support)
+<P>NETLIB is released under a BSD-style open source license.  The software
+source code repository is maintained at Github:
+
+<INTERACTIVE>
+https://github.com/endlesssoftware/netlib
+<ENDINTERACTIVE>
+
+<P>Now that MadGoat (the original developers of NETLIB) has ceased operation
+Endless Software Solutions has taken over stewardship of this software and
+continued to provide updated releases (including the development and release
+of the OpenSSL API) and maintain a user community.
+
+<P>If you are using NETLIB in a commercial environment and are interested
+in seeing more features, a higher level of support and response as well
+as continued general improvement of the product, then you or your business
+might like to consider a support contract with Endless Software Solutions.
+For further information regarding support and how to obtain a quote,
+please point your browser to:
+
+<INTERACTIVE>
+http://www.endlesssoftwares.com.au
+<ENDINTERACTIVE>
+
+<P>For all other queries, please consider joining the NETLIB mailing list by
+sending a mail containg only the word SUBSCRIBE to:
+
+<INTERACTIVE>
+NETLIB-List-request@endlesssoftware.com.au
+<ENDINTERACTIVE>
+
+<P>Alternatively, you can submit bug/enchancement/etc. reports to the github
+Issues tracking system for this project.
