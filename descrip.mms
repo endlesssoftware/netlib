@@ -26,10 +26,12 @@
 !   07-NOV-2004 V2.4    Madison     IA64 support.  Removed VAX.
 !   19-NOV-2012 V3.0	Sneddon     VAX support. SSL support.
 !   04-APR-2013 V3.0-1  Sneddon	    Moved version definitions into
-!				     NETLIB_VERSION.MMS.
+!				    NETLIB_VERSION.MMS.
 !   05-AUG-2013 V3.1	Sneddon	    Add NETLIBDEF target.
 !   08-AUG-2013 V3.2	Sneddon	    Split DNS out of COMMON library to avoid
 !				    linking problems with SSL library.
+!   10-SEP-2013 V3.3    Sneddon	    Remove NETLIB_SRC.BCK.  Full source kits
+!				    can be found at Github now.
 !--
 MG_FACILITY = NETLIB
 .INCLUDE NETLIB_VERSION.MMS
@@ -337,7 +339,7 @@ KIT 	    	    	    	: $(KITDIR)NETLIB$(NUM_VERSION).ZIP
 KITFILES   	    	    	= $(SRCDIR)README.TXT,-
     	    	    	    	  $(KITDIR)NETLIB$(NUM_VERSION).A,-
     	    	    	    	  $(KITDIR)NETLIB$(NUM_VERSION).B,-
-    	    	    	    	  $(KITDIR)NETLIB_SRC.BCK
+    	    	    	    	  $(KITDIR)NETLIB$(NUM_VERSION).C
 $(KITDIR)NETLIB$(NUM_VERSION).ZIP : $(KITFILES)
     IF F$SEARCH("$(MMS$TARGET)") .NES. "" THEN DELETE $(MMS$TARGET);*
     $(ZIP)/VMS $(MMS$TARGET) $(KITFILES)
@@ -380,33 +382,18 @@ $(KITDIR)NETLIB$(NUM_VERSION).B	: $(SRCDIR)NETLIBDEF.H, $(SRCDIR)NETLIBDEF.R32,-
     	    	    	    	  $(SRCDIR)ECHOSERVER_STANDALONE.C,-
     	    	    	    	  $(KITDIR)NETLIB_DOC.PS,-
     	    	    	    	  $(KITDIR)NETLIB_DOC.TXT,-
+				  $(KITDIR)NETLIB_DOC.HTML,-
     	    	    	    	  $(KITDIR)NETLIB_INST.PS,-
-    	    	    	    	  $(KITDIR)NETLIB_INST.TXT
+    	    	    	    	  $(KITDIR)NETLIB_INST.TXT,-
+				  $(KITDIR)NETLIB_INST.HTML
     PURGE/NOLOG $(MMS$SOURCE_LIST)
     BACKUP $(MMS$SOURCE_LIST) $(MMS$TARGET)/SAVE/INTERCHANGE/BLOCK=8192/NOCRC/GROU=0
 
-SOURCE_LIST_A	    	    	= $(SRCDIR)DESCRIP.MMS,-
-    	    	    	    	  $(SRCDIR)COMPATIBILITY.C, $(SRCDIR)CONNECT.C, $(SRCDIR)DNS.C, -
-    	    	    	    	  $(SRCDIR)DNS_MXLOOK.C, $(SRCDIR)DNS_QUERY.C, $(SRCDIR)LINEMODE.C, -
-    	    	    	    	  $(SRCDIR)MEM.C, $(SRCDIR)MISC.C, $(SRCDIR)NAMEADDR.C, -
-    	    	    	    	  $(SRCDIR)NETLIB_UCX.C, -
-    	    	    	    	  $(SRCDIR)NETLIB_UCX.H, $(SRCDIR)UCX_INETDEF.H
-SOURCE_LIST_B	    	    	= $(SRCDIR)NETLIB.H, $(SRCDIR)NETLIBDEF.H, $(SRCDIR)NETLIBDEF.R32, -
-    	    	    	    	  $(SRCDIR)NETLIB.ALPHA_OPT, $(SRCDIR)NETLIB.IA64_OPT,-
-    	    	    	    	  $(SRCDIR)NETLIB_DOC.SDML, $(SRCDIR)NETLIB_INST.SDML,-
-    	    	    	    	  $(SRCDIR)GENERATE_SYMBOLS.COM, $(SRCDIR)CHECK_VERSION.COM,-
-    	    	    	    	  $(ETCDIR)NETLIB_VERSION.H, $(VERFILE),-
-    	    	    	    	  $(SRCDIR)NETLIB$(NUM_VERSION).SDML, $(SRCDIR)NETLIB_GET_VERSION.B32
-$(KITDIR)NETLIB_SRC.BCK	    	: $(SOURCE_LIST_A),$(SOURCE_LIST_B)
-    PURGE/NOLOG $(SOURCE_LIST_A)
-    PURGE/NOLOG $(SOURCE_LIST_B)
-    @ IF F$SEARCH("$(KITDIR)SRC.DIR") .NES. "" THEN TREDEL $(KITDIR)SRC.DIR
-    @ olddef = F$ENV("DEFAULT")
-    @ IF "$(KITDIR)" .NES. "" THEN SET DEFAULT $(KITDIR)
-    @ CREATE/DIRECTORY [.SRC]
-    BACKUP $(SOURCE_LIST_A) [.SRC]*.*
-    BACKUP $(SOURCE_LIST_B) [.SRC]*.*
-    SET PROTECTION=W:RE [.SRC]*.*
-    BACKUP [.SRC]*.*; $(MMS$TARGET)/SAVE/INTERCHANGE/BLOCK=8192/NOCRC/GROU=0
-    @ TREDEL $(KITDIR)SRC.DIR
-    @ SET DEFAULT 'olddef'
+$(KITDIR)NETLIB$(NUM_VERSION).C : $(KITDIR)NETLIB$(NUM_VERSION)_SOURCE.ZIP
+    PURGE/NOLOG $(MMS$SOURCE_LIST)
+    BACKUP $(MMS$SOURCE_LIST) $(MMS$TARGET)/SAVE/INTERCHANGE/BLOCK=8192/NOCRC/GROU=0
+
+$(KITDIR)NETLIB$(NUM_VERSION)_SOURCE.ZIP :
+    - DELETE/NOLOG $(MMS$TARGET);*
+    wget --no-check-certificate --output-document=$(MMS$TARGET) -
+        "https://github.com/endlesssoftware/netlib/archive/$(TEXT_VERSION).zip"
