@@ -342,8 +342,10 @@ CLEAN :
 DOCS	    	    	    	: $(KITDIR)NETLIB_DOC.PS,-
 				  $(KITDIR)NETLIB_DOC.PDF,-
     	    	    	    	  $(KITDIR)NETLIB_DOC.TXT,-
+    	    	    	    	  $(KITDIR)NETLIB_DOC.HTML,-
     	    	    	    	  $(KITDIR)NETLIB_INST.PS,-
     	    	    	    	  $(KITDIR)NETLIB_INST.PDF,-
+    	    	    	    	  $(KITDIR)NETLIB_INST.HTML,-
     	    	    	    	  $(KITDIR)NETLIB_INST.TXT
     @ !
 
