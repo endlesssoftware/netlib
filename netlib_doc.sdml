@@ -16,19 +16,27 @@ for TCP/IP network programming on VMS systems.
 
 <PREFACE>(\NETLIB_DOC_2) 
 <P>
-There are several TCP/IP packages available for VMS systems today.  Each
-provides a VMS-style programming interface, using the $QIO system service,
-and most also provide a <quote>(socket) programming library, based on
-the communications model developed for BSD UNIX.  Unfortunately, the
-$QIO-based driver interface is generally difficult to use, while the
-socket libraries are designed for ease of use only from the C programming
-language.  In addition, the libraries do not typically provide support
-for VMS-style asynchronous programming.
+There was once several TCP/IP packages avilable for VMS systems.  Each
+provided a VMS-style [rogramming interface, using the $QIO system service,
+and most also provided a <quote>(socket) programming library based on the
+communications model developed for BSD UNIX.  However, these days there
+are only three major players in the IP market on OpenVMS.  These are:
+<LIST>(UNNUMBERED)
+<LE>HP TCP/IP Services for OpenVMS (formerly Digital UCX)
+<LE>Process Multinet
+<LE>Process TCPware
+<ENDLIST>
+The last two now have excellent emulation of HP TCP/IP $QIO-interface and
+so support for all packages, except TCP/IP, has been dropped.  However,
+NETLIB is still a relevant and useful package.
 <P>
-NETLIB was originally developed to support MadGoat Software's Message
+NETLIB was originally developed to support Endless Software Solutions' Message
 Exchange mail package, which needed to support many TCP/IP packages doing
-VMS-style asynchronous programming.  NETLIB provides a consistent, VMS-style
-interface for TCP/IP-based network programs.
+VMS-style asynchronous programming.  As a result NETLIB provides a
+consistent, VMS-style interface for TCP/IP-based network programs.
+<P>
+As before, Message Exchange is also the driving force behind the latest
+development with NETLIB which is the arrival of the OpenSSL NETLIB API.
 
 <head1>(Intended Audience\NETLIB_INST_3)
 <p>This manual is intended for programmers writing applications that use
@@ -62,6 +70,18 @@ than a UNIX-type socket library written for C programmers.
 <le>NETLIB provides some additional utility routines for domain name
 lookups and line-oriented network traffic.
 <endlist>
+<P>NETLIB also provides a socket-style interface to the OpenSSL library.
+The advantages for using NETLIB for SSL communications are:
+<list>(unnumbered)
+<le>NETLIB allows VMS-style asynchronous programming (using ASTs), something
+that is not immediately accessible using the native OpenSSL API.
+<le>NETLIB provides a VMS common language environment style of programming
+interface, making it possible to write SSL code from higher level languages
+such as COBOL, Pascal and BASIC.
+<le>NETLIB protects from HP SSL upgrades by dynamically linking against the
+SSL run-time libraries and supporting API differences at run-time. This
+ensures that your software will not break after an upgrade of SSL.
+<endlist>
 
 <head2>(NETLIB Services\NETLIB_DOC_5)
 <P>NETLIB provides services for writing TCP/IP-based network programs,
@@ -87,10 +107,22 @@ and other miscellaneous services.
 
 <HEAD1>(Header files\NETLIB_DOC_6)
 <P>
-NETLIB includes header files for both C and BLISS programming, called
-NETLIBDEF.H and NETLIBDEF.R32, respectively.  The header files reside
-in the NETLIB_DIR: directory.  These files define constants and structures
-that are used by the NETLIB programming interface.
+NETLIB includes header files for BASIC, BLISS, C, Pascal and PL/I
+programming, as well as a Structure Definition Language (SDL) source
+module that can be used to generate a header for any language supported
+by SDL. They are called:
+<list>(unnumbered)
+<le>NETLIBDEF.BAS
+<le>NETLIBDEF.R32
+<le>NETLIBDEF.H
+<le>NETLIBDEF.PAS
+<le>NETLIBDEF.PLI
+<le>NETLIBDEF.SDL
+<endlist>
+<p>The header files reside in the NETLIB_DIR: directory.  These
+files define constants and structures that are used by the NETLIB
+programming interface.  Details related to generating headers from the
+SDL source are included in the <emphasis>(NETLIB Installation Guide).
 
 <HEAD1>(NETLIB Data Structures\NETLIB_DOC_7)
 <P>
@@ -170,7 +202,10 @@ status block (IOSB), which is used to return status information to the calling
 program.  The first word of the IOSB is the NETLIB status code for the
 call; the second word, for read and write operations, is the number of
 bytes transferred.  The second longword of the IOSB is not used by NETLIB.
-
+<P>
+For NETLIB SSL routines the number of bytes returned in the IOSB indicate
+the amount of un-encrypted data that was read/written.  At this time there
+is no way to retrieve the amount of encrypted data that is read/written.
 <HEAD1>(Linking NETLIB Programs\NETLIB_DOC_14)
 <p>
 To link your program with NETLIB, include the following line in a LINK
@@ -183,6 +218,13 @@ Note that in older versions of NETLIB, you would like against NETLIB_SHRXFR.
 However, that extra shareable image is no longer needed.  The NETLIB_SHRXFR
 logical name is still provided by NETLIB, though, for compatibility with
 old build procedures.
+
+<p>
+To link you program with the NETLIB SSL run-time library, include the
+following line in a LINK options file:
+<interactive>
+    NETLIB_SSL/SHARE
+<endinteractive>
 
 <HEAD1>(Software Product Support\NETLIB_DOC_15)
 <P>NETLIB is released under a BSD-style open source license.  The software
