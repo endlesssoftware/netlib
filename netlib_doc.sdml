@@ -26,6 +26,7 @@ are only three major players in the IP market on OpenVMS.  These are:
 <LE>Process Multinet
 <LE>Process TCPware
 <ENDLIST>
+<P>
 The last two now have excellent emulation of HP TCP/IP $QIO-interface and
 so support for all packages, except TCP/IP, has been dropped.  However,
 NETLIB is still a relevant and useful package.
