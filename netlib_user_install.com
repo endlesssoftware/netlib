@@ -19,6 +19,7 @@ $!  05-NOV-1994	V1.4	Madison	    Update for V2.0.
 $!  02-AUG-1998	V1.4-1	Madison	    Put executables in NETLIB_DIR.
 $!  22-DEC-1998	V1.5	Madison	    Add support for UCX V5.0.
 $!  07-NOV-2004 V1.6    Madison     IA64 support.
+$!  10-SEP-2013 V1.7    Sneddon     VAX support.
 $!
 $ ON CONTROL_Y THEN GOTO NETLIB_CONTROL_Y
 $ ON WARNING THEN GOTO NETLIB_FAIL
@@ -29,27 +30,61 @@ $ IF tmp .EQS. "Alpha"
 $ THEN
 $   NETLIB_AXP = 1
 $   NETLIB_I64 = 0
+$   NETLIB_VAX = 0
 $   exe_sfx = "AXP_EXE"
 $ ENDIF
 $ IF tmp .EQS. "IA64"
 $ THEN
 $   NETLIB_AXP = 0
 $   NETLIB_I64 = 1
+$   NETLIB_VAX = 0
 $   exe_sfx = "I64_EXE"
 $ ENDIF
 $ IF tmp .EQS. "VAX"
 $ THEN
-$   NETLIB_SAY "VAX installation not supported"
-$   EXIT 1
+$   NETLIB_AXP = 0
+$   NETLIB_I64 = 0
+$   NETLIB_VAX = 1
+$   exe_sfx = "VAX_EXE"
 $ ENDIF
 $ DEFINE VMI$KWD SYS$DISK:[]
 $!
 $ TYPE SYS$INPUT:
 
-                     NETLIB User Installation Procedure
+                      NETLIB Installation Procedure
 
-      Copyright © 1992-2001, 2004  MadGoat Software.  All Rights Reserved.
-             Redistribution for no commercial gain is permitted.
+        Copyright (c) 1992,1994,1996-2005, Matthew Madison.
+        Copyright (c) 2013, Endless Software Solutions.
+
+        All rights reserved.
+        Redistribution and use in source and binary forms, with or without
+        modification, are permitted provided that the following conditions
+        are met:
+
+            * Redistributions of source code must retain the above
+              copyright notice, this list of conditions and the following
+              disclaimer.
+            * Redistributions in binary form must reproduce the above
+              copyright notice, this list of conditions and the following
+
+              disclaimer in the documentation and/or other materials provided
+              with the distribution.
+            * Neither the name of the copyright owner nor the names of any
+              other contributors may be used to endorse or promote products
+              derived from this software without specific prior written
+              permission.
+
+        THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+        "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+        LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+        A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+        OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+        SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+        LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+        DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+        THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+        (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+        OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 $!
 $ GOTO NETLIB_INSTALL

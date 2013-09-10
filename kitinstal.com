@@ -2,11 +2,45 @@ $! [NETLIB]KITINSTAL.COM
 $!
 $!  KITINSTAL procedure for installing NETLIB.
 $!
+$! Copyright (c) 2005, Matthew Madison.
+$! Copyright (c) 2013, Endless Software Solutions.
+$!
+$! All rights reserved.
+$!
+$! Redistribution and use in source and binary forms, with or without
+$! modification, are permitted provided that the following conditions
+$! are met:
+$!
+$!     * Redistributions of source code must retain the above
+$!       copyright notice, this list of conditions and the following
+$!       disclaimer.
+$!     * Redistributions in binary form must reproduce the above
+$!       copyright notice, this list of conditions and the following
+$!       disclaimer in the documentation and/or other materials provided
+$!       with the distribution.
+$!     * Neither the name of the copyright owner nor the names of any
+$!       other contributors may be used to endorse or promote products
+$!       derived from this software without specific prior written
+$!       permission.
+$!
+$! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+$! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+$! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+$! A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+$! OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+$! SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+$! LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+$! DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+$! THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+$! (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+$! OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+$!
 $!  31-JAN-1991	V1.0	Madison	    Initial coding.
 $!  05-FEB-1991	V1.0-1	Madison	    Two parts for integration into other kits.
 $!  21-SEP-1994	V1.1	Madison	    Moved AXP objects to separate save set.
 $!  23-APR-1998	V1.2	Madison	    Check for something actually installed.
 $!  19-NOV-2012 V1.3	Sneddon	    Reinstate VAX support.
+$!  10-SEP-2013 V1.4    Sneddon     Add SSL.
 $!
 $ ON CONTROL_Y THEN GOTO NETLIB_CONTROL_Y
 $ ON WARNING THEN GOTO NETLIB_FAIL
@@ -61,10 +95,37 @@ $ TYPE SYS$INPUT:
 
                        NETLIB Installation Procedure
 
-             Copyright © 1992,1994,1996-2005 by MadGoat Software.
-                          All Rights Reserved.
-             Redistribution for no commercial gain is permitted.
+        Copyright (c) 1992,1994,1996-2005, Matthew Madison.
+        Copyright (c) 2013, Endless Software Solutions.
 
+        All rights reserved.
+        Redistribution and use in source and binary forms, with or without
+        modification, are permitted provided that the following conditions
+        are met:
+
+            * Redistributions of source code must retain the above
+              copyright notice, this list of conditions and the following
+              disclaimer.
+            * Redistributions in binary form must reproduce the above
+              copyright notice, this list of conditions and the following
+              disclaimer in the documentation and/or other materials provided
+              with the distribution.
+            * Neither the name of the copyright owner nor the names of any
+              other contributors may be used to endorse or promote products
+              derived from this software without specific prior written
+              permission.
+
+        THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+        "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+        LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+        A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+        OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+        SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+        LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+        DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+        THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+        (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+        OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 $!
 $!
 $ VMI$CALLBACK SET PURGE ASK
