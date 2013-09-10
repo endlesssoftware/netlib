@@ -1472,41 +1472,13 @@ all TCP/IP packages.
 <part_page>
 <title>(<reference>(sslpart)\<reference>(sslpart\text))
 <abstract>
-This part describes the each of the NETLIB SSL routines.
+<P>
+This part describes the each of the NETLIB SSL routines.  These routines
+do require the Compaq/HP SSL product to be installed.
 <endabstract>
 <endpart_page>(renumber)
 
 <routine_section>(NETLIB SSL Routines\RTN)
-
-<comment>(----------------------------------------------------------------)
-<routine>(NETLIB_SSL_GET_SSL\Retrieve OpenSSL Context\\NETLIB_SSL_GET_SSL_DESCRIP)
-
-<overview>
-NETLIB_SSL_GET_SSL retrieves the OpenSSL context from a NETLIB SSL socket.
-<endoverview>
-
-<format>
-<frtn>(NETLIB_SSL_GET_SSL)
-<fargs>(ctx, ssl)
-<endformat>
-<returns>(cond_value\longword (unsigned)\write only\by value)
-<argdeflist>
-<argitem>(ctx\context\\read only\by reference)
-<argdef>A NETLIB SSL socket.
-<argitem>(ssl\structure\\write only\by reference)
-<argdef>The SSL context used by the NETLIB SSL socket.
-<endargdeflist>
-
-<description>
-This routine can be used to retrieve the OpenSSL context from a NETLIB
-socket.  This might be useful for someone who needs access to information
-that cannot be retrieved or determined from the API provided by NETLIB.
-<note>
-It is important to understand that changing the connected BIOs is not
-supported.  The asynchronous nature of the NETLIB API depends entirely
-on the type and the way the BIOS are connected.
-<endnote>
-<enddescription>
 
 <comment>(----------------------------------------------------------------)
 <routine>(NETLIB_SSL_VERSION\Obtain version information for OpenSSL\\NETLIB_SSL_VERSION_DESCRIP)
