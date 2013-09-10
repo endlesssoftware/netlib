@@ -397,9 +397,11 @@ $(KITDIR)NETLIB$(NUM_VERSION).B	: NETLIBDEF, -
     	    	    	    	  $(SRCDIR)ECHOCLIENT.C, $(SRCDIR)ECHOSERVER.C,-
     	    	    	    	  $(SRCDIR)ECHOSERVER_STANDALONE.C,-
     	    	    	    	  $(KITDIR)NETLIB_DOC.PS,-
+    	    	    	    	  $(KITDIR)NETLIB_DOC.PDF,-
     	    	    	    	  $(KITDIR)NETLIB_DOC.TXT,-
 				  $(KITDIR)NETLIB_DOC.HTML,-
     	    	    	    	  $(KITDIR)NETLIB_INST.PS,-
+    	    	    	    	  $(KITDIR)NETLIB_INST.PDF,-
     	    	    	    	  $(KITDIR)NETLIB_INST.TXT,-
 				  $(KITDIR)NETLIB_INST.HTML
     PURGE/NOLOG $(SRCDIR)NETLIBDEF.*, $(SRCDIR)ECHOCLIENT.C,-
