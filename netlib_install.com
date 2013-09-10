@@ -2,6 +2,39 @@ $! [NETLIB]NETLIB_INSTALL.COM
 $!
 $!  KITINSTAL procedure for installing NETLIB.
 $!
+$! Copyright (c) 2005, Matthew Madison.
+$! Copyright (c) 2013, Endless Software Solutions.
+$!
+$! All rights reserved.
+$!
+$! Redistribution and use in source and binary forms, with or without
+$! modification, are permitted provided that the following conditions
+$! are met:
+$!
+$!     * Redistributions of source code must retain the above
+$!       copyright notice, this list of conditions and the following
+$!       disclaimer.
+$!     * Redistributions in binary form must reproduce the above
+$!       copyright notice, this list of conditions and the following
+$!       disclaimer in the documentation and/or other materials provided
+$!       with the distribution.
+$!     * Neither the name of the copyright owner nor the names of any
+$!       other contributors may be used to endorse or promote products
+$!       derived from this software without specific prior written
+$!       permission.
+$!
+$! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+$! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+$! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+$! A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+$! OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+$! SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+$! LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+$! DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+$! THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+$! (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+$! OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+$!
 $!  31-JAN-1991	V1.0	Madison	    Initial coding.
 $!  05-FEB-1991	V1.0-1	Madison	    Two parts for integration into other kits.
 $!  26-APR-1991	V1.0-2	Madison	    Nameserver changes.
@@ -26,7 +59,7 @@ $!  08-APR-1998	V1.7-1	Madison	    UCX can have an INET0 device.
 $!  22-DEC-1998	V1.8	Madison	    Add support for UCX V5.0.
 $!  26-DEC-2000	V2.0	Madison	    Remove link step.
 $!  07-NOV-2004 V2.1    Madison     IA64 support.  Remove VAX support.
-$!  05-SEP-2013 V2.2    Madison     VAX support.
+$!  05-SEP-2013 V2.2    Sneddon     VAX support.
 $!
 $ ON CONTROL_Y THEN GOTO NETLIB_CONTROL_Y
 $ ON WARNING THEN GOTO NETLIB_FAIL
@@ -61,6 +94,7 @@ $ NETLIB_VERSION = F$EXTRACT (1, -1, NETLIB_VERSION)
 $!
 $ IF NETLIB_AXP THEN exe_sfx = "AXP_EXE"
 $ IF NETLIB_I64 THEN exe_sfx = "I64_EXE"
+$ IF NETLIB_I64 THEN exe_sfx = "VAX_EXE"
 $ IF F$TRNLNM ("NETLIB_SHR") .NES. "" .AND. F$SEARCH (F$PARSE ("NETLIB_SHR", ".EXE")) .NES. ""
 $ THEN
 $   SET NOON
@@ -158,7 +192,7 @@ $ TYPE SYS$INPUT:
     these files, they will be placed in the NETLIB directory.
 
     The documentation set includes a Programmer's Guide and an
-    Installation Guide, in PostScript and plain ASCII forms.
+    Installation Guide, in PostScript, PDF, HTML and plain ASCII forms.
     If you elect to install the documentation, you will be prompted
     for a directory into which the files will be placed; if that
     directory does not exist, it will be created for you.
@@ -224,8 +258,7 @@ $ THEN
 $   VMI$CALLBACK MESSAGE I INSTALLPRG "Installing NETLIB programming support..."
 $   SET PROTECTION=W:RE VMI$KWD:NETLIBDEF.*
 $   SET PROTECTION=W:RE VMI$KWD:ECHO*.*
-$   VMI$CALLBACK PROVIDE_FILE NETLIB_OK NETLIBDEF.H 'NETLIB_DIR
-$   VMI$CALLBACK PROVIDE_FILE NETLIB_OK NETLIBDEF.R32 'NETLIB_DIR
+$   VMI$CALLBACK PROVIDE_FILE "" NETLIBDEF_LIST.DAT "" T
 $   VMI$CALLBACK PROVIDE_FILE NETLIB_OK ECHOCLIENT.C 'NETLIB_DIR
 $   VMI$CALLBACK PROVIDE_FILE NETLIB_OK ECHOSERVER.C 'NETLIB_DIR
 $   VMI$CALLBACK PROVIDE_FILE NETLIB_OK ECHOSERVER_STANDALONE.C 'NETLIB_DIR
@@ -235,14 +268,8 @@ $!
 $ IF NETLIB_DO_DOC
 $ THEN
 $   VMI$CALLBACK MESSAGE I INSTALLDOC "Installing NETLIB documentation..."
-$   SET PROTECTION=W:RE VMI$KWD:NETLIB_DOC.*
-$!   VMI$CALLBACK PROVIDE_FILE NETLIB_OK NETLIB_DOC.HTML 'NETLIB_DOC_DIR
-$   VMI$CALLBACK PROVIDE_FILE NETLIB_OK NETLIB_DOC.PS 'NETLIB_DOC_DIR
-$   VMI$CALLBACK PROVIDE_FILE NETLIB_OK NETLIB_DOC.TXT 'NETLIB_DOC_DIR
-$   SET PROTECTION=W:RE VMI$KWD:NETLIB_INST.*
-$!   VMI$CALLBACK PROVIDE_FILE NETLIB_OK NETLIB_INST.HTML 'NETLIB_DOC_DIR
-$   VMI$CALLBACK PROVIDE_FILE NETLIB_OK NETLIB_INST.PS 'NETLIB_DOC_DIR
-$   VMI$CALLBACK PROVIDE_FILE NETLIB_OK NETLIB_INST.TXT 'NETLIB_DOC_DIR
+$   VMI$CALLBACK PROVIDE_FILE "" NETLIB_DOC_LIST.DAT "" T
+$   SET PROTECTION=W:RE NETLIB_DOC_DIR:*.*
 $ ENDIF
 $!
 $ NETLIB_INSTALLED == "YES"
