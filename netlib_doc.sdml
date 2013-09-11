@@ -1264,7 +1264,7 @@ NETLIB_SHUTDOWN shuts down a connection without deleting the socket.
 <returns>(cond_value\longword (unsigned)\write only\by value)
 <argdeflist>
 <argitem>(socket\longword_unsigned\longword (unsigned)\read only\by reference)
-<argdef>Socket to be set up as a listener.
+<argdef>Socket to be shutdown.
 <argitem>(shuttype\unsigned int\longword (unsigned)\read only\by reference)
 <argdef>Type of shutdown to be performed.  Possible values are listed
 in <reference>(shut_table).  If omitted, the default is
