@@ -701,6 +701,15 @@ unsigned int netlib_ssl_shutdown (struct CTX **xctx,
     } else {
 	myiosb = ior->iosbp;
     }
+
+/*
+
+    Github issue #14: We need to clear the I/O queue.  Possibly set a state
+    so that further calls to SSL routines will fail until we have been
+    properly shut down.
+
+*/
+
     ior->spec_argc = 1;
     ior->spec_argv(0).address = ctx->spec_ssl;
     ior->spec_call = SSL_shutdown;
@@ -747,6 +756,13 @@ unsigned int netlib_ssl_close (struct CTX **xctx) {
     struct CTX *ctx;
 
     VERIFY_CTX(xctx, ctx);
+
+/*
+
+    Github issue #15:  We should call NETLIB_SSL_SHUTDOWN here so that we also
+		       clear all existing I/O and call an ASTs appropriately.
+
+*/
 
     if (ctx->spec_inbio != 0) BIO_free(ctx->spec_inbio);
     if (ctx->spec_outbio != 0) BIO_free(ctx->spec_outbio);
