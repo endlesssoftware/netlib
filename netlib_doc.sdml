@@ -1481,6 +1481,29 @@ do require the Compaq/HP SSL product to be installed.
 <routine_section>(NETLIB SSL Routines\RTN)
 
 <comment>(----------------------------------------------------------------)
+<routine>(NETLIB_SSL_CLOSE\Close down an SSL socket\\NETLIB_DOC_20)
+
+<overview>
+NETLIB_SSL_CLOSE closes an SSL socket.
+<endoverview>
+
+<format>
+<frtn>(NETLIB_SSL_CLOSE)
+<fargs>(ssl-socket)
+<endformat>
+<returns>(cond_value\longword (unsigned)\write only\by value)
+<argdeflist>
+<argitem>(ssl-socket\longword_unsigned\longword (unsigned)\read only\by reference)
+<argdef>SSL socket to be closed.
+<endargdeflist>
+
+<description>
+This routine deletes the specified SSL socket.  It does not shutdown or
+delete the underlying IP socket.  Once closed, the SSL socket can no longer
+be used; you must open a new one with the NETLIB_SSL_SOCKET call.
+<enddescription>
+
+<comment>(----------------------------------------------------------------)
 <routine>(NETLIB_SSL_SOCKET\Create an SSL communication endpoint\\NETLIB_SSL_SOCKET)
 
 <overview>
