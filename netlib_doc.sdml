@@ -1481,7 +1481,7 @@ do require the Compaq/HP SSL product to be installed.
 <routine_section>(NETLIB SSL Routines\RTN)
 
 <comment>(----------------------------------------------------------------)
-<routine>(NETLIB_SSL_CLOSE\Close down an SSL socket\\NETLIB_DOC_20)
+<routine>(NETLIB_SSL_CLOSE\Close down an SSL socket\\NETLIB_SSL_CLOSE)
 
 <overview>
 NETLIB_SSL_CLOSE closes an SSL socket.
@@ -1501,6 +1501,35 @@ NETLIB_SSL_CLOSE closes an SSL socket.
 This routine deletes the specified SSL socket.  It does not shutdown or
 delete the underlying IP socket.  Once closed, the SSL socket can no longer
 be used; you must open a new one with the NETLIB_SSL_SOCKET call.
+<enddescription>
+
+<comment>(----------------------------------------------------------------)
+<routine>(NETLIB_SSL_SHUTDOWN\Shut down an SSL connection\\NETLIB_SSL_SHUTDOWN)
+
+<overview>
+NETLIB_SSL_SHUTDOWN shuts down an SSL connection without deleting the socket.
+<endoverview>
+
+<format>
+<frtn>(NETLIB_SSL_SHUTDOWN)
+<fargs>(ssl-socket [,iosb] [,astadr] [,astprm])
+<endformat>
+<returns>(cond_value\longword (unsigned)\write only\by value)
+<argdeflist>
+<argitem>(ssl-socket\longword_unsigned\longword (unsigned)\read only\by reference)
+<argdef>SSL socket to be shutdown.
+<argitem>(iosb\io_status_block\longword (unsigned)\write only\by reference)
+<argdef>I/O status block to receive the status for this call.
+<argitem>(astadr\procedure\longword (unsigned)\call\by reference)
+<argdef>Address of an AST routine to be invoked on completion of this operation.
+<argitem>(astprm\user_arg\longword (unsigned)\read only\by value)
+<argdef>Parameter to be passed to the AST routine.
+<endargdeflist>
+
+<description>
+This routine tries to send the "close notify" shutdown alert to the SSL peer
+currently connected on the specified SSL socket, without deleting the socket.
+Any data still waiting to be received or sent will be discarded.
 <enddescription>
 
 <comment>(----------------------------------------------------------------)
