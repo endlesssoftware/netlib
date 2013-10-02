@@ -62,26 +62,27 @@ $ IF P2 THEN SET VERIFY
 $!
 $ NETLIB_SAY := WRITE SYS$OUTPUT
 $!
-$ tmp = F$GETSYI("ARCH_NAME")
-$ IF tmp .EQS. "VAX"
+$ tmp = F$GETSYI ("HW_MODEL")
+$ IF tmp .GT. 0 .AND. tmp .LT. 1024
 $ THEN
 $   NETLIB_AXP = 0
 $   NETLIB_I64 = 0
 $   NETLIB_VAX = 1
-$ ENDIF
+$ ELSE
+$   tmp = F$GETSYI ("ARCH_NAME")
+$   IF tmp .EQS. "Alpha"
+$   THEN
+$     NETLIB_AXP = 1
+$     NETLIB_I64 = 0
+$     NETLIB_VAX = 0
+$   ENDIF
 $!
-$ IF tmp .EQS. "Alpha"
-$ THEN
-$   NETLIB_AXP = 1
-$   NETLIB_I64 = 0
-$   NETLIB_VAX = 0
-$ ENDIF
-$!
-$ IF tmp .EQS. "IA64"
-$ THEN
-$   NETLIB_AXP = 0
-$   NETLIB_I64 = 1
-$   NETLIB_VAX = 0
+$   IF tmp .EQS. "IA64"
+$   THEN
+$     NETLIB_AXP = 0
+$     NETLIB_I64 = 1
+$     NETLIB_VAX = 0
+$   ENDIF
 $ ENDIF
 $!
 $!
