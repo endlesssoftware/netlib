@@ -578,7 +578,7 @@ unsigned int netlib_ssl_accept (struct CTX **xctx, TIME *timeout,
     status = io_queue(ior);
     if (OK(status)) {
     	if (ior->astadr == 0) {
-	    sys$waitfr(netlib_ssl_efn);
+	    sys$synch(netlib_ssl_efn, myiosb);
 	    status = myiosb->iosb_w_status;
 	}
     } else {
@@ -642,7 +642,7 @@ unsigned int netlib_ssl_connect (struct CTX **xctx, TIME *timeout,
     status = io_queue(ior);
     if (OK(status)) {
     	if (ior->astadr == 0) {
-	    sys$waitfr(netlib_ssl_efn);
+	    sys$synch(netlib_ssl_efn, myiosb);
 	    status = myiosb->iosb_w_status;
 	}
     } else {
@@ -708,6 +708,8 @@ unsigned int netlib_ssl_shutdown (struct CTX **xctx,
     so that further calls to SSL routines will fail until we have been
     properly shut down.
 
+    Also need to test that our IOSB status is set correctly.
+
 */
 
     ior->spec_argc = 1;
@@ -716,7 +718,7 @@ unsigned int netlib_ssl_shutdown (struct CTX **xctx,
     status = io_queue(ior);
     if (OK(status)) {
     	if (ior->astadr == 0) {
-	    sys$waitfr(netlib_ssl_efn);
+	    sys$synch(netlib_ssl_efn, myiosb);
 	    status = myiosb->iosb_w_status;
 	}
     } else {
@@ -841,7 +843,7 @@ unsigned int netlib_ssl_read (struct CTX **xctx, struct dsc$descriptor *dsc,
     status = io_queue(ior);
     if (OK(status)) {
     	if (ior->astadr == 0) {
-	    sys$waitfr(netlib_ssl_efn);
+	    sys$synch(netlib_ssl_efn, myiosb);
 	    status = myiosb->iosb_w_status;
 	}
     } else {
@@ -911,7 +913,7 @@ unsigned int netlib_ssl_write (struct CTX **xctx, struct dsc$descriptor *dsc,
     status = io_queue(ior);
     if (OK(status)) {
     	if (ior->astadr == 0) {
-	    sys$waitfr(netlib_ssl_efn);
+	    sys$synch(netlib_ssl_efn, myiosb);
 	    status = myiosb->iosb_w_status;
 	}
     } else {
@@ -950,6 +952,8 @@ static unsigned int io_queue (struct IOR *ior) {
 
     int aststat, status = SS$_NORMAL;
     struct CTX *ctx = ior->ctx;
+
+    if (ior->iosbp) ior->iosbp->iosb_w_status = 0;
 
     /*
     ** Block ASTs and load the IOR into the IOR queue
