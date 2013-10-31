@@ -1204,7 +1204,7 @@ static unsigned int io_write (struct IOR *ior) {
 				  0, 0, &ior->iosb, io_write, ior);
 	    if (OK(status)) return SS$_NORMAL;
 	} else {
-	    ctx->spec_flags |= IOR_M_COMPLETE;
+	    ctx->spec_flags |= CTX_M_COMPLETE;
 	}
     }
 
@@ -1249,7 +1249,7 @@ static long outbio_callback (BIO *b, int oper, const char *argp, int argi,
 	break;
 
     case BIO_CB_WRITE|BIO_CB_RETURN:
-	if (ctx->spec_flags & IOR_M_COMPLETE) {
+	if (ctx->spec_flags & CTX_M_COMPLETE) {
 	    /*
 	    ** If the write has been completed, then clear the flag
 	    ** indicating that all data has been written to the
@@ -1259,7 +1259,7 @@ static long outbio_callback (BIO *b, int oper, const char *argp, int argi,
 	    ** We reset the BIO otherwise the data just stacks up and we
 	    ** end up resending everything we already sent.
 	    */
-	    ctx->spec_flags &= ~IOR_M_COMPLETE;
+	    ctx->spec_flags &= ~CTX_M_COMPLETE;
 	    BIO_reset(b);
 	} else {
 	    /*

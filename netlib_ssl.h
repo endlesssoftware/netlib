@@ -76,7 +76,7 @@
 #define spec_flags	specctx->flags
 #define spec_iorque	specctx->iorque
 
-#define IOR_M_COMPLETE  (1<<16)
+#define CTX_M_COMPLETE		(1<<16)
 
     struct SPECCTX {
 	void *socket;
